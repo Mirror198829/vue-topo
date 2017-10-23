@@ -10,13 +10,36 @@
         <rect fill="url(#Pattern)" width="100%" height="100%" />
         <line :class="{isMarkerShow:isMarkerShow}" id="xmarker" class="marker" :x1="marker.xmarkerX1" :y1="marker.xmarkerY1" :x2="marker.xmarkerX2" :y2="marker.xmarkerY2"></line>
         <line :class="{isMarkerShow:isMarkerShow}" id="ymarker" class="marker" :x1="marker.ymarkerX1" :y1="marker.ymarkerY1" :x2="marker.ymarkerX2" :y2="marker.ymarkerY2"></line>
-        <g>
-          <line :x1='connectingLine.x1' :y1="connectingLine.y1" :x2="connectingLine.x2" :y2="connectingLine.y2" v-show="connectingLine.isConnecting" stroke="#000"></line>
-        </g>
+        <!-- node间关系连线样式 -->
         <g 
           class="connectorsG" 
           v-for="(ele,key) in topoData.connectors">
-          <line :x1 = "ele.x1" :y1 = "ele.y1" :x2="ele.x2" :y2="ele.y2" stroke = "#000"></line>
+         <!--  <path 
+            v-if="ele.sourceNode == ele.targetNode && ele.type == 'Line'" 
+            :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'H'+ele.pointes[2]+'V'+ele.pointes[3]+'H'+ele.pointes[4]+'V'+ele.pointes[5]+'H'+ele.pointes[6]+'V'+ele.pointes[7]" 
+            stroke = "#768699"
+            fill = "none"
+            stroke-width = "2"></path> -->
+          <!-- 自连线段样式 -->
+          <path 
+            v-if="ele.sourceNode == ele.targetNode && ele.type == 'Line'" 
+            :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+ele.pointes[2]+'v'+ele.pointes[3]+'h'+ele.pointes[4]+'v'+ele.pointes[5]+'h'+ele.pointes[6]+'v0'" 
+            stroke = "#768699"
+            fill = "none"
+            stroke-width = "2"></path>
+          <!-- 非自连的样式 -->
+          <path 
+            v-if="ele.sourceNode != ele.targetNode && ele.type == 'Line' && ele.pointes[0] < ele.pointes[2]" 
+            :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+(ele.pointes[2] - ele.pointes[0])/2+'v'+(ele.pointes[3] - ele.pointes[1])+'h'+(ele.pointes[2] - ele.pointes[0])/2+'v0'" 
+            stroke = "#768699"
+            fill = "none"
+            stroke-width = "2"></path>
+          <path 
+            v-if="ele.sourceNode != ele.targetNode && ele.type == 'Line' && ele.pointes[0] >= ele.pointes[2]" 
+            :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h10v'+(ele.pointes[3] - ele.pointes[1])/2+'h'+(-100)+'V'+ele.pointes[3]+'h10'" 
+            stroke = "#768699"
+            fill = "none"
+            stroke-width = "2"></path>
         </g>
         <g
           class="nodesG" 
@@ -38,6 +61,9 @@
             <line x1="-3" y1="-5" x2="4" y2="0.5" stroke="#fff"></line>
             <line x1="4" y1="-0.5" x2="-3" y2="5" stroke="#fff"></line>
           </g>
+        </g>
+        <g>
+          <line :x1='connectingLine.x1' :y1="connectingLine.y1" :x2="connectingLine.x2" :y2="connectingLine.y2" v-show="connectingLine.isConnecting" stroke="#768699" stroke-width = "2"></line>
         </g>      
     </svg>
   </div>
@@ -49,6 +75,7 @@ export default {
   data () {
     return {
      position:'translate(50,50)',
+     connectorW:20, //连线的宽度
      classchoose:false,
      isMarkerShow:false,
      connectingLine:{
@@ -106,6 +133,7 @@ export default {
        let curNodeId = CURNODE.id  //当前结点id
        let nodeW = CURNODE.width  //节点 宽高
        let nodeH = CURNODE.height
+       
        this.isMarkerShow = true
 　　　　document.onmousemove = (event) => {
 　　　　　　let disX = event.clientX - mouseX0  //移动位置
@@ -121,15 +149,7 @@ export default {
            this.marker.ymarkerX1 = n1 * 20
            this.marker.ymarkerX2 = n1 * 20
            //连线移动
-           this.topoData.connectors.forEach((item,index) => {
-              if(item.sourceNode == curNodeId){ //情况一：sourceNode为鼠标点击的node
-                  item.x1 = endX  + nodeW
-                  item.y1 = endY + nodeH / 2
-              }else if(item.targetNode == curNodeId){//情况二：targetNdoe为鼠标点击的node
-                  item.x2 = endX
-                  item.y2 = endY + nodeH / 2
-              }
-           })
+           drawLine(this.topoData.connectors,endX,endY)
 　　　　};
 　　　　document.onmouseup = () => {　　　　　　           
            document.onmousemove = null
@@ -139,17 +159,37 @@ export default {
            let NodeEndY = this.marker.xmarkerY2
            CURNODE.x = NodeEndX  
            CURNODE.y = NodeEndY
-           //连线最终位置
-           this.topoData.connectors.forEach((item,index) => {
-              if(item.sourceNode == curNodeId){ //情况一：sourceNode为鼠标点击的node
-                  item.x1 = NodeEndX + nodeW
-                  item.y1 = NodeEndY + nodeH / 2
-              }else if(item.targetNode == curNodeId){//情况二：targetNdoe为鼠标点击的node
-                  item.x2 = NodeEndX
-                  item.y2 = NodeEndY + nodeH / 2
-              }
-           })
+           drawLine(this.topoData.connectors,NodeEndX,NodeEndY)
 　　　　};
+       function drawLine(connectorsData,endX,endY){
+          connectorsData.forEach((item,index) => {
+            //步骤一：判断移动node 有连接关系
+            if(item.sourceNode == curNodeId || item.targetNode == curNodeId) {
+              //步骤二：判断连接类型 ：连线 or 包含
+                if(item.type == 'Line'){
+                  //步骤三：判断是否为自连
+                  if(item.sourceNode == item.targetNode){
+                    item.pointes[0] = endX + nodeW
+                    item.pointes[1] = endY + nodeH / 2                
+                  }else if(item.sourceNode != item.targetNode){
+                    //非自连线段
+                    if(item.sourceNode == curNodeId){   //情况一：sourceNode为鼠标点击的node
+                        item.pointes[0] = endX  + nodeW
+                        item.pointes[1] = endY + nodeH / 2
+                    }else if(item.targetNode == curNodeId){  //情况二：targetNdoe为鼠标点击的node
+                        item.pointes[2] = endX
+                        item.pointes[3] = endY + nodeH / 2
+                    }
+                  }
+                }else if(item.type == "Contain"){
+
+                }
+
+            }
+                       
+
+           })
+       }
     },
     drawConnectLine(key,event){
       let CONNECTLINE = this.connectingLine //绘制连线对象
@@ -165,6 +205,7 @@ export default {
       CONNECTLINE.y1 = y1 
       CONNECTLINE.x2 = x1   //连线终点同样赋值为起点值
       CONNECTLINE.y2 = y1
+      CONNECTLINE.sourceNode = CURNODE.id //将当前点击nodeid值赋给连线起点
       document.onmousemove = (event) => {
         let disX = event.clientX - mouseX0
         let disY = event.clientY - mouseY0
@@ -179,6 +220,14 @@ export default {
 　　　　 document.onmouseup = null 
         let hasConnected = false   //标记是否已经有过连线 
         let CONNECTORS =  this.topoData.connectors
+        let pointes = []
+        let sourceNodeW = nodeW
+        let sourceNodeH = nodeH
+        let targetNodeW = 0    //目标节点相关信息
+        let targetNodeH = 0
+        let targetNodeX = 0 
+        let targetNodeY = 0
+        let connectType = ""
 
         if(CONNECTLINE.endNode){      //正确连线：添加连线信息在connectors中
           //判断是否有已经有连线的情况
@@ -187,13 +236,51 @@ export default {
           })
           //未连线情况下增加两者连线
           if(!hasConnected){
+
+            //获取目标节点宽高
+            this.topoData.nodes.forEach((item,index) =>{
+              if(item.id == CONNECTLINE.endNode){
+                targetNodeW = item.width
+                targetNodeH = item.height
+                targetNodeX = item.x
+                targetNodeY = item.y
+              }
+            })
+            //类型：连线；形式：自连
+            if(CONNECTLINE.sourceNode == CONNECTLINE.endNode){
+              connectType = "Line"
+              //自连线段6和节点
+              // pointes[0] = x1 //节点1的X坐标 
+              // pointes[1] = y1 //节点1的Y坐标
+              // pointes[2] = x1 + this.connectorW  //节点2的X坐标
+              // pointes[3] = CURNODE.y - this.connectorW
+              // pointes[4] = CURNODE.x - this.connectorW
+              // pointes[5] = y1
+              // pointes[6] = CURNODE.x 
+              // pointes[7] = y1  //最后节点
+
+              pointes[0] = x1 //节点1的X坐标 
+              pointes[1] = y1 //节点1的Y坐标
+              pointes[2] = this.connectorW  //节点2的X坐标
+              pointes[3] = -nodeH / 2 - this.connectorW
+              pointes[4] = -nodeW - 2*this.connectorW
+              pointes[5] = this.connectorW +  nodeH / 2
+              pointes[6] = this.connectorW 
+            }else if(CONNECTLINE.sourceNode != CONNECTLINE.endNode){
+              //非重合node之间的连线
+              connectType = "Line"
+              pointes[0] = x1
+              pointes[1] = y1
+              pointes[2] = targetNodeX
+              pointes[3] = targetNodeY + targetNodeH / 2
+            }
+            //类型：连线；形式：两个node连接
+            //类型：包含
             let connector = {
-              x1: CONNECTLINE.x1,
-              y1: CONNECTLINE.y1,
-              x2: CONNECTLINE.x2,  //待优化
-              y2: CONNECTLINE.y2,
+              pointes,
               sourceNode:CURNODE.id,
-              targetNode:CONNECTLINE.endNode
+              targetNode:CONNECTLINE.endNode,
+              type:connectType
             }
             CURNODE.isRightConnectShow = true
             this.topoData.nodes.forEach((item,key) => {
@@ -204,8 +291,14 @@ export default {
         }else{
           CURNODE.isRightConnectShow = true     //连线失败：起点右侧箭头消失
         }
+        //绘制连线恢复初始值
+        CONNECTLINE.x1 = 0
+        CONNECTLINE.y1 = 0
+        CONNECTLINE.x2 = 0
+        CONNECTLINE.y2 = 0
         CONNECTLINE.isConnecting = false
-
+        CONNECTLINE.sourceNode = ''
+        CONNECTLINE.endNode = ''
       }
     },
     mouseroverNode(key,event){
@@ -233,9 +326,9 @@ export default {
 <style scoped>
 #topo-wrap{width:1000px;height:500px;margin:0 auto;}
 #topo-svg{width:100%;height:100%;border:1px solid #333;}
-.reactClass{stroke-width:1;stroke:rgb(0,0,0);fill:#fff;cursor: default;}
+.reactClass{stroke-width:2;stroke:#768699;fill:#fff;cursor: default;}
 .isChoose{stroke:red;stroke-width:2;}
-.marker{stroke:#3d7ed5;stroke-width:2;display: none;}
+.marker{stroke:#3d7ed5;stroke-width:1;display: none;}
 .isMarkerShow{display: block;}
 .fontIcon{font-family:FontAwesome;font-size:50px;cursor: default;} 
 .connectorArror{display: none;}
