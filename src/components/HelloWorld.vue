@@ -1,72 +1,164 @@
 <template>
-  <div>
-  <div id="topo-wrap">
-    <svg id="topo-svg">
-      <defs>
-        <pattern id="Pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-          <line :x1="ele.x1" :x2="ele.x2" :y1="ele.y1" :y2="ele.y2" :stroke="ele.color" :stroke-width="ele.strokeWidth" :opacity="ele.opacity" v-for="(ele,key) in gridData"></line>
-        </pattern>
-      </defs>      
-        <rect fill="url(#Pattern)" width="100%" height="100%" />
-        <line :class="{isMarkerShow:isMarkerShow}" id="xmarker" class="marker" :x1="marker.xmarkerX1" :y1="marker.xmarkerY1" :x2="marker.xmarkerX2" :y2="marker.xmarkerY2"></line>
-        <line :class="{isMarkerShow:isMarkerShow}" id="ymarker" class="marker" :x1="marker.ymarkerX1" :y1="marker.ymarkerY1" :x2="marker.ymarkerX2" :y2="marker.ymarkerY2"></line>
-        <!-- node间关系连线样式 -->
-        <g 
-          class="connectorsG" 
-          v-for="(ele,key) in topoData.connectors">
-         <!--  <path 
-            v-if="ele.sourceNode == ele.targetNode && ele.type == 'Line'" 
-            :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'H'+ele.pointes[2]+'V'+ele.pointes[3]+'H'+ele.pointes[4]+'V'+ele.pointes[5]+'H'+ele.pointes[6]+'V'+ele.pointes[7]" 
-            stroke = "#768699"
-            fill = "none"
-            stroke-width = "2"></path> -->
-          <!-- 自连线段样式 -->
-          <path 
-            v-if="ele.sourceNode == ele.targetNode && ele.type == 'Line'" 
-            :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+ele.pointes[2]+'v'+ele.pointes[3]+'h'+ele.pointes[4]+'v'+ele.pointes[5]+'h'+ele.pointes[6]+'v0'" 
-            stroke = "#768699"
-            fill = "none"
-            stroke-width = "2"></path>
-          <!-- 非自连的样式 -->
-          <path 
-            v-if="ele.sourceNode != ele.targetNode && ele.type == 'Line' && ele.pointes[0] < ele.pointes[2]" 
-            :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+(ele.pointes[2] - ele.pointes[0])/2+'v'+(ele.pointes[3] - ele.pointes[1])+'h'+(ele.pointes[2] - ele.pointes[0])/2+'v0'" 
-            stroke = "#768699"
-            fill = "none"
-            stroke-width = "2"></path>
-          <path 
-            v-if="ele.sourceNode != ele.targetNode && ele.type == 'Line' && ele.pointes[0] >= ele.pointes[2]" 
-            :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h10v'+(ele.pointes[3] - ele.pointes[1])/2+'h'+(-100)+'V'+ele.pointes[3]+'h10'" 
-            stroke = "#768699"
-            fill = "none"
-            stroke-width = "2"></path>
-        </g>
-        <g
-          class="nodesG" 
-          v-for="(ele,key) in topoData.nodes" 
-          :transform="'translate('+ele.x+','+ele.y+')'" 
-          :key="key" 
-          @mouseover="mouseroverNode(key,$event)" 
-          @mouseout="ele.isActive = ! ele.isActive" 
-          @mousedown="dragNode(key,$event)">
-          <rect x="0" y="0" :width="ele.width" :height="ele.height" class="reactClass" :class="{isChoose:ele.isActive}" />
-          <!-- <text class="fontIcon" x="0" y="50">{{ele.icon}}</text> -->
-          <g class="connectorArror" :class="{'connector':ele.isLeftConnectShow}" :transform="'translate(0,'+ele.height/2+')'"  @mouseover.stop="getConnectLine(key)" @mouseout.stop = "mouseoutLeftConnector(key)">
-            <circle r="8" cx="0" cy="0" fill="#768699"></circle>
-            <line x1="-3" y1="-5" x2="4" y2="0.5" stroke="#fff"></line>
-            <line x1="4" y1="-0.5" x2="-3" y2="5" stroke="#fff"></line>
+  <div id="topoComponent" class="clearfix">
+    <div id="toolbar">
+        <div class="toolbar-head">
+            Node Types
+        </div>
+        <div class="toolbar-main">
+          <el-collapse v-model="activeNames">
+            <el-collapse-item title="nodecellar.nodes" name="1">
+              <div class="according-inner">
+                <ul class="nodelist clearfix">
+                   <li v-for="(ele,key) in toolbarNodeData" :key="key" class="node-item node-css" @mousedown = "dragToolbarNode(toolbarNodeData,key,$event)">
+                      <div class="node-icon">
+                        <i class=" fa" :class="ele.icon"></i>
+                      </div>
+                      <div class="node-name">{{ele.name}}</div>
+                   </li>
+                </ul>
+              </div>
+            </el-collapse-item>
+            <el-collapse-item title="haproxy.nodes" name="2">
+              
+            </el-collapse-item>
+            <el-collapse-item title="cloudify.nodes" name="3">
+              
+            </el-collapse-item>
+            <el-collapse-item title="cloudify.openstack.nodes" name="4">
+              
+            </el-collapse-item>
+          </el-collapse>
+         </div>
+    </div>
+    <div id="topo-wrap">
+      <svg id="topo-svg" @mouseover = "moveInTopoSvg" @mouseout = "moveOutTopoSvg">
+        <defs>
+          <pattern id="Pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+            <line :x1="ele.x1" :x2="ele.x2" :y1="ele.y1" :y2="ele.y2" :stroke="ele.color" :stroke-width="ele.strokeWidth" :opacity="ele.opacity" v-for="(ele,key) in gridData"></line>
+          </pattern>
+        </defs>      
+          <rect fill="url(#Pattern)" width="100%" height="100%" />
+          <line :class="{isMarkerShow:marker.isMarkerShow}" id="xmarker" class="marker" :x1="marker.xmarkerX1" :y1="marker.xmarkerY1" :x2="marker.xmarkerX2" :y2="marker.xmarkerY2"></line>
+          <line :class="{isMarkerShow:marker.isMarkerShow}" id="ymarker" class="marker" :x1="marker.ymarkerX1" :y1="marker.ymarkerY1" :x2="marker.ymarkerX2" :y2="marker.ymarkerY2"></line>
+          <g
+            class="nodesG" 
+            v-for="(ele,key) in topoData.nodes" 
+            :transform="'translate('+ele.x+','+ele.y+')'" 
+            :key="key" 
+            @mouseover="mouseroverNode(key,$event)" 
+            @mouseout="ele.isActive = ! ele.isActive" 
+            @mousedown="dragNode(key,$event)">
+            <rect x="0" y="0" rx="2" ry="2" :width="ele.width" :height="ele.height" class="reactClass" :class="{isChoose:ele.isActive}" />
+            <!-- <text class="fontIcon" x="0" y="50">{{ele.icon}}</text> -->
+            <g class="connectorArror" :class="{'connector':ele.isLeftConnectShow}" :transform="'translate(0,'+ele.height/2+')'"  @mouseover.stop="getConnectLine(key)" @mouseout.stop = "mouseoutLeftConnector(key)">
+              <circle r="8" cx="0" cy="0" fill="#768699"></circle>
+              <line x1="-3" y1="-5" x2="4" y2="0.5" stroke="#fff"></line>
+              <line x1="4" y1="-0.5" x2="-3" y2="5" stroke="#fff"></line>
+            </g>
+            <g class="connectorArror" :class="{'connector':ele.isRightConnectShow}" :transform="'translate('+ele.width+','+ele.height/2+')'" @mousedown.stop="drawConnectLine(key,$event)">
+              <circle r="8" cx="0" cy="0" fill="#768699"></circle>
+              <line x1="-3" y1="-5" x2="4" y2="0.5" stroke="#fff"></line>
+              <line x1="4" y1="-0.5" x2="-3" y2="5" stroke="#fff"></line>
+            </g>
           </g>
-          <g class="connectorArror" :class="{'connector':ele.isRightConnectShow}" :transform="'translate('+ele.width+','+ele.height/2+')'" @mousedown.stop="drawConnectLine(key,$event)">
-            <circle r="8" cx="0" cy="0" fill="#768699"></circle>
-            <line x1="-3" y1="-5" x2="4" y2="0.5" stroke="#fff"></line>
-            <line x1="4" y1="-0.5" x2="-3" y2="5" stroke="#fff"></line>
+          <!-- node间关系连线样式 -->
+          <g 
+            class="connectorsG" 
+            v-for="(ele,key) in topoData.connectors">
+           <!--  <path 
+              v-if="ele.sourceNode == ele.targetNode && ele.type == 'Line'" 
+              :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'H'+ele.pointes[2]+'V'+ele.pointes[3]+'H'+ele.pointes[4]+'V'+ele.pointes[5]+'H'+ele.pointes[6]+'V'+ele.pointes[7]" 
+              stroke = "#768699"
+              fill = "none"
+              stroke-width = "2"></path> -->
+
+            <!-- 自连 -->
+            <path 
+              v-if="ele.sourceNode == ele.targetNode && ele.type == 'Line'" 
+              :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+ele.pointes[2]+'v'+ele.pointes[3]+'h'+ele.pointes[4]+'v'+ele.pointes[5]+'h'+ele.pointes[6]+'v0'" 
+              stroke = "#768699"
+              fill = "none"
+              stroke-width = "2"></path>
+            <!-- 非自连:1.sourceNode 的右侧箭头X < targetNode的左侧箭头X -->
+            <path 
+              v-if="ele.sourceNode != ele.targetNode && ele.type == 'Line' && ele.pointes[0] < ele.pointes[2]" 
+              :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+(ele.pointes[2] - ele.pointes[0])/2+'v'+(ele.pointes[3] - ele.pointes[1])+'h'+(ele.pointes[2] - ele.pointes[0])/2+'v0'" 
+              stroke = "#768699"
+              fill = "none"
+              stroke-width = "2"></path>
+            <!-- 非自连：
+            2.sourceNode 的右侧箭头X > targetNode的左侧箭头X  
+            (1) 且 sourceNode的高度 < targetNode的高度 且 高度未重叠-->
+            <path 
+              v-if="ele.type == 'Line' && 
+              ele.sourceNode != ele.targetNode && 
+              ele.pointes[0] >= ele.pointes[2] &&
+              (ele.sourceNodeH / 2 + ele.pointes[1] ) < (ele.pointes[3] - ele.targetNodeH / 2)" 
+              :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+connectorW+'v'+(ele.sourceNodeH / 2 +(ele.pointes[3] - ele.pointes[1] - ele.sourceNodeH / 2 - ele.targetNodeH / 2)/2)+'H'+( ele.pointes[2]-connectorW)+'V'+ele.pointes[3]+'h'+connectorW" 
+              stroke = "#768699"
+              fill = "none"
+              stroke-width = "2"></path>
+            <!-- 非自连：2.sourceNode 的右侧箭头X > targetNode的左侧箭头X (2) 且 sourceNode的高度 > targetNode的高度 且 高度未重叠-->
+            <path 
+              v-if="ele.type == 'Line' && 
+              ele.sourceNode != ele.targetNode && 
+              ele.pointes[0] >= ele.pointes[2] &&
+              (ele.targetNodeH / 2 + ele.pointes[3] ) < (ele.pointes[1] - ele.sourceNodeH / 2)" 
+              :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+connectorW+'v'+ (-ele.sourceNodeH / 2 -(ele.pointes[1] - ele.pointes[3] - ele.sourceNodeH / 2 - ele.targetNodeH / 2)/2)+'H'+( ele.pointes[2]-connectorW)+'V'+ele.pointes[3]+'h'+connectorW" 
+              stroke = "#768699"
+              fill = "none"
+              stroke-width = "2"></path>
+             <!-- 
+             非自连：
+             2.sourceNode 的右侧箭头X > targetNode的左侧箭头X 
+             (3) 且 sourceNode的高度 > targetNode的高度 且 
+             sourceNode的起点 <= targetNode的终点 且 
+             高度未重叠-->
+            <path 
+              v-if="ele.type == 'Line' && 
+              ele.sourceNode != ele.targetNode && 
+              ele.pointes[0] >= ele.pointes[2] &&
+              ele.pointes[3] < ele.pointes[1] &&
+              (ele.pointes[3] + ele.targetNodeH / 2 )>=( ele.pointes[1] - ele.sourceNodeH / 2) " 
+              :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+connectorW+'V'+ 
+              ((ele.pointes[1] - ele.sourceNodeH / 2 - ele.pointes[3] + ele.targetNodeH / 2) < 0 ? (ele.pointes[1] - ele.sourceNodeH / 2 - connectorW) : (ele.pointes[3] - ele.targetNodeH / 2 - connectorW) )
+              +'H'+( ele.pointes[2]-connectorW)
+              +'V'+ele.pointes[3]+'h'+connectorW" 
+              stroke = "#768699"
+              fill = "none"
+              stroke-width = "2"></path> 
+             <!-- 
+             非自连：
+             2.sourceNode 的右侧箭头X > targetNode的左侧箭头X 
+             (3) 且 sourceNode的高度 < targetNode的高度 且 
+             sourceNode的起点 > targetNode的终点 且 
+             高度重叠-->
+            <path 
+              v-if="ele.type == 'Line' && 
+              ele.sourceNode != ele.targetNode && 
+              ele.pointes[0] >= ele.pointes[2] &&
+              ele.pointes[3] >= ele.pointes[1] &&
+              (ele.pointes[3] + ele.targetNodeH / 2 )>=( ele.pointes[1] - ele.sourceNodeH / 2) &&
+              (ele.pointes[3] -ele.targetNodeH /2) <= (ele.pointes[1] + ele.sourceNodeH / 2) " 
+              :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+connectorW+'V'+ 
+              ((ele.targetNodeH/2 + ele.pointes[3] - ele.sourceNodeH / 2 -ele.pointes[1]) >= 0  ? (ele.targetNodeH/2 + ele.pointes[3] + connectorW) : (ele.sourceNodeH / 2 + ele.pointes[1] + connectorW))
+              +'H'+( ele.pointes[2]-connectorW)+'V'+ele.pointes[3]+'h'+connectorW" 
+              stroke = "#768699"
+              fill = "none"
+              stroke-width = "2"></path> 
           </g>
-        </g>
-        <g>
-          <line :x1='connectingLine.x1' :y1="connectingLine.y1" :x2="connectingLine.x2" :y2="connectingLine.y2" v-show="connectingLine.isConnecting" stroke="#768699" stroke-width = "2"></line>
-        </g>      
-    </svg>
-  </div>
+          
+          <g>
+            <line :x1='connectingLine.x1' :y1="connectingLine.y1" :x2="connectingLine.x2" :y2="connectingLine.y2" v-show="connectingLine.isConnecting" stroke="#768699" stroke-width = "2"></line>
+          </g>      
+      </svg>
+    </div>
+    <div v-if="toolbarMoveNode.isShow" id="move-node" class="node-css" :style="{ left:toolbarMoveNode.left + 'px', top: toolbarMoveNode.top + 'px' }">
+      <div class="node-icon">
+        <i class=" fa" :class="toolbarMoveNode.icon"></i>
+      </div>
+      <div class="node-name">{{toolbarMoveNode.name}}</div>
+    </div>
   </div>
 </template>
 <script>
@@ -74,10 +166,28 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-     position:'translate(50,50)',
-     connectorW:20, //连线的宽度
-     classchoose:false,
-     isMarkerShow:false,
+     activeNames: ['1'],
+     toolbarNodeData:[
+      {name:'NodeJSServer',icon:'fa-server',width:100,height:100},
+      {name:'MongoDatabase',icon:'fa-database',width:50,height:50},
+      {name:'NodecellarApplicationModule',icon:'fa-cube',width:50,height:50},
+      {name:'MonitoredServer',icon:'fa-cogs',width:50,height:50},
+      {name:'Proxy',icon:'fa-product-hunt',width:50,height:50},
+      {name:'Volume',icon:'fa-volume-up',width:50,height:50}
+     ],
+     toolbarMoveNode:{
+      left:0,
+      top:0,
+      name:'',
+      icon:'',
+      isShow:false
+     },
+     svgTopo:{
+      isMoveover:false
+     },
+     connectorWSelf:15, //自连连线的宽度
+     connectorW:15,//非自连连线宽度
+     classchoose:false,    
      connectingLine:{
       x1:0,
       y1:0,
@@ -90,13 +200,14 @@ export default {
      marker:{
       xmarkerX1:0,
       xmarkerY1:0,
-      xmarkerX2:1000,
+      xmarkerX2:0,
       xmarkerY2:0,
       ymarkerX1:0,
       ymarkerY1:0,
       ymarkerX2:0,
-      ymarkerY2:500
-     },
+      ymarkerY2:0,
+      isMarkerShow:false,
+     },     
      gridData:[
       {x1:0,x2:100,y1:20,y2:20,color:'#c0c0c0',strokeWidth:1,opacity:0.3},
       {x1:0,x2:100,y1:40,y2:40,color:'#c0c0c0',strokeWidth:1,opacity:0.3},
@@ -112,7 +223,7 @@ export default {
      topoData:{
       nodes:[
         {x:30,y:10,isActive:false,icon:'\x2a',width:60,height:60,id:66,isLeftConnectShow:false,isRightConnectShow:false},
-        {x:100,y:50,isActive:false,icon:'\u270f',width:80,height:60,id:77,isLeftConnectShow:false,isRightConnectShow:false},
+        {x:100,y:50,isActive:false,icon:'\u270f',width:100,height:100,id:77,isLeftConnectShow:false,isRightConnectShow:false},
         {x:500,y:100,isActive:false,icon:'\ue010',width:60,height:60,id:88,isLeftConnectShow:false,isRightConnectShow:false}
       ],
       connectors:[
@@ -124,6 +235,73 @@ export default {
   computed:{
   },
   methods:{
+    //拖拽toolbar中的node
+    dragToolbarNode(nodeData,key,event){
+      let NODE = nodeData[key]
+      let toolbarName =NODE.name
+      let toolbarIcon = NODE.icon
+      document.onmousemove = (event) =>{        
+        let mouseX = event.clientX  //当前鼠标位置
+        let mouseY = event.clientY
+        let nodeX = event.clientX - $("#topo-svg").offset().left  //svg最终位置
+        let nodeY = event.clientY - $("#topo-svg").offset().top
+        this.toolbarMoveNode.left = mouseX + 4
+        this.toolbarMoveNode.top =  mouseY + 4
+        this.toolbarMoveNode.name = toolbarName
+        this.toolbarMoveNode.icon = toolbarIcon
+        this.toolbarMoveNode.isShow = true
+        // 鼠标滑入svg区域 显示标尺并显示标尺正确位置
+        if(this.svgTopo.isMoveover){
+          this.marker.isMarkerShow = true          
+          let n1 = Math.floor(nodeX / 20)  //grid宽高的整数倍
+          let n2 = Math.floor(nodeY / 20)         
+          this.marker.xmarkerY1 = n2 * 20
+          this.marker.xmarkerY2 = n2 * 20
+          this.marker.ymarkerX1 = n1 * 20
+          this.marker.ymarkerX2 = n1 * 20
+        }
+      }
+      document.onmouseup = (event)=>{
+         document.onmousemove = null
+　　　　　document.onmouseup = null
+         // 鼠标在svg区域
+        if(this.svgTopo.isMoveover){
+          let id = GenNonDuplicateID(5)
+          let svgNode ={
+             x:this.marker.ymarkerX1,
+             y:this.marker.xmarkerY2,
+             isActive:false,
+             icon:'\x2a',
+             width:NODE.width,
+             height:NODE.height,
+             id:id,
+             isLeftConnectShow:false,
+             isRightConnectShow:false
+          }
+          this.marker.isMarkerShow = false    //标尺取消显示
+          this.topoData.nodes.push(svgNode)   //创建一个svg Node                   
+        }
+        //初始化toolbarMoveNode的值
+          this.toolbarMoveNode.left = 0
+          this.toolbarMoveNode.top =  0
+          this.toolbarMoveNode.name = ''
+          this.toolbarMoveNode.icon = ''
+          this.toolbarMoveNode.isShow = false
+      }
+      //生成唯一id值
+      function GenNonDuplicateID(randomLength){
+       return Number(Math.random().toString().substr(3,randomLength) + Date.now()).toString(36)
+      }
+
+    },
+    moveInTopoSvg(){
+      this.svgTopo.isMoveover = true
+    },
+    moveOutTopoSvg(){
+      this.svgTopo.isMoveover = false
+      this.marker.isMarkerShow = false
+    },
+    //拖拽svg中的node
     dragNode(key,event){
        let mouseX0 = event.clientX //鼠标点击下的位置
        let mouseY0 = event.clientY
@@ -134,7 +312,7 @@ export default {
        let nodeW = CURNODE.width  //节点 宽高
        let nodeH = CURNODE.height
        
-       this.isMarkerShow = true
+       this.marker.isMarkerShow = true
 　　　　document.onmousemove = (event) => {
 　　　　　　let disX = event.clientX - mouseX0  //移动位置
            let disY = event.clientY - mouseY0
@@ -154,7 +332,7 @@ export default {
 　　　　document.onmouseup = () => {　　　　　　           
            document.onmousemove = null
 　　　　　　document.onmouseup = null
-           this.isMarkerShow = false    //隐藏标尺
+           this.marker.isMarkerShow = false    //隐藏标尺
            let NodeEndX = this.marker.ymarkerX1  //最终位置为标尺的位置 最终节点位置
            let NodeEndY = this.marker.xmarkerY2
            CURNODE.x = NodeEndX  
@@ -191,6 +369,7 @@ export default {
            })
        }
     },
+    //动态绘制连线
     drawConnectLine(key,event){
       let CONNECTLINE = this.connectingLine //绘制连线对象
       let CURNODE =  this.topoData.nodes[key] //当前点击node
@@ -198,8 +377,8 @@ export default {
       let nodeH = CURNODE.height    
       let mouseX0 = event.clientX    
       let mouseY0 = event.clientY
-      let x1 = CURNODE.x + nodeW    //连线开始位置为node位置
-      let y1 = CURNODE.y + nodeH / 2
+      let x1 = event.clientX - $("#topo-svg").offset().left   //连线开始位置的位置：鼠标点击的实际位置   为鼠标位置 - 当前元素的偏移值
+      let y1 = event.clientY - $("#topo-svg").offset().top + 4
       CONNECTLINE.isConnecting = true   //显示绘制连线
       CONNECTLINE.x1 = x1 
       CONNECTLINE.y1 = y1 
@@ -229,7 +408,9 @@ export default {
         let targetNodeY = 0
         let connectType = ""
 
+
         if(CONNECTLINE.endNode){      //正确连线：添加连线信息在connectors中
+
           //判断是否有已经有连线的情况
           CONNECTORS.forEach((item,index) => {
             if(item.sourceNode == CURNODE.id && item.targetNode == CONNECTLINE.endNode) hasConnected = true
@@ -250,37 +431,32 @@ export default {
             if(CONNECTLINE.sourceNode == CONNECTLINE.endNode){
               connectType = "Line"
               //自连线段6和节点
-              // pointes[0] = x1 //节点1的X坐标 
-              // pointes[1] = y1 //节点1的Y坐标
-              // pointes[2] = x1 + this.connectorW  //节点2的X坐标
-              // pointes[3] = CURNODE.y - this.connectorW
-              // pointes[4] = CURNODE.x - this.connectorW
-              // pointes[5] = y1
-              // pointes[6] = CURNODE.x 
-              // pointes[7] = y1  //最后节点
-
-              pointes[0] = x1 //节点1的X坐标 
-              pointes[1] = y1 //节点1的Y坐标
-              pointes[2] = this.connectorW  //节点2的X坐标
-              pointes[3] = -nodeH / 2 - this.connectorW
-              pointes[4] = -nodeW - 2*this.connectorW
-              pointes[5] = this.connectorW +  nodeH / 2
-              pointes[6] = this.connectorW 
+              pointes[0] = CURNODE.x + nodeW //节点1的X坐标 
+              pointes[1] = CURNODE.y + nodeH / 2 //节点1的Y坐标
+              pointes[2] = this.connectorWSelf  //节点2的X坐标
+              pointes[3] = -nodeH / 2 - this.connectorWSelf
+              pointes[4] = -nodeW - 2*this.connectorWSelf
+              pointes[5] = this.connectorWSelf +  nodeH / 2
+              pointes[6] = this.connectorWSelf 
             }else if(CONNECTLINE.sourceNode != CONNECTLINE.endNode){
               //非重合node之间的连线
               connectType = "Line"
-              pointes[0] = x1
-              pointes[1] = y1
+              pointes[0] = CURNODE.x + nodeW
+              pointes[1] = CURNODE.y + nodeH / 2
               pointes[2] = targetNodeX
               pointes[3] = targetNodeY + targetNodeH / 2
             }
             //类型：连线；形式：两个node连接
             //类型：包含
             let connector = {
+              type:connectType,
               pointes,
               sourceNode:CURNODE.id,
               targetNode:CONNECTLINE.endNode,
-              type:connectType
+              sourceNodeW:sourceNodeW,   //对应节点信息
+              sourceNodeH:sourceNodeH,
+              targetNodeW:targetNodeW,
+              targetNodeH:targetNodeH             
             }
             CURNODE.isRightConnectShow = true
             this.topoData.nodes.forEach((item,key) => {
@@ -289,7 +465,13 @@ export default {
             CONNECTORS.push(connector)
           }         
         }else{
-          CURNODE.isRightConnectShow = true     //连线失败：起点右侧箭头消失
+          CURNODE.isRightConnectShow = false     //连线失败：起点右侧箭头暂且设置为消失
+          CONNECTORS.forEach((item,key) => {     //连线判断，如果已经有连线起点为当前的node，将起点箭头设置为显示
+              this.topoData.nodes.forEach((node,key) => {
+                if(node.id == item.sourceNode) node.isRightConnectShow = true
+              })
+          })
+          
         }
         //绘制连线恢复初始值
         CONNECTLINE.x1 = 0
@@ -317,15 +499,30 @@ export default {
     
   },
   mounted(){
-    
+    //初始化：获取topo组件宽高
+    this.marker.xmarkerX2 = $("#topo-svg").width()
+    this.marker.ymarkerY2 = $("#topo-svg").height()
+   
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-#topo-wrap{width:1000px;height:500px;margin:0 auto;}
-#topo-svg{width:100%;height:100%;border:1px solid #333;}
+#topoComponent{width:100%;height:600px;margin-top:20px;box-sizing: border-box;padding:0 15px;}
+/*toolbar样式*/
+#toolbar{width:250px;height:100%;float: left;overflow-y: scroll;box-sizing: border-box;padding-right:10px;}
+.toolbar-head{padding:10px;text-align: center;color:#000069;font-size:14px;}
+/*toolbar node样式*/
+.node-item{float: left;margin:3px 2px;cursor: pointer;border:1px solid #c7d1dd;-webkit-user-select:none;user-select:none;}
+.node-css{width:57px;height: 57px;background-color: #fff;-webkit-user-select:none;user-select:none;}
+.node-icon{font-size:23px;text-align: center;height: 40px;line-height: 40px;-webkit-user-select:none;user-select:none;}
+.node-name{font-size:12px;text-align: center;position: relative;top:-4px;padding:0 5px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;-webkit-user-select:none;user-select:none;}
+/*移动的node*/
+#move-node{position: absolute;border:1px solid #768699;box-sizing: border-box;}
+/*topo主体样式*/
+#topo-wrap{width:calc(100% - 250px);height:100%;float:left;box-sizing: border-box;box-sizing: border-box;}
+#topo-svg{width:100%;height:100%;border:1px solid #333;box-sizing: border-box;}
 .reactClass{stroke-width:2;stroke:#768699;fill:#fff;cursor: default;}
 .isChoose{stroke:red;stroke-width:2;}
 .marker{stroke:#3d7ed5;stroke-width:1;display: none;}
@@ -334,4 +531,8 @@ export default {
 .connectorArror{display: none;}
 .nodesG:hover .connectorArror{display: block}
 .connector{display: block;}
+
+</style>
+<style type="text/css">
+  .el-collapse-item__header{-webkit-user-select:none;user-select:none;}
 </style>
