@@ -65,65 +65,82 @@
           <g 
             class="connectorsG" 
             v-for="(ele,key) in topoData.connectors">
-           <!--  <path 
-              v-if="ele.sourceNode == ele.targetNode && ele.type == 'Line'" 
-              :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'H'+ele.pointes[2]+'V'+ele.pointes[3]+'H'+ele.pointes[4]+'V'+ele.pointes[5]+'H'+ele.pointes[6]+'V'+ele.pointes[7]" 
-              stroke = "#768699"
-              fill = "none"
-              stroke-width = "2"></path> -->
-
             <!-- 自连 -->
             <path 
-              v-if="ele.sourceNode == ele.targetNode && ele.type == 'Line'" 
-              :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+ele.pointes[2]+'v'+ele.pointes[3]+'h'+ele.pointes[4]+'v'+ele.pointes[5]+'h'+ele.pointes[6]+'v0'" 
+              v-if="ele.sourceNode.id == ele.targetNode.id && ele.type == 'Line'" 
+              :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2)+
+              'h'+connectorWSelf+
+              'v'+(-(ele.sourceNode.height / 2 + connectorWSelf))+ 
+              'h'+ (-(ele.sourceNode.width +  2 * connectorWSelf)) + 
+              'v'+(ele.sourceNode.height / 2 + connectorWSelf) + 
+              'H' + (ele.targetNode.x)"
               stroke = "#768699"
               fill = "none"
               stroke-width = "2"></path>
-            <!-- 非自连:1.sourceNode 的右侧箭头X < targetNode的左侧箭头X -->
+            <!-- 非自连:1.sourceNode 的右侧箭头X <= targetNode的左侧箭头X -->
             <path 
-              v-if="ele.sourceNode != ele.targetNode && ele.type == 'Line' && ele.pointes[0] < ele.pointes[2]" 
-              :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+(ele.pointes[2] - ele.pointes[0])/2+'v'+(ele.pointes[3] - ele.pointes[1])+'h'+(ele.pointes[2] - ele.pointes[0])/2+'v0'" 
+              v-if="ele.sourceNode.id != ele.targetNode.id && ele.type == 'Line' && 
+              (ele.sourceNode.x +ele.sourceNode.width) < ele.targetNode.x" 
+              :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2) + 
+              'h'+ (ele.targetNode.x - ele.sourceNode.x - ele.sourceNode.width) / 2 + 
+              'V' + (ele.targetNode.y + ele.targetNode.height / 2) + 
+              'H' + ele.targetNode.x" 
               stroke = "#768699"
               fill = "none"
               stroke-width = "2"></path>
             <!-- 非自连：
-            2.sourceNode 的右侧箭头X > targetNode的左侧箭头X  
+            2.sourceNode 的右侧箭头X >= targetNode的左侧箭头X  
             (1) 且 sourceNode的高度 < targetNode的高度 且 高度未重叠-->
             <path 
               v-if="ele.type == 'Line' && 
-              ele.sourceNode != ele.targetNode && 
-              ele.pointes[0] >= ele.pointes[2] &&
-              (ele.sourceNodeH / 2 + ele.pointes[1] ) < (ele.pointes[3] - ele.targetNodeH / 2)" 
-              :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+connectorW+'v'+(ele.sourceNodeH / 2 +(ele.pointes[3] - ele.pointes[1] - ele.sourceNodeH / 2 - ele.targetNodeH / 2)/2)+'H'+( ele.pointes[2]-connectorW)+'V'+ele.pointes[3]+'h'+connectorW" 
+              ele.sourceNode.id != ele.targetNode.id && 
+              (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
+              (ele.sourceNode.y + ele.sourceNode.height ) < ele.targetNode.y" 
+              :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2) +
+              'h'+connectorWSelf+ 
+              'v'+(ele.sourceNode.height / 2 + (ele.targetNode.y - ele.sourceNode.y -  ele.sourceNode.height) / 2) + 
+              'H'+(ele.targetNode.x - connectorWSelf) + 
+              'V'+(ele.targetNode.y + ele.targetNode.height / 2) + 
+              'h'+connectorWSelf" 
               stroke = "#768699"
               fill = "none"
               stroke-width = "2"></path>
-            <!-- 非自连：2.sourceNode 的右侧箭头X > targetNode的左侧箭头X (2) 且 sourceNode的高度 > targetNode的高度 且 高度未重叠-->
+            <!-- 非自连：
+            2.sourceNode 的右侧箭头X >= targetNode的左侧箭头X
+             (2) 且 sourceNode的高度 > targetNode的高度 且 高度未重叠-->
             <path 
               v-if="ele.type == 'Line' && 
-              ele.sourceNode != ele.targetNode && 
-              ele.pointes[0] >= ele.pointes[2] &&
-              (ele.targetNodeH / 2 + ele.pointes[3] ) < (ele.pointes[1] - ele.sourceNodeH / 2)" 
-              :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+connectorW+'v'+ (-ele.sourceNodeH / 2 -(ele.pointes[1] - ele.pointes[3] - ele.sourceNodeH / 2 - ele.targetNodeH / 2)/2)+'H'+( ele.pointes[2]-connectorW)+'V'+ele.pointes[3]+'h'+connectorW" 
+              ele.sourceNode.id != ele.targetNode.id && 
+              (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
+              (ele.targetNode.y + ele.targetNode.height) < ele.sourceNode.y" 
+              :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2) +
+              'h'+connectorWSelf+ 
+              'V'+(ele.sourceNode.y-(ele.sourceNode.y - ele.targetNode.y - ele.targetNode.height) / 2) + 
+              'H'+ (ele.targetNode.x - connectorWSelf) + 
+              'V'+(ele.targetNode.y + ele.targetNode.height / 2) + 
+              'H'+ele.targetNode.x" 
               stroke = "#768699"
               fill = "none"
               stroke-width = "2"></path>
              <!-- 
              非自连：
-             2.sourceNode 的右侧箭头X > targetNode的左侧箭头X 
-             (3) 且 sourceNode的高度 > targetNode的高度 且 
-             sourceNode的起点 <= targetNode的终点 且 
-             高度未重叠-->
+             2.sourceNode 的右侧箭头X >= targetNode的左侧箭头X 
+             (3) sourceNode的箭头y < = targetNode的箭头
+            sourceNode 的y < targetNode的y < = (sourceNode 的y + sourceNode的height) 或者 sourceNode的y介于其间
+             高度重叠-->
             <path 
               v-if="ele.type == 'Line' && 
-              ele.sourceNode != ele.targetNode && 
-              ele.pointes[0] >= ele.pointes[2] &&
-              ele.pointes[3] < ele.pointes[1] &&
-              (ele.pointes[3] + ele.targetNodeH / 2 )>=( ele.pointes[1] - ele.sourceNodeH / 2) " 
-              :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+connectorW+'V'+ 
-              ((ele.pointes[1] - ele.sourceNodeH / 2 - ele.pointes[3] + ele.targetNodeH / 2) < 0 ? (ele.pointes[1] - ele.sourceNodeH / 2 - connectorW) : (ele.pointes[3] - ele.targetNodeH / 2 - connectorW) )
-              +'H'+( ele.pointes[2]-connectorW)
-              +'V'+ele.pointes[3]+'h'+connectorW" 
+              ele.sourceNode.id != ele.targetNode.id &&
+              (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
+              (ele.sourceNode.y + ele.sourceNode.height/2) <= (ele.targetNode.y + ele.targetNode.height / 2) &&
+              ((ele.targetNode.y <= (ele.sourceNode.y + ele.sourceNode.height) && ele.targetNode.y >= ele.sourceNode.y) ||
+              (ele.sourceNode.y <= (ele.targetNode.y + ele.targetNode.height) && ele.sourceNode.y >= ele.targetNode.y)
+              )" 
+              :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2)+'h'+connectorWSelf + 
+              'V'+ ((ele.sourceNode.y-ele.targetNode.y ) <= 0? (ele.sourceNode.y - connectorWSelf) : (ele.targetNode.y -connectorWSelf)) + 
+              'H' + (ele.targetNode.x - connectorWSelf) + 
+              'V' +(ele.targetNode.y + ele.targetNode.height / 2) + 
+              'H' + ele.targetNode.x" 
               stroke = "#768699"
               fill = "none"
               stroke-width = "2"></path> 
@@ -135,14 +152,17 @@
              高度重叠-->
             <path 
               v-if="ele.type == 'Line' && 
-              ele.sourceNode != ele.targetNode && 
-              ele.pointes[0] >= ele.pointes[2] &&
-              ele.pointes[3] >= ele.pointes[1] &&
-              (ele.pointes[3] + ele.targetNodeH / 2 )>=( ele.pointes[1] - ele.sourceNodeH / 2) &&
-              (ele.pointes[3] -ele.targetNodeH /2) <= (ele.pointes[1] + ele.sourceNodeH / 2) " 
-              :d="'M'+ele.pointes[0]+','+ele.pointes[1]+'h'+connectorW+'V'+ 
-              ((ele.targetNodeH/2 + ele.pointes[3] - ele.sourceNodeH / 2 -ele.pointes[1]) >= 0  ? (ele.targetNodeH/2 + ele.pointes[3] + connectorW) : (ele.sourceNodeH / 2 + ele.pointes[1] + connectorW))
-              +'H'+( ele.pointes[2]-connectorW)+'V'+ele.pointes[3]+'h'+connectorW" 
+              ele.sourceNode.id != ele.targetNode.id &&
+              (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
+              (ele.sourceNode.y + ele.sourceNode.height/2) > (ele.targetNode.y + ele.targetNode.height / 2) &&
+              ((ele.targetNode.y <= (ele.sourceNode.y + ele.sourceNode.height) && ele.targetNode.y >= ele.sourceNode.y) ||
+              (ele.sourceNode.y <= (ele.targetNode.y + ele.targetNode.height) && ele.sourceNode.y >= ele.targetNode.y)
+              )" 
+              :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2)+'h'+connectorWSelf + 
+              'V'+ ((ele.sourceNode.y  + ele.sourceNode.height-ele.targetNode.y -ele.targetNode.height ) >= 0? (ele.sourceNode.y+ele.sourceNode.height + connectorWSelf) : (ele.targetNode.y+ele.targetNode.height +connectorWSelf)) + 
+              'H' + (ele.targetNode.x - connectorWSelf) + 
+              'V' +(ele.targetNode.y + ele.targetNode.height / 2) + 
+              'H' + ele.targetNode.x"
               stroke = "#768699"
               fill = "none"
               stroke-width = "2"></path> 
@@ -187,6 +207,8 @@ export default {
      },
      connectorWSelf:15, //自连连线的宽度
      connectorW:15,//非自连连线宽度
+     containTop:30, //包含关系的子node距离父node
+     containLeft:10,//包含关系的左右距离
      classchoose:false,    
      connectingLine:{
       x1:0,
@@ -296,7 +318,7 @@ export default {
       }
       //生成唯一id值
       function GenNonDuplicateID(randomLength){
-       return Number(Math.random().toString().substr(3,randomLength) + Date.now()).toString(36)
+        return Number(Math.random().toString().substr(3,randomLength) + Date.now()).toString(36)
       }
 
     },
@@ -323,11 +345,27 @@ export default {
        let startY = CURNODE.y
        let curNodeId = CURNODE.id  //当前结点id
        let nodeW = CURNODE.width  //节点 宽高
-       let nodeH = CURNODE.height
+       let nodeH = CURNODE.height      
+       this.marker.isMarkerShow = true //显示标尺
        //把选中的node信息放入数组最后一位，待看结果 可能有bug
        this.topoData.nodes.splice(key,1)
        this.topoData.nodes.push(CURNODE)
-       this.marker.isMarkerShow = true //显示标尺
+       //判断包含关系，如果内部有子node，则需要将子node放入数组最后的位置
+       //+++待增加递归循环
+       this.putInnerNodeLast(CURNODE)
+       // this.topoData.connectors.forEach((ele,key) => {
+       //    if(ele.type == 'Contain' && ele.targetNode.id == curNodeId){
+       //      let childNodeId = ele.sourceNode.id
+       //      this.topoData.nodes.forEach((node,index) => {
+       //        if(node.id == childNodeId) {
+       //          let childNode = node 
+       //          this.topoData.nodes.splice(index,1)
+       //          this.topoData.nodes.push(childNode)
+
+       //        }
+       //      })
+       //    }
+       // })
        //节点选中
        this.topoData.nodes.forEach((ele,key) =>{
         ele.isSelect = false
@@ -348,9 +386,9 @@ export default {
            this.marker.xmarkerY2 = n2 * 20
            this.marker.ymarkerX1 = n1 * 20
            this.marker.ymarkerX2 = n1 * 20
-           drawContainLayout(this.topoData,endX,endY)
-           //连线移动
-           //drawLine(this.topoData.connectors,endX,endY,false)
+           
+           this.moveContianNode(CURNODE) //递归移动所有容器内元素
+           this.drawContainLayout(CURNODE,endX,endY,false)
 　　　　};
 　　　　document.onmouseup = () => {　　　　　　           
            document.onmousemove = null
@@ -360,120 +398,179 @@ export default {
            let NodeEndY = this.marker.xmarkerY2
            CURNODE.x = NodeEndX  
            CURNODE.y = NodeEndY
-           drawContainLayout(this.topoData,NodeEndX,NodeEndY,true)
-           //drawLine(this.topoData.connectors,NodeEndX,NodeEndY)   //绘制连线
+           this.moveContianNode(CURNODE)  //移动包含着的子节点
+           this.drawContainLayout(CURNODE,NodeEndX,NodeEndY,true)
 　　　　};
-        /***
-         绘制contain布局
-         ***/
-       function drawContainLayout(TOPODATA,NodeEndX,NodeEndY,isStop){
-           //清除当前node的包含关系
-           TOPODATA.connectors.forEach((ele,key) => {
-              if(ele.type == 'Contain' && ele.sourceNode == curNodeId){
-                TOPODATA.nodes.forEach((node,key) => {
-                  if(ele.targetNode == node.id){
-                    node.width = node.initW
-                    node.height = node.initH
-                  }
-                })
-                TOPODATA.connectors.splice(key,1)           
-              }
-           })
-           let NodePoint1 = [NodeEndX,NodeEndY]   //初始当前节点四个角的位置
-           let NodePoint2 = [(NodeEndX + nodeW),NodeEndY]
-           let NodePoint3 = [(NodeEndX + nodeW),(NodeEndY + nodeH)]
-           let NodePoint4 = [NodeEndX,(NodeEndY + nodeH)]
-           // 与NodeData对比，判断是否有值与其他Node重合的
-           for(let i = 0 ; i < TOPODATA.nodes.length; i++){      //forEach无法跳出循环,暂用for循环
-              let targetNode = TOPODATA.nodes[i]
-              if(CURNODE.id != targetNode.id){   //排除自身元素
-                let isContainNode = false
-                let minX = targetNode.x
-                let maxX = targetNode.x + targetNode.width
-                let minY = targetNode.y
-                let maxY = targetNode.y + targetNode.height
-                //四种包含情况判断
-                if(NodePoint1[0] <= maxX && NodePoint1[0] >= minX && NodePoint1[1] <=  maxY && NodePoint1[1] >= minY) isContainNode = true
-                if(NodePoint2[0] <= maxX && NodePoint2[0] >= minX && NodePoint2[1] <=  maxY && NodePoint2[1] >= minY) isContainNode = true
-                if(NodePoint4[0] <= maxX && NodePoint4[0] >= minX && NodePoint4[1] <=  maxY && NodePoint4[1] >= minY) isContainNode = true
-                if(NodePoint3[0] <= maxX && NodePoint3[0] >= minX && NodePoint3[1] <=  maxY && NodePoint3[1] >= minY) isContainNode = true
-                //选中的node 有 与其他node 重合
-                if(isContainNode){
-                  //关系数组中增加包含关系
-                  let connector={
-                    type:'Contain',
-                    sourceNode:CURNODE.id,
-                    targetNode:targetNode.id,
-                    sourceNodeW:CURNODE.width,
-                    sourceNodeH:CURNODE.height,
-                    targetNodeW:targetNode.width,
-                    targetNodeH:targetNode.height
-                  }
-                  TOPODATA.connectors.push(connector)
-                  //重置大Node的宽高以及小Node的位置
-                  
-                  targetNode.width = 2*10 + nodeW
-                  targetNode.height = 10 + nodeH +30
-
-                  
-                  if(isStop){     //鼠标是mouseup状态时，确定最终位置
-                     CURNODE.x = targetNode.x + 10
-                     CURNODE.y = targetNode.y + 30                    
-                  }
-                  drawLine(TOPODATA,CURNODE.x,CURNODE.y)
-                  return false
-                }
-              }
-           }
-           drawLine(TOPODATA,CURNODE.x,CURNODE.y)
-       }
-       function drawLine(TOPODATA,endX,endY){
-          TOPODATA.connectors.forEach((item,index) => {
-            //更新connectors里的数据
-            TOPODATA.nodes.forEach((node,key) =>{
-              if(item.sourceNode == node.id) {
-                item.sourceNodeW = node.width
-                item.sourceNodeH = node.height
-              }
-              if(item.targetNode == node.id) {
-                item.targetNodeW = node.width
-                item.targetNodeH = node.height
+       
+    },
+    //将选中的容器的最内的容器放置在数组最后
+    putInnerNodeLast(CURNODE){
+      let curNodeId = CURNODE.id
+      this.topoData.connectors.forEach((ele,key) => {
+          if(ele.type == 'Contain' && ele.targetNode.id == curNodeId){
+            let childNodeId = ele.sourceNode.id
+            this.topoData.nodes.forEach((node,index) => {
+              if(node.id == childNodeId) {
+                let childNode = node 
+                this.topoData.nodes.splice(index,1)
+                this.topoData.nodes.push(childNode)
+                this.putInnerNodeLast(childNode)
               }
             })
-            //步骤一：判断移动node 有连接关系
-            if(item.sourceNode == curNodeId || item.targetNode == curNodeId) {
-              //步骤二：判断连接类型 ：连线 or 包含
-                if(item.type == 'Line'){
-                  //步骤三：判断是否为自连
-                  if(item.sourceNode == item.targetNode){
-                    item.pointes[0] = endX + nodeW
-                    item.pointes[1] = endY + nodeH / 2                
-                  }else if(item.sourceNode != item.targetNode){
-                    //非自连线段
-                    if(item.sourceNode == curNodeId){   //情况一：sourceNode为鼠标点击的node
-                        item.pointes[0] = endX  + nodeW
-                        item.pointes[1] = endY + nodeH / 2
-                    }else if(item.targetNode == curNodeId){  //情况二：targetNdoe为鼠标点击的node
-                        item.pointes[2] = endX
-                        item.pointes[3] = endY + nodeH / 2
-                    }
-                  }
-                }else if(item.type == "Contain"){
-
+          }
+       })
+    },
+    //绘制contain布局及刷新连线数据
+    drawContainLayout(CURNODE,NodeEndX,NodeEndY,isStop){
+        let TOPODATA = this.topoData
+        let curNodeId = CURNODE.id
+        let nodeW = CURNODE.width 
+        let nodeH = CURNODE.height
+         //清除当前node的包含关系
+         TOPODATA.connectors.forEach((ele,key) => {
+            if(ele.type == 'Contain' && ele.sourceNode.id == curNodeId){
+              TOPODATA.nodes.forEach((node,key) => {
+                if(ele.targetNode.id == node.id){
+                  node.width = node.initW
+                  node.height = node.initH
                 }
-
+              })
+              TOPODATA.connectors.splice(key,1)           
             }
-                       
+         })
+         //预留 ++++ 判断是否能增加包含关系
+         let NodePoint1 = [NodeEndX,NodeEndY]   //初始当前节点四个角的位置
+         let NodePoint2 = [(NodeEndX + nodeW),NodeEndY]
+         let NodePoint3 = [(NodeEndX + nodeW),(NodeEndY + nodeH)]
+         let NodePoint4 = [NodeEndX,(NodeEndY + nodeH)]
+         // 与NodeData对比，判断是否有值与其他Node重合的
+         for(let i =( TOPODATA.nodes.length - 1); i >= 0; i--){      //forEach无法跳出循环,暂用for循环
+            let targetNode = TOPODATA.nodes[i]
+            if(CURNODE.id != targetNode.id){   //排除自身元素
 
-           })
-       }
+              let isContainNode = false
+              let minX = targetNode.x
+              let maxX = targetNode.x + targetNode.width
+              let minY = targetNode.y
+              let maxY = targetNode.y + targetNode.height
+              //四种包含情况判断
+              if(NodePoint1[0] <= maxX && NodePoint1[0] >= minX && NodePoint1[1] <=  maxY && NodePoint1[1] >= minY) isContainNode = true
+              if(NodePoint2[0] <= maxX && NodePoint2[0] >= minX && NodePoint2[1] <=  maxY && NodePoint2[1] >= minY) isContainNode = true
+              if(NodePoint4[0] <= maxX && NodePoint4[0] >= minX && NodePoint4[1] <=  maxY && NodePoint4[1] >= minY) isContainNode = true
+              if(NodePoint3[0] <= maxX && NodePoint3[0] >= minX && NodePoint3[1] <=  maxY && NodePoint3[1] >= minY) isContainNode = true
+              //选中的node 有 与其他node 重合
+              if(isContainNode){
+                //关系数组中增加包含关系
+                let connector={
+                  type:'Contain',
+                  sourceNode:{
+                    id:CURNODE.id,
+                  },
+                  targetNode:{
+                    id:targetNode.id,
+                  }
+                }
+                TOPODATA.connectors.push(connector)
+                this.refreshOuterNodeWidth(CURNODE)  //递归刷新外部node宽度                
+                if(isStop){     //鼠标是mouseup状态时，确定最终位置
+                  // CURNODE.x = targetNode.x + this.containLeft
+                   //CURNODE.y = targetNode.y + this.containTop
+                   this.refreshInnerNodePosition(CURNODE)                   
+                }
+                this.refreshConnectorsData()   //刷新连线数据
+                return false
+              }
+            }
+         }
+         this.refreshConnectorsData()
+    },
+    //刷新外部node的宽度（递归）
+    refreshOuterNodeWidth(CURNODE){
+      this.topoData.connectors.forEach((ele,key) => {
+        if(ele.sourceNode.id == CURNODE.id && ele.type == "Contain") {
+          let targetNodeId = ele.targetNode.id
+          this.topoData.nodes.forEach((node,index) => {
+            if(node.id == targetNodeId){
+              node.width = 2*this.containLeft +CURNODE.width
+              node.height = 10 + CURNODE.height +this.containTop
+              this.refreshOuterNodeWidth(node)
+            }
+          })
+        }
+      })
+     // targetNode.width = 2*this.containLeft + nodeW
+      //targetNode.height = 10 + nodeH +this.containTop
+    }, 
+    //刷新包含的子节点的最终位置
+    refreshInnerNodePosition(CURNODE){
+      this.topoData.connectors.forEach((ele,key) =>{
+        
+        if(CURNODE.id == ele.sourceNode.id && ele.type == "Contain"){
+          let targetNodeId = ele.targetNode.id 
+          this.topoData.nodes.forEach((node,index) => {
+            if(node.id == targetNodeId){
+              CURNODE.x = node.x + this.containLeft
+              CURNODE.y = node.y +this.containTop
+              this.topoData.connectors.forEach((connector,key)=>{
+                if(connector.type == 'Contain' && connector.targetNode.id == CURNODE){
+                  let childNodeId = connector.sourceNode.id 
+                  this.topoData.nodes.forEach((node,index) => {
+                    if(node.id == childNodeId){
+                      let childNode = node
+                      this.refreshInnerNodePosition(childNode)
+                    }
+                  })
+                }
+              })
+              
+            }
+          })
+        }
+      })
+    },
+    //刷新连线数据
+    refreshConnectorsData(){
+      this.topoData.connectors.forEach((item,index) => {
+        //更新connectors里的数据
+        this.topoData.nodes.forEach((node,key) =>{
+          if(item.sourceNode.id == node.id) {
+            item.sourceNode.width = node.width
+            item.sourceNode.height = node.height
+            item.sourceNode.x = node.x
+            item.sourceNode.y = node.y
+          }
+          if(item.targetNode.id == node.id) {
+            item.targetNode.width = node.width
+            item.targetNode.height = node.height
+            item.targetNode.x = node.x
+            item.targetNode.y = node.y
+          }
+        })                   
+       })
+    },
+    //contain情况下移动子节点位置
+    moveContianNode(CURNODE){
+      this.topoData.connectors.forEach((connector,key) => {
+        if(connector.type == "Contain" && connector.targetNode.id == CURNODE.id){
+          let childNodeId = connector.sourceNode.id 
+          this.topoData.nodes.forEach((node,index) => {
+            if(node.id == childNodeId){
+              node.x = CURNODE.x + this.containLeft
+              node.y = CURNODE.y + this.containTop
+              this.moveContianNode(node)
+            }
+          })
+        }
+       })
     },
     //动态绘制连线
     drawConnectLine(key,event){
       let CONNECTLINE = this.connectingLine //绘制连线对象
       let CURNODE =  this.topoData.nodes[key] //当前点击node
       let nodeW = CURNODE.width //当前node宽高
-      let nodeH = CURNODE.height    
+      let nodeH = CURNODE.height 
+      let sourceNodeX = CURNODE.x 
+      let sourceNodeY = CURNODE.y    
       let mouseX0 = event.clientX    
       let mouseY0 = event.clientY
       let x1 = event.clientX - $("#topo-svg").offset().left + $(document).scrollLeft()   //连线开始位置的位置：鼠标点击的实际位置   为鼠标位置 - 当前元素的偏移值
@@ -498,7 +595,7 @@ export default {
 　　　　 document.onmouseup = null 
         let hasConnected = false   //标记是否已经有过连线 
         let CONNECTORS =  this.topoData.connectors
-        let pointes = []
+        // let pointes = []
         let sourceNodeW = nodeW
         let sourceNodeH = nodeH
         let targetNodeW = 0    //目标节点相关信息
@@ -512,13 +609,12 @@ export default {
 
           //判断是否有已经有连线的情况
           CONNECTORS.forEach((item,index) => {
-            if(item.sourceNode == CURNODE.id && item.targetNode == CONNECTLINE.endNode && item.type == 'Line') 
+            if(item.sourceNode.id == CURNODE.id && item.targetNode.id == CONNECTLINE.endNode && item.type == 'Line') 
               hasConnected = true
           })
           //未连线情况下增加两者连线
           if(!hasConnected){
-
-
+            connectType = "Line"
             //获取目标节点宽高
             this.topoData.nodes.forEach((item,index) =>{
               if(item.id == CONNECTLINE.endNode){
@@ -528,36 +624,24 @@ export default {
                 targetNodeY = item.y
               }
             })
-            //类型：连线；形式：自连
-            if(CONNECTLINE.sourceNode == CONNECTLINE.endNode){
-              connectType = "Line"
-              //自连线段6和节点
-              pointes[0] = CURNODE.x + nodeW //节点1的X坐标 
-              pointes[1] = CURNODE.y + nodeH / 2 //节点1的Y坐标
-              pointes[2] = this.connectorWSelf  //节点2的X坐标
-              pointes[3] = -nodeH / 2 - this.connectorWSelf
-              pointes[4] = -nodeW - 2*this.connectorWSelf
-              pointes[5] = this.connectorWSelf +  nodeH / 2
-              pointes[6] = this.connectorWSelf 
-            }else if(CONNECTLINE.sourceNode != CONNECTLINE.endNode){
-              //非重合node之间的连线
-              connectType = "Line"
-              pointes[0] = CURNODE.x + nodeW
-              pointes[1] = CURNODE.y + nodeH / 2
-              pointes[2] = targetNodeX
-              pointes[3] = targetNodeY + targetNodeH / 2
-            }
-            //类型：连线；形式：两个node连接
+           
             //类型：包含
             let connector = {
               type:connectType,
-              pointes,
-              sourceNode:CURNODE.id,
-              targetNode:CONNECTLINE.endNode,
-              sourceNodeW:sourceNodeW,   //对应节点信息
-              sourceNodeH:sourceNodeH,
-              targetNodeW:targetNodeW,
-              targetNodeH:targetNodeH             
+              targetNode:{
+                x:targetNodeX,
+                y:targetNodeY,
+                id:CONNECTLINE.endNode,
+                width:targetNodeW,
+                height:targetNodeH
+              },
+              sourceNode:{
+                x:sourceNodeX,
+                y:sourceNodeY,
+                id:CURNODE.id,
+                width:sourceNodeW,
+                height:sourceNodeH
+              }
             }
             CURNODE.isRightConnectShow = true
             this.topoData.nodes.forEach((item,key) => {
@@ -570,7 +654,7 @@ export default {
           CURNODE.isRightConnectShow = false     //连线失败：起点右侧箭头暂且设置为消失
           CONNECTORS.forEach((item,key) => {     //连线判断，如果已经有连线起点为当前的node，将起点箭头设置为显示
               this.topoData.nodes.forEach((node,key) => {
-                if(node.id == item.sourceNode && node.type == 'Line') node.isRightConnectShow = true
+                if(node.id == item.sourceNode.id && item.type == 'Line') node.isRightConnectShow = true
               })
           })
           
@@ -585,15 +669,18 @@ export default {
         CONNECTLINE.endNode = ''
       }
     },
+    //鼠标滑过node
     mouseroverNode(key,event){
       this.marker.xmarkerY1 = this.topoData.nodes[key].y
       this.marker.xmarkerY2 = this.topoData.nodes[key].y
       this.marker.ymarkerX1 = this.topoData.nodes[key].x
       this.marker.ymarkerX2 = this.topoData.nodes[key].x
     },
+    //获取连线终点时的node的ID值
     getConnectLine(key){
       this.connectingLine.endNode = this.topoData.nodes[key].id 
     },
+    //鼠标划出左侧箭头时，将connectingLine.endNode再次初始化
     mouseoutLeftConnector(key){
       this.connectingLine.endNode = ''
     }
