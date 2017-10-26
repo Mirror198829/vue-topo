@@ -349,23 +349,8 @@ export default {
        this.marker.isMarkerShow = true //显示标尺
        //把选中的node信息放入数组最后一位，待看结果 可能有bug
        this.topoData.nodes.splice(key,1)
-       this.topoData.nodes.push(CURNODE)
-       //判断包含关系，如果内部有子node，则需要将子node放入数组最后的位置
-       //+++待增加递归循环
-       this.putInnerNodeLast(CURNODE)
-       // this.topoData.connectors.forEach((ele,key) => {
-       //    if(ele.type == 'Contain' && ele.targetNode.id == curNodeId){
-       //      let childNodeId = ele.sourceNode.id
-       //      this.topoData.nodes.forEach((node,index) => {
-       //        if(node.id == childNodeId) {
-       //          let childNode = node 
-       //          this.topoData.nodes.splice(index,1)
-       //          this.topoData.nodes.push(childNode)
-
-       //        }
-       //      })
-       //    }
-       // })
+       this.topoData.nodes.push(CURNODE)      
+       this.putInnerNodeLast(CURNODE) //递归循环将嵌套节点依次放置，判断包含关系，如果内部有子node，则需要将子node放入数组最后的位置
        //节点选中
        this.topoData.nodes.forEach((ele,key) =>{
         ele.isSelect = false
@@ -427,17 +412,7 @@ export default {
         let nodeW = CURNODE.width 
         let nodeH = CURNODE.height
          //清除当前node的包含关系
-         TOPODATA.connectors.forEach((ele,key) => {
-            if(ele.type == 'Contain' && ele.sourceNode.id == curNodeId){
-              TOPODATA.nodes.forEach((node,key) => {
-                if(ele.targetNode.id == node.id){
-                  node.width = node.initW
-                  node.height = node.initH
-                }
-              })
-              TOPODATA.connectors.splice(key,1)           
-            }
-         })
+         this.deleteCurNodeContain(CURNODE)
          //预留 ++++ 判断是否能增加包含关系
          let NodePoint1 = [NodeEndX,NodeEndY]   //初始当前节点四个角的位置
          let NodePoint2 = [(NodeEndX + nodeW),NodeEndY]
@@ -473,8 +448,6 @@ export default {
                 TOPODATA.connectors.push(connector)
                 this.refreshOuterNodeWidth(CURNODE)  //递归刷新外部node宽度                
                 if(isStop){     //鼠标是mouseup状态时，确定最终位置
-                  // CURNODE.x = targetNode.x + this.containLeft
-                   //CURNODE.y = targetNode.y + this.containTop
                    this.refreshInnerNodePosition(CURNODE)                   
                 }
                 this.refreshConnectorsData()   //刷新连线数据
@@ -483,6 +456,24 @@ export default {
             }
          }
          this.refreshConnectorsData()
+    },
+    //清除当前选中元素的Contain关系
+    deleteCurNodeContain(CURNODE){
+      let curNodeId = CURNODE.id
+      this.topoData.connectors.forEach((ele,key) => {
+          if(ele.type == 'Contain' && ele.sourceNode.id == curNodeId){
+            let targetNodeId = ele.targetNode.id
+            this.topoData.nodes.forEach((node,key) => {
+              if(node.id == targetNodeId){
+               // console.log(node.name + '...' +node.id+'...'+targetNodeId + "...."+ curNodeId)
+                node.width = node.initW
+                node.height = node.initH
+               this.refreshOuterNodeWidth(node)
+              }
+            })
+            this.topoData.connectors.splice(key,1)           
+          }
+       })
     },
     //刷新外部node的宽度（递归）
     refreshOuterNodeWidth(CURNODE){
@@ -512,17 +503,17 @@ export default {
               CURNODE.x = node.x + this.containLeft
               CURNODE.y = node.y +this.containTop
               this.topoData.connectors.forEach((connector,key)=>{
-                if(connector.type == 'Contain' && connector.targetNode.id == CURNODE){
+                if(connector.type == 'Contain' && connector.targetNode.id == CURNODE.id){
                   let childNodeId = connector.sourceNode.id 
                   this.topoData.nodes.forEach((node,index) => {
                     if(node.id == childNodeId){
+
                       let childNode = node
                       this.refreshInnerNodePosition(childNode)
                     }
                   })
                 }
-              })
-              
+              })              
             }
           })
         }
