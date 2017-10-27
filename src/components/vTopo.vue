@@ -9,9 +9,9 @@
             <el-collapse-item title="nodecellar.nodes" name="1">
               <div class="according-inner">
                 <ul class="nodelist clearfix">
-                   <li v-for="(ele,key) in toolbarNodeData" :key="key" class="node-item node-css" @mousedown.stop = "dragToolbarNode(toolbarNodeData,key,$event)">
+                   <li v-for="(ele,key) in toolbarNodeData" :key="key" class="node-item node-css" @mousedown.stop.prevent = "dragToolbarNode(toolbarNodeData,key,$event)">
                       <div class="node-icon">
-                        <i class=" fa" :class="ele.icon"></i>
+                        <img class="toolbar-node-icon" :src="ele.icon"/>
                       </div>
                       <div class="node-name" :title="ele.name">{{ele.name}}</div>
                    </li>
@@ -48,7 +48,11 @@
             @mouseover.stop="mouseroverNode(key,$event)" 
             @mousedown.stop="dragSvgNode(key,$event)">
             <rect x="0" y="0" rx="2" ry="2" :width="ele.width" :height="ele.height" class="reactClass" :class="{isSelect:ele.isSelect}" />
-            <text class="nodeName" x="5" y="15">{{ele.name}}</text>
+            <text v-if="ele.type == 'T1'" class="nodeName" x="5" y="15">{{ele.name}}</text>
+            <image v-if="ele.type == 'T1'" :xlink:href="ele.icon" :x="ele.width - 23" :y="5" height="17px" width="17px"/>
+
+            <image v-if="ele.type == 'T2'" :xlink:href="ele.icon" :x="7" :y="7" height="36px" width="36px"/>
+            <text v-if="ele.type == 'T2'" class="nodeName" x="0" :y="ele.height + 14">{{ele.name}}</text>
             <!-- <text class="fontIcon" x="0" y="50">{{ele.icon}}</text> -->
             <g class="connectorArror" :class="{'connector':ele.isLeftConnectShow}" :transform="'translate(0,'+ele.height/2+')'"  @mouseover.stop="getConnectLine(key)" @mouseout.stop = "mouseoutLeftConnector(key)">
               <circle r="8" cx="0" cy="0" fill="#768699"></circle>
@@ -175,25 +179,39 @@
     </div>
     <div v-if="toolbarMoveNode.isShow" id="move-node" class="node-css" :style="{ left:toolbarMoveNode.left + 'px', top: toolbarMoveNode.top + 'px' }">
       <div class="node-icon">
-        <i class=" fa" :class="toolbarMoveNode.icon"></i>
+        <img class="toolbar-node-icon" :src="toolbarMoveNode.icon"/>
       </div>
       <div class="node-name">{{toolbarMoveNode.name}}</div>
     </div>
   </div>
 </template>
 <script>
+import database from '../assets/topo/database.png'
+import cloud from '../assets/topo/cloud.png'
+import compute from '../assets/topo/compute.png'
+import message from  '../assets/topo/message.png'
+import network from '../assets/topo/network.png'
+import router from  '../assets/topo/router.png'
+import sercurity from  '../assets/topo/sercurity.png'
+import webserver from  '../assets/topo/webserver.png'
+import filesystem from '../assets/topo/filesystem.png'
+import virtualip from '../assets/topo/virtualip.png'
 export default {
   name: 'HelloWorld',
   data () {
     return {
      activeNames: ['1'],
      toolbarNodeData:[
-      {name:'NodeJSServer',icon:'fa-server',width:150,height:100,num:1},
-      {name:'MongoDatabase',icon:'fa-database',width:150,height:100,num:1},
-      {name:'NodecellarApplicationModule',icon:'fa-cube',width:150,height:100,num:1},
-      {name:'MonitoredServer',icon:'fa-cogs',width:150,height:100,num:1},
-      {name:'Proxy',icon:'fa-product-hunt',width:150,height:100,num:1},
-      {name:'Volume',icon:'fa-volume-up',width:150,height:100,num:1}
+      {name:'Compute',icon:compute,width:150,height:100,num:1,type:'T1'},
+      {name:'Database',icon:database,width:150,height:100,num:1,type:'T1'},
+      {name:'Cloud',icon:cloud,width:150,height:100,num:1,type:'T1'},
+      {name:'Network',icon:network,width:150,height:100,num:1,type:'T1'},
+      {name:'Router',icon:router,width:150,height:100,num:1,type:'T1'},
+      {name:'Sercurity',icon:sercurity,width:50,height:50,num:1,type:'T2'},
+      {name:'webserver',icon:webserver,width:150,height:100,num:1,type:'T1'},
+      {name:'filesystem',icon:filesystem,width:150,height:100,num:1,type:'T1'},
+      {name:'message',icon:message,width:150,height:100,num:1,type:'T1'},
+      {name:'virtualip',icon:virtualip,width:50,height:50,num:1,type:'T2'}
      ],
      toolbarMoveNode:{
       left:0,
@@ -208,7 +226,7 @@ export default {
      connectorWSelf:15, //自连连线的宽度
      connectorW:15,//非自连连线宽度
      containTop:30, //包含关系的子node距离父node
-     containLeft:10,//包含关系的左右距离
+     containLeft:17,//包含关系的左右距离
      classchoose:false,    
      connectingLine:{
       x1:0,
@@ -244,9 +262,9 @@ export default {
      ],
      topoData:{
       nodes:[
-        {x:30,y:10,icon:'\x2a',width:150,height:100,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'New_server_0',isSelect:false,initW:150,initH:100},
-        {x:100,y:50,icon:'\u270f',width:150,height:100,id:77,isLeftConnectShow:false,isRightConnectShow:false,name:'New_volumn_0',isSelect:false,initW:150,initH:100},
-        {x:500,y:100,icon:'\ue010',width:100,height:100,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'New_proxy_0',isSelect:false,initW:150,initH:100}
+        {x:30,y:10,width:150,height:100,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'New_server_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1'},
+        {x:100,y:50,width:150,height:100,id:77,isLeftConnectShow:false,isRightConnectShow:false,name:'New_volumn_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1'},
+        {x:500,y:100,width:100,height:100,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'New_proxy_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1'}
       ],
       connectors:[
         
@@ -297,12 +315,13 @@ export default {
              type,
              x:this.marker.ymarkerX1,
              y:this.marker.xmarkerY2,
-             icon:'\x2a',
+             icon:NODE.icon,
              width:NODE.width,
              height:NODE.height,
              initW:NODE.width,
              initH:NODE.height,
              id:id,
+             type:NODE.type,
              isLeftConnectShow:false,
              isRightConnectShow:false
           }
@@ -332,9 +351,11 @@ export default {
     },
     mousedownTopoSvg(){
       //取消所有节点选中
+      console.log(123)
       this.topoData.nodes.forEach((ele,key) =>{
         ele.isSelect = false
        })
+      console.log(this.topoData.nodes)
     },
     //拖拽svg中的node
     dragSvgNode(key,event){
@@ -411,17 +432,18 @@ export default {
         let curNodeId = CURNODE.id
         let nodeW = CURNODE.width 
         let nodeH = CURNODE.height
-         //清除当前node的包含关系
-         this.deleteCurNodeContain(CURNODE)
+         
          //预留 ++++ 判断是否能增加包含关系
          let NodePoint1 = [NodeEndX,NodeEndY]   //初始当前节点四个角的位置
          let NodePoint2 = [(NodeEndX + nodeW),NodeEndY]
          let NodePoint3 = [(NodeEndX + nodeW),(NodeEndY + nodeH)]
          let NodePoint4 = [NodeEndX,(NodeEndY + nodeH)]
+         //清除当前node的包含关系
+         this.deleteCurNodeContain(CURNODE)
          // 与NodeData对比，判断是否有值与其他Node重合的
          for(let i =( TOPODATA.nodes.length - 1); i >= 0; i--){      //forEach无法跳出循环,暂用for循环
             let targetNode = TOPODATA.nodes[i]
-            if(CURNODE.id != targetNode.id){   //排除自身元素
+            if(CURNODE.id != targetNode.id && targetNode.type == "T1"){   //排除自身元素
 
               let isContainNode = false
               let minX = targetNode.x
@@ -435,7 +457,8 @@ export default {
               if(NodePoint3[0] <= maxX && NodePoint3[0] >= minX && NodePoint3[1] <=  maxY && NodePoint3[1] >= minY) isContainNode = true
               //选中的node 有 与其他node 重合
               if(isContainNode){
-                //关系数组中增加包含关系
+                
+                //关系数组中增加包含关系              
                 let connector={
                   type:'Contain',
                   sourceNode:{
@@ -459,21 +482,37 @@ export default {
     },
     //清除当前选中元素的Contain关系
     deleteCurNodeContain(CURNODE){
+
       let curNodeId = CURNODE.id
       this.topoData.connectors.forEach((ele,key) => {
           if(ele.type == 'Contain' && ele.sourceNode.id == curNodeId){
             let targetNodeId = ele.targetNode.id
+            this.topoData.connectors.splice(key,1)            
             this.topoData.nodes.forEach((node,key) => {
               if(node.id == targetNodeId){
-               // console.log(node.name + '...' +node.id+'...'+targetNodeId + "...."+ curNodeId)
-                node.width = node.initW
-                node.height = node.initH
-               this.refreshOuterNodeWidth(node)
+                this.getLastChildNode(node)
               }
-            })
-            this.topoData.connectors.splice(key,1)           
+            })                 
           }
        })
+    },
+    getLastChildNode(CURNODE){
+      let isLastChild = true
+      this.topoData.connectors.forEach((ele,key) => {
+        if(ele.targetNode.id == CURNODE.id && ele.type == 'Contain'){
+          isLastChild = false
+          let childNodeId =  ele.sourceNode.id
+          this.topoData.nodes.forEach((node,index) => {
+            if(node.id == childNodeId) this.getLastChildNode(node)
+          })
+        }
+
+      })
+      if(isLastChild){
+        CURNODE.width = CURNODE.initW
+        CURNODE.height =CURNODE.initH
+        this.refreshOuterNodeWidth(CURNODE)
+      }
     },
     //刷新外部node的宽度（递归）
     refreshOuterNodeWidth(CURNODE){
@@ -692,10 +731,12 @@ export default {
 /*toolbar样式*/
 #toolbar{width:250px;height:100%;float: left;overflow-y: scroll;box-sizing: border-box;padding-right:10px;}
 .toolbar-head{padding:10px;text-align: center;color:#000069;font-size:14px;}
+
 /*toolbar node样式*/
 .node-item{float: left;margin:3px 2px;cursor: pointer;border:1px solid #c7d1dd;-webkit-user-select:none;user-select:none;}
-.node-css{width:57px;height: 57px;background-color: #fff;-webkit-user-select:none;user-select:none;}
-.node-icon{font-size:23px;text-align: center;height: 40px;line-height: 40px;-webkit-user-select:none;user-select:none;}
+.node-css{width:57px;height: 57px;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:5px 0;}
+.node-icon{text-align: center;-webkit-user-select:none;user-select:none;}
+.toolbar-node-icon{width: 28px;height: 28px;-webkit-user-select:none;user-select:none;}
 .node-name{font-size:12px;text-align: center;position: relative;top:-4px;padding:0 5px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;-webkit-user-select:none;user-select:none;}
 /*移动的node*/
 #move-node{position: absolute;border:1px solid #768699;box-sizing: border-box;}
