@@ -351,11 +351,9 @@ export default {
     },
     mousedownTopoSvg(){
       //取消所有节点选中
-      console.log(123)
       this.topoData.nodes.forEach((ele,key) =>{
         ele.isSelect = false
        })
-      console.log(this.topoData.nodes)
     },
     //拖拽svg中的node
     dragSvgNode(key,event){
@@ -443,14 +441,13 @@ export default {
          // 与NodeData对比，判断是否有值与其他Node重合的
          for(let i =( TOPODATA.nodes.length - 1); i >= 0; i--){      //forEach无法跳出循环,暂用for循环
             let targetNode = TOPODATA.nodes[i]
-            if(CURNODE.id != targetNode.id && targetNode.type == "T1"){   //排除自身元素
-
+            if(CURNODE.id != targetNode.id && targetNode.type == "T1" && CURNODE.type == "T1"){   //排除自身元素
               let isContainNode = false
               let minX = targetNode.x
               let maxX = targetNode.x + targetNode.width
               let minY = targetNode.y
               let maxY = targetNode.y + targetNode.height
-              //四种包含情况判断
+              //四种包含情况判重合
               if(NodePoint1[0] <= maxX && NodePoint1[0] >= minX && NodePoint1[1] <=  maxY && NodePoint1[1] >= minY) isContainNode = true
               if(NodePoint2[0] <= maxX && NodePoint2[0] >= minX && NodePoint2[1] <=  maxY && NodePoint2[1] >= minY) isContainNode = true
               if(NodePoint4[0] <= maxX && NodePoint4[0] >= minX && NodePoint4[1] <=  maxY && NodePoint4[1] >= minY) isContainNode = true
@@ -490,7 +487,7 @@ export default {
             this.topoData.connectors.splice(key,1)            
             this.topoData.nodes.forEach((node,key) => {
               if(node.id == targetNodeId){
-                this.getLastChildNode(node)
+                this.getLastChildNode(node,CURNODE)
               }
             })                 
           }
@@ -546,7 +543,6 @@ export default {
                   let childNodeId = connector.sourceNode.id 
                   this.topoData.nodes.forEach((node,index) => {
                     if(node.id == childNodeId){
-
                       let childNode = node
                       this.refreshInnerNodePosition(childNode)
                     }
