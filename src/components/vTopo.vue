@@ -200,6 +200,7 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
+     maxRowIndexNode:null,
      activeNames: ['1'],
      toolbarNodeData:[
       {name:'Compute',icon:compute,width:150,height:100,num:1,type:'T1'},
@@ -262,9 +263,9 @@ export default {
      ],
      topoData:{
       nodes:[
-        {x:30,y:10,width:150,height:100,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'New_server_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1'},
-        {x:100,y:50,width:150,height:100,id:77,isLeftConnectShow:false,isRightConnectShow:false,name:'New_volumn_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1'},
-        {x:500,y:100,width:100,height:100,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'New_proxy_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1'}
+        {x:30,y:10,width:150,height:100,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'New_server_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1',containNodes:[]},
+        {x:100,y:50,width:150,height:100,id:77,isLeftConnectShow:false,isRightConnectShow:false,name:'New_volumn_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1',containNodes:[]},
+        {x:500,y:100,width:100,height:100,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'New_proxy_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1',containNodes:[]}
       ],
       connectors:[
         
@@ -323,7 +324,8 @@ export default {
              id:id,
              type:NODE.type,
              isLeftConnectShow:false,
-             isRightConnectShow:false
+             isRightConnectShow:false,
+             containNodes:[]
           }
           this.marker.isMarkerShow = false    //标尺取消显示
           this.topoData.nodes.push(svgNode)   //创建一个svg Node                   
@@ -364,18 +366,22 @@ export default {
        let startY = CURNODE.y
        let curNodeId = CURNODE.id  //当前结点id
        let nodeW = CURNODE.width  //节点 宽高
-       let nodeH = CURNODE.height      
+       let nodeH = CURNODE.height 
+       let nodeStartPosArr = []  
+       let moveDis = false   
        this.marker.isMarkerShow = true //显示标尺
        //把选中的node信息放入数组最后一位，待看结果 可能有bug
        this.topoData.nodes.splice(key,1)
-       this.topoData.nodes.push(CURNODE)      
+       this.topoData.nodes.push(CURNODE) 
+       /********优化*********/     
        this.putInnerNodeLast(CURNODE) //递归循环将嵌套节点依次放置，判断包含关系，如果内部有子node，则需要将子node放入数组最后的位置
        //节点选中
        this.topoData.nodes.forEach((ele,key) =>{
         ele.isSelect = false
        })
-       CURNODE.isSelect = true
-       
+       CURNODE.isSelect = true       
+       this.storeCurnodeStartPosition(CURNODE,nodeStartPosArr)  //将选择的node的子子节点初始位置保存进去
+
 　　　　document.onmousemove = (event) => {         
 　　　　　　let disX = event.clientX - mouseX0  //移动位置
            let disY = event.clientY - mouseY0
@@ -384,15 +390,14 @@ export default {
            let n1 = Math.floor(endX / 20)  //grid宽高的整数倍
            let n2 = Math.floor(endY / 20) 
            this.marker.isMarkerShow = true  //显示标尺        
-           CURNODE.x = endX    //CURNODE为引用值，直接赋值
-           CURNODE.y = endY
            this.marker.xmarkerY1 = n2 * 20   //标尺的移动位置，以每格20的距离移动
            this.marker.xmarkerY2 = n2 * 20
            this.marker.ymarkerX1 = n1 * 20
            this.marker.ymarkerX2 = n1 * 20
            
-           this.moveContianNode(CURNODE) //递归移动所有容器内元素
-           this.drawContainLayout(CURNODE,endX,endY,false)
+           this.moveContianNode(disX,disY,nodeStartPosArr) //根据保存的数组数据移动相关节点
+           this.refreshConnectorsData()  //及时更新连线数据
+          // this.drawContainLayout(CURNODE,endX,endY,false,nodeStartPosArr)
 　　　　};
 　　　　document.onmouseup = () => {　　　　　　           
            document.onmousemove = null
@@ -400,12 +405,104 @@ export default {
            this.marker.isMarkerShow = false    //隐藏标尺
            let NodeEndX = this.marker.ymarkerX1  //最终位置为标尺的位置 最终节点位置
            let NodeEndY = this.marker.xmarkerY2
-           CURNODE.x = NodeEndX  
-           CURNODE.y = NodeEndY
-           this.moveContianNode(CURNODE)  //移动包含着的子节点
-           this.drawContainLayout(CURNODE,NodeEndX,NodeEndY,true)
+           let disX = NodeEndX - startX
+           let disY = NodeEndY - startY
+
+           this.moveContianNode(disX,disY,nodeStartPosArr)  //移动包含着的子节点
+           this.deleteCurNodeContain(CURNODE) //清除当前node的包含关系
+           this.drawContainLayout(CURNODE,NodeEndX,NodeEndY,true,nodeStartPosArr) 
+           this.refreshConnectorsData() //最后刷新连线            
 　　　　};
        
+    },
+    //绘制contain布局及刷新连线数据
+    drawContainLayout(CURNODE,NodeEndX,NodeEndY,isStop,nodeStartPosArr){
+        let TOPODATA = this.topoData
+        let curNodeId = CURNODE.id
+        let nodeW = CURNODE.width 
+        let nodeH = CURNODE.height        
+         //预留 ++++ 判断是否能增加包含关系
+         let NodePoint1 = [NodeEndX,NodeEndY]   //初始当前节点四个角的位置
+         let NodePoint2 = [(NodeEndX + nodeW),NodeEndY]
+         let NodePoint3 = [(NodeEndX + nodeW),(NodeEndY + nodeH)]
+         let NodePoint4 = [NodeEndX,(NodeEndY + nodeH)]
+         
+         // 与NodeData对比，判断是否有值与其他Node重合的
+         for(let i =( TOPODATA.nodes.length - 1); i >= 0; i--){      //forEach无法跳出循环,暂用for循环
+            let targetNode = TOPODATA.nodes[i]
+            if(CURNODE.id != targetNode.id && targetNode.type == "T1" && CURNODE.type == "T1"){   //排除自身元素
+              let isContainNode = false
+              let minX = targetNode.x
+              let maxX = targetNode.x + targetNode.width
+              let minY = targetNode.y
+              let maxY = targetNode.y + targetNode.height
+              //四种包含情况判重合
+              if(NodePoint1[0] <= maxX && NodePoint1[0] >= minX && NodePoint1[1] <=  maxY && NodePoint1[1] >= minY) isContainNode = true
+              if(NodePoint2[0] <= maxX && NodePoint2[0] >= minX && NodePoint2[1] <=  maxY && NodePoint2[1] >= minY) isContainNode = true
+              if(NodePoint4[0] <= maxX && NodePoint4[0] >= minX && NodePoint4[1] <=  maxY && NodePoint4[1] >= minY) isContainNode = true
+              if(NodePoint3[0] <= maxX && NodePoint3[0] >= minX && NodePoint3[1] <=  maxY && NodePoint3[1] >= minY) isContainNode = true
+              //选中的node 有 与其他node 重合
+              if(isContainNode){                
+                //关系数组中增加包含关系              
+                let connector={
+                  type:'Contain',
+                  sourceNode:{
+                    id:CURNODE.id,
+                  },
+                  targetNode:{
+                    id:targetNode.id,
+                  }
+                }                          
+                 
+                //this.refreshOuterNodeWidth(CURNODE)  //递归刷新外部node宽度                
+                if(isStop){     //鼠标是mouseup状态时，确定最终位置
+                  TOPODATA.connectors.push(connector)
+                  //this.refreshOuterWidthAndRowPosition(CURNODE,targetNode)
+                  //如果有嵌套关系，就在父节点放入子节点id
+                  TOPODATA.nodes.forEach((node,key) => {
+                    if(node.id == targetNode.id) node.containNodes.push(CURNODE.id)
+                  })
+                  this.refreshRowAndOuterNode(CURNODE,targetNode)  //刷新并列节点位置和父节点宽高
+
+                  nodeStartPosArr.forEach((node,key) => {
+                    if(node.id == CURNODE.id){
+                      let disX = CURNODE.x - node.x 
+                      let disY = CURNODE.y - node.y
+                      this.moveContianNode(disX,disY,nodeStartPosArr)  //移动包含着的子节点  
+                    }
+                  })                    
+                }
+                return false
+              }
+            }
+         }
+         
+    },
+    //存入node及其子节点位置信息
+    storeCurnodeStartPosition(CURNODE,startNodePosition){
+      let containNodes = CURNODE.containNodes
+      startNodePosition.push({id:CURNODE.id,x:CURNODE.x,y:CURNODE.y})
+      if(containNodes.length){
+        containNodes.forEach((nodeId,key) => {
+          this.topoData.nodes.forEach((ele,index) => {
+            if(ele.id == nodeId){
+              this.storeCurnodeStartPosition(ele,startNodePosition)
+            }
+          })
+        })
+      }
+    },
+    //contain情况下移动子节点位置
+    moveContianNode(disX,disY,nodeStartPosArr){
+      nodeStartPosArr.forEach((ele,key) => {
+        let storeInfoId = ele.id
+        this.topoData.nodes.forEach((node,key) => {
+          if(node.id == storeInfoId){
+            node.x = ele.x +disX
+            node.y =ele.y +disY
+          }
+        })
+      })      
     },
     //将选中的容器的最内的容器放置在数组最后
     putInnerNodeLast(CURNODE){
@@ -424,72 +521,39 @@ export default {
           }
        })
     },
-    //绘制contain布局及刷新连线数据
-    drawContainLayout(CURNODE,NodeEndX,NodeEndY,isStop){
-        let TOPODATA = this.topoData
-        let curNodeId = CURNODE.id
-        let nodeW = CURNODE.width 
-        let nodeH = CURNODE.height
-         
-         //预留 ++++ 判断是否能增加包含关系
-         let NodePoint1 = [NodeEndX,NodeEndY]   //初始当前节点四个角的位置
-         let NodePoint2 = [(NodeEndX + nodeW),NodeEndY]
-         let NodePoint3 = [(NodeEndX + nodeW),(NodeEndY + nodeH)]
-         let NodePoint4 = [NodeEndX,(NodeEndY + nodeH)]
-         //清除当前node的包含关系
-         this.deleteCurNodeContain(CURNODE)
-         // 与NodeData对比，判断是否有值与其他Node重合的
-         for(let i =( TOPODATA.nodes.length - 1); i >= 0; i--){      //forEach无法跳出循环,暂用for循环
-            let targetNode = TOPODATA.nodes[i]
-            if(CURNODE.id != targetNode.id && targetNode.type == "T1" && CURNODE.type == "T1"){   //排除自身元素
-              let isContainNode = false
-              let minX = targetNode.x
-              let maxX = targetNode.x + targetNode.width
-              let minY = targetNode.y
-              let maxY = targetNode.y + targetNode.height
-              //四种包含情况判重合
-              if(NodePoint1[0] <= maxX && NodePoint1[0] >= minX && NodePoint1[1] <=  maxY && NodePoint1[1] >= minY) isContainNode = true
-              if(NodePoint2[0] <= maxX && NodePoint2[0] >= minX && NodePoint2[1] <=  maxY && NodePoint2[1] >= minY) isContainNode = true
-              if(NodePoint4[0] <= maxX && NodePoint4[0] >= minX && NodePoint4[1] <=  maxY && NodePoint4[1] >= minY) isContainNode = true
-              if(NodePoint3[0] <= maxX && NodePoint3[0] >= minX && NodePoint3[1] <=  maxY && NodePoint3[1] >= minY) isContainNode = true
-              //选中的node 有 与其他node 重合
-              if(isContainNode){
-                
-                //关系数组中增加包含关系              
-                let connector={
-                  type:'Contain',
-                  sourceNode:{
-                    id:CURNODE.id,
-                  },
-                  targetNode:{
-                    id:targetNode.id,
-                  }
-                }
-                TOPODATA.connectors.push(connector)
-                this.refreshOuterNodeWidth(CURNODE)  //递归刷新外部node宽度                
-                if(isStop){     //鼠标是mouseup状态时，确定最终位置
-                   this.refreshInnerNodePosition(CURNODE)                   
-                }
-                this.refreshConnectorsData()   //刷新连线数据
-                return false
-              }
-            }
-         }
-         this.refreshConnectorsData()
-    },
+    
     //清除当前选中元素的Contain关系
     deleteCurNodeContain(CURNODE){
-
       let curNodeId = CURNODE.id
       this.topoData.connectors.forEach((ele,key) => {
           if(ele.type == 'Contain' && ele.sourceNode.id == curNodeId){
             let targetNodeId = ele.targetNode.id
-            this.topoData.connectors.splice(key,1)            
+            //1.删除cennetors关系
+            this.topoData.connectors.splice(key,1)  
+            //2.删除contains 里面的关系            
             this.topoData.nodes.forEach((node,key) => {
               if(node.id == targetNodeId){
+                if(node.containNodes.length){
+                  node.containNodes.forEach((ele,key) => {
+                    let targetNode = node
+
+                    if(ele == curNodeId){ 
+                      targetNode.containNodes.splice(key,1) 
+                      //3.刷新并列节点的位置
+                      if(targetNode.containNodes.length){
+                        let firstNodeId = targetNode.containNodes[0]
+                        this.topoData.nodes.forEach((node,key) => {
+                          if(node.id == firstNodeId){
+                            this.refreshRowAndOuterNode(node,targetNode)
+                          }
+                        })                       
+                      }
+                     }                    
+                  })
+                }
                 this.getLastChildNode(node,CURNODE)
               }
-            })                 
+            })           
           }
        })
     },
@@ -511,7 +575,24 @@ export default {
         this.refreshOuterNodeWidth(CURNODE)
       }
     },
-    //刷新外部node的宽度（递归）
+    //刷新外部节点宽度 及 右侧节点的位置
+    refreshOuterWidthAndRowPosition(CURNODE,TARGETNODE){
+      this.topoData.connectors.forEach((ele,key) => {
+        if(ele.sourceNode.id == CURNODE.id && ele.type == "Contain") {
+          let targetNodeId = ele.targetNode.id
+          this.topoData.nodes.forEach((node,index) => {
+            if(node.id == targetNodeId){
+              node.width = 2*this.containLeft +node.width
+              if(TARGETNODE.containNodes.length ==0){
+                node.height = 10 + node.height +this.containTop
+              }                          
+              this.refreshOuterNodeWidth(node)
+            }
+          })
+        }
+      })
+    },
+    //刷新外部node的宽度（递归） 且 刷新右侧所欲并列节点宽度
     refreshOuterNodeWidth(CURNODE){
       this.topoData.connectors.forEach((ele,key) => {
         if(ele.sourceNode.id == CURNODE.id && ele.type == "Contain") {
@@ -525,34 +606,59 @@ export default {
           })
         }
       })
-     // targetNode.width = 2*this.containLeft + nodeW
-      //targetNode.height = 10 + nodeH +this.containTop
     }, 
-    //刷新包含的子节点的最终位置
-    refreshInnerNodePosition(CURNODE){
-      this.topoData.connectors.forEach((ele,key) =>{
-        
-        if(CURNODE.id == ele.sourceNode.id && ele.type == "Contain"){
-          let targetNodeId = ele.targetNode.id 
+    //刷新当前节点的并列节点和父节点的宽度 及 位置
+    refreshRowAndOuterNode(CURNODE,TARGETNODE){
+      if(TARGETNODE.containNodes.length>1){
+        //重新计算targetnode的宽度
+        let sumWidth = 0
+        let maxHeight = 0
+        TARGETNODE.containNodes.forEach((ele,key) => {
+          let containNodeId = ele 
           this.topoData.nodes.forEach((node,index) => {
-            if(node.id == targetNodeId){
-              CURNODE.x = node.x + this.containLeft
-              CURNODE.y = node.y +this.containTop
-              this.topoData.connectors.forEach((connector,key)=>{
-                if(connector.type == 'Contain' && connector.targetNode.id == CURNODE.id){
-                  let childNodeId = connector.sourceNode.id 
-                  this.topoData.nodes.forEach((node,index) => {
-                    if(node.id == childNodeId){
-                      let childNode = node
-                      this.refreshInnerNodePosition(childNode)
-                    }
-                  })
-                }
-              })              
+            if(node.id == containNodeId) {
+              sumWidth += node.width
+              if(node.height > maxHeight) maxHeight = node.height
             }
           })
-        }
-      })
+        })
+        sumWidth += (TARGETNODE.containNodes.length + 1) * this.containLeft
+        TARGETNODE.width = sumWidth
+        TARGETNODE.height = maxHeight + 10 + this.containTop
+        //计算每个containNode的位置
+        TARGETNODE.containNodes.forEach((ele,key) =>{
+          let containNodeId =ele
+          let containNode 
+          let preNode
+          this.topoData.nodes.forEach((node,index) => {
+            if(node.id == containNodeId) containNode = node
+          })
+          if(key == 0){
+             this.refreshRowNodesPosition(TARGETNODE,containNode,null) 
+          }else{
+            let preNodeIndex = key - 1
+            let preNodeId = TARGETNODE.containNodes[preNodeIndex]
+            this.topoData.nodes.forEach((node,index) => {
+              if(node.id == preNodeId) preNode = node
+            })
+            this.refreshRowNodesPosition(TARGETNODE,containNode,preNode)
+          }
+        }) 
+
+      }else{                //仅有一个包含节点
+        CURNODE.x = TARGETNODE.x +this.containLeft
+        CURNODE.y = TARGETNODE.y +this.containTop
+        TARGETNODE.width = 2*this.containLeft +CURNODE.width
+        TARGETNODE.height = 10 + CURNODE.height +this.containTop
+      }
+    },
+    refreshRowNodesPosition(TARGETNODE,CURNODE,PRENODE){      
+      if(PRENODE != null){
+        CURNODE.x = PRENODE.x + PRENODE.width + this.containLeft
+      }else{
+        CURNODE.x = TARGETNODE.x +this.containLeft
+      }
+      CURNODE.y = TARGETNODE.y +this.containTop
     },
     //刷新连线数据
     refreshConnectorsData(){
@@ -574,21 +680,7 @@ export default {
         })                   
        })
     },
-    //contain情况下移动子节点位置
-    moveContianNode(CURNODE){
-      this.topoData.connectors.forEach((connector,key) => {
-        if(connector.type == "Contain" && connector.targetNode.id == CURNODE.id){
-          let childNodeId = connector.sourceNode.id 
-          this.topoData.nodes.forEach((node,index) => {
-            if(node.id == childNodeId){
-              node.x = CURNODE.x + this.containLeft
-              node.y = CURNODE.y + this.containTop
-              this.moveContianNode(node)
-            }
-          })
-        }
-       })
-    },
+    
     //动态绘制连线
     drawConnectLine(key,event){
       let CONNECTLINE = this.connectingLine //绘制连线对象
