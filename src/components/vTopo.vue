@@ -31,14 +31,20 @@
          </div>
     </div>
     <div id="topo-wrap">
-      <svg id="topo-svg" @mouseover = "moveInTopoSvg" @mouseout = "moveOutTopoSvg" @mousedown.stop = "mousedownTopoSvg">
+      <svg id="topo-svg"
+        :width="svgAttr.width" 
+        :height="svgAttr.height" 
+        @mouseover = "moveInTopoSvg" 
+        @mouseout = "moveOutTopoSvg" 
+        @mousedown.stop = "mousedownTopoSvg($event)" 
+        :viewBox="svgAttr.viewX+' '+svgAttr.viewY+' '+svgAttr.width+' '+svgAttr.height" 
+        :class="{'hand':svgAttr.isHand}">
         <defs>
           <pattern id="Pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
             <line :x1="ele.x1" :x2="ele.x2" :y1="ele.y1" :y2="ele.y2" :stroke="ele.color" :stroke-width="ele.strokeWidth" :opacity="ele.opacity" v-for="(ele,key) in gridData"></line>
           </pattern>
         </defs>      
-          <rect fill="url(#Pattern)" width="100%" height="100%" />
-          
+          <rect fill="url(#Pattern)" :width="svgAttr.width" :height="svgAttr.height" />         
           <g
             class="nodesG" 
             v-for="(ele,key) in topoData.nodes" 
@@ -174,8 +180,8 @@
           <g>
             <line :x1='connectingLine.x1' :y1="connectingLine.y1" :x2="connectingLine.x2" :y2="connectingLine.y2" v-show="connectingLine.isConnecting" stroke="#768699" stroke-width = "2"></line>
           </g> 
-          <line :class="{isMarkerShow:marker.isMarkerShow}" id="xmarker" class="marker" :x1="marker.xmarkerX1" :y1="marker.xmarkerY1" :x2="marker.xmarkerX2" :y2="marker.xmarkerY2"></line>
-          <line :class="{isMarkerShow:marker.isMarkerShow}" id="ymarker" class="marker" :x1="marker.ymarkerX1" :y1="marker.ymarkerY1" :x2="marker.ymarkerX2" :y2="marker.ymarkerY2"></line>     
+          <line :class="{isMarkerShow:marker.isMarkerShow}" id="xmarker" class="marker" x1="0" :y1="marker.xmarkerY" :x2="marker.xmarkerX" :y2="marker.xmarkerY"></line>
+          <line :class="{isMarkerShow:marker.isMarkerShow}" id="ymarker" class="marker" :x1="marker.ymarkerX" y1="0" :x2="marker.ymarkerX" :y2="marker.ymarkerY"></line>     
       </svg>
     </div>
     <div v-if="toolbarMoveNode.isShow" id="move-node" class="node-css" :style="{ left:toolbarMoveNode.left + 'px', top: toolbarMoveNode.top + 'px' }">
@@ -201,6 +207,7 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
+     svgAttr:{width:0,height:0,isHand:false,viewX:0,viewY:0,minW:0,minH:0},
      maxRowIndexNode:null,
      activeNames: ['1'],
      toolbarNodeData:[
@@ -240,14 +247,10 @@ export default {
       endNode:''
      },
      marker:{
-      xmarkerX1:0,
-      xmarkerY1:0,
-      xmarkerX2:0,
-      xmarkerY2:0,
-      ymarkerX1:0,
-      ymarkerY1:0,
-      ymarkerX2:0,
-      ymarkerY2:0,
+      xmarkerY:0,
+      xmarkerX:0,
+      ymarkerX:0,
+      ymarkerY:0,
       isMarkerShow:false,
      },     
      gridData:[
@@ -297,10 +300,8 @@ export default {
           this.marker.isMarkerShow = true          
           let n1 = Math.floor(nodeX / 20)  //grid宽高的整数倍
           let n2 = Math.floor(nodeY / 20)         
-          this.marker.xmarkerY1 = n2 * 20
-          this.marker.xmarkerY2 = n2 * 20
-          this.marker.ymarkerX1 = n1 * 20
-          this.marker.ymarkerX2 = n1 * 20
+          this.marker.xmarkerY = n2 * 20
+          this.marker.ymarkerX = n1 * 20
         }
       }
       document.onmouseup = (event)=>{
@@ -315,8 +316,8 @@ export default {
           let svgNode ={
              name,
              type,
-             x:this.marker.ymarkerX1,
-             y:this.marker.xmarkerY2,
+             x:this.marker.ymarkerX+this.svgAttr.viewX,
+             y:this.marker.xmarkerY+this.svgAttr.viewY,
              icon:NODE.icon,
              width:NODE.width,
              height:NODE.height,
@@ -351,12 +352,42 @@ export default {
     moveOutTopoSvg(){
       this.svgTopo.isMoveover = false
       this.marker.isMarkerShow = false
+
     },
-    mousedownTopoSvg(){
+    //1.取消选中的node节点 2. 移动viewbox
+    mousedownTopoSvg(event){
+      let mouseX0 = event.clientX //鼠标点击下的位置
+      let mouseY0 = event.clientY
+      let startViewX = this.svgAttr.viewX
+      let startViewY = this.svgAttr.viewY
+      let startSvgW =  this.svgAttr.width
+      let startSvgH = this.svgAttr.height
+      let svgMinW = this.svgAttr.minW
+      let svgMinH = this.svgAttr.minH
       //取消所有节点选中
       this.topoData.nodes.forEach((ele,key) =>{
         ele.isSelect = false
        })
+      //移动viewbox位置
+      document.onmousemove=(event)=>{
+        let disX = event.clientX - mouseX0
+        let disY = event.clientY - mouseY0
+        let endSvgW = startSvgW - disX
+        let endSvgH = startSvgH - disY
+        this.svgAttr.isHand = true
+
+        this.svgAttr.viewX = (startViewX <= disX) ? 0 : startViewX - disX   //根据鼠标移动的位移，得到视图移动位移
+        this.svgAttr.viewY = (startViewY <= disY) ? 0 : startViewY - disY 
+        this.svgAttr.width = (endSvgW < svgMinW) ? svgMinW : endSvgW   // 动态设置svg宽高
+        this.svgAttr.height = (endSvgH < svgMinH) ? svgMinH : endSvgH
+        this.marker.xmarkerX = this.svgAttr.width
+        this.marker.ymarkerY = this.svgAttr.height
+      }
+      document.onmouseup =(event)=>{
+        document.onmousemove = null
+　　　　 document.onmouseup = null
+        this.svgAttr.isHand = false
+      }
     },
     //拖拽svg中的node
     dragSvgNode(key,event){
@@ -391,10 +422,8 @@ export default {
            let n1 = Math.floor(endX / 20)  //grid宽高的整数倍
            let n2 = Math.floor(endY / 20) 
            this.marker.isMarkerShow = true  //显示标尺        
-           this.marker.xmarkerY1 = n2 * 20   //标尺的移动位置，以每格20的距离移动
-           this.marker.xmarkerY2 = n2 * 20
-           this.marker.ymarkerX1 = n1 * 20
-           this.marker.ymarkerX2 = n1 * 20
+           this.marker.xmarkerY = n2 * 20   //标尺的移动位置，以每格20的距离移动
+           this.marker.ymarkerX = n1 * 20
            
            this.moveContianNode(disX,disY,nodeStartPosArr) //根据保存的数组数据移动相关节点
            this.refreshConnectorsData()  //及时更新连线数据
@@ -404,8 +433,8 @@ export default {
            document.onmousemove = null
 　　　　　　document.onmouseup = null
            this.marker.isMarkerShow = false    //隐藏标尺
-           let NodeEndX = this.marker.ymarkerX1  //最终位置为标尺的位置 最终节点位置
-           let NodeEndY = this.marker.xmarkerY2
+           let NodeEndX = this.marker.ymarkerX  //最终位置为标尺的位置 最终节点位置
+           let NodeEndY = this.marker.xmarkerY
            let disX = NodeEndX - startX
            let disY = NodeEndY - startY
 
@@ -722,8 +751,8 @@ export default {
       let sourceNodeY = CURNODE.y    
       let mouseX0 = event.clientX    
       let mouseY0 = event.clientY
-      let x1 = event.clientX - $("#topo-svg").offset().left + $(document).scrollLeft()   //连线开始位置的位置：鼠标点击的实际位置   为鼠标位置 - 当前元素的偏移值
-      let y1 = event.clientY - $("#topo-svg").offset().top + 4 + $(document).scrollTop()
+      let x1 = event.clientX - $("#topo-svg").offset().left + $(document).scrollLeft() + this.svgAttr.viewX   //连线开始位置的位置：鼠标点击的实际位置   为鼠标位置 - 当前元素的偏移值
+      let y1 = event.clientY - $("#topo-svg").offset().top + 4 + $(document).scrollTop() + this.svgAttr.viewY
       CONNECTLINE.isConnecting = true   //显示绘制连线
       CONNECTLINE.x1 = x1 
       CONNECTLINE.y1 = y1 
@@ -820,10 +849,8 @@ export default {
     },
     //鼠标滑过node
     mouseroverNode(key,event){
-      this.marker.xmarkerY1 = this.topoData.nodes[key].y
-      this.marker.xmarkerY2 = this.topoData.nodes[key].y
-      this.marker.ymarkerX1 = this.topoData.nodes[key].x
-      this.marker.ymarkerX2 = this.topoData.nodes[key].x
+      this.marker.xmarkerY = this.topoData.nodes[key].y
+      this.marker.ymarkerX = this.topoData.nodes[key].x
     },
     //获取连线终点时的node的ID值
     getConnectLine(key){
@@ -837,16 +864,19 @@ export default {
   },
   mounted(){
     //初始化：获取topo组件宽高
-    this.marker.xmarkerX2 = $("#topo-svg").width()
-    this.marker.ymarkerY2 = $("#topo-svg").height()
-   
+    this.marker.xmarkerX = $("#topo-wrap").width()
+    this.marker.ymarkerY = $("#topo-wrap").height()
+    this.svgAttr.width = $("#topo-wrap").width()
+    this.svgAttr.height = $("#topo-wrap").height()
+    this.svgAttr.minW = $("#topo-wrap").width()
+    this.svgAttr.minH = $("#topo-wrap").height() 
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-#topoComponent{width:100%;height:600px;box-sizing: border-box;padding:15px;background-color: #fff}
+#topoComponent{width:100%;height:650px;box-sizing: border-box;padding:15px;background-color: #fff}
 /*toolbar样式*/
 #toolbar{width:250px;height:100%;float: left;overflow-y: scroll;box-sizing: border-box;padding-right:10px;}
 .toolbar-head{padding:10px;text-align: center;color:#000069;font-size:14px;}
@@ -860,8 +890,12 @@ export default {
 /*移动的node*/
 #move-node{position: absolute;border:1px solid #768699;box-sizing: border-box;}
 /*topo主体样式*/
-#topo-wrap{width:calc(100% - 250px);height:100%;float:left;box-sizing: border-box;box-sizing: border-box;}
-#topo-svg{width:100%;height:100%;border:1px solid #333;box-sizing: border-box;}
+#topo-wrap{width:calc(100% - 250px);height:100%;box-sizing: border-box;float:left;border:1px solid #333;overflow:hidden;}
+#topo-svg{box-sizing: border-box;}
+#topo-svg.hand{cursor:pointer}
+#topo-wrap::-webkit-scrollbar{width: 8px;height: 8px;}
+#topo-wrap::-webkit-scrollbar-thumb{background: #000069;border-radius: 3px}
+#topo-wrap::-webkit-scrollbar-track{background-color: #ddd;border-radius: 3px;}
 .reactClass{stroke-width:2;stroke:#768699;fill:#fff;cursor: default;}
 .isSelect{stroke:red;}
 .marker{stroke:#3d7ed5;stroke-width:1;display: none;}
