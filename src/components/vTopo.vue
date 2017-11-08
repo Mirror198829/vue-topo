@@ -75,10 +75,13 @@
           </g>
           <!-- node间关系连线样式 -->
           <g 
-            class="connectorsG" 
-            v-for="(ele,key) in topoData.connectors" v-if="ele.type == 'Line'">
+            class="connectorsG"
+            :class="{active:ele.isSelect}" 
+            v-for="(ele,key) in topoData.connectors" v-if="ele.type == 'Line'"
+            @mousedown.stop="selectConnectorLine(key)">
             <!-- 自连 -->
-            <path 
+            <path
+              class="connectorLine" 
               v-if="ele.sourceNode.id == ele.targetNode.id" 
               :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2)+
               'h'+connectorWSelf+
@@ -86,24 +89,22 @@
               'h'+ (-(ele.sourceNode.width +  2 * connectorWSelf)) + 
               'v'+(ele.sourceNode.height / 2 + connectorWSelf) + 
               'H' + (ele.targetNode.x)"
-              stroke = "#768699"
-              fill = "none"
-              stroke-width = "2"></path>
+              ></path>
             <!-- 非自连:1.sourceNode 的右侧箭头X <= targetNode的左侧箭头X -->
             <path 
+              class="connectorLine" 
               v-if="ele.sourceNode.id != ele.targetNode.id && 
               (ele.sourceNode.x +ele.sourceNode.width) < ele.targetNode.x" 
               :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2) + 
               'h'+ (ele.targetNode.x - ele.sourceNode.x - ele.sourceNode.width) / 2 + 
               'V' + (ele.targetNode.y + ele.targetNode.height / 2) + 
               'H' + ele.targetNode.x" 
-              stroke = "#768699"
-              fill = "none"
-              stroke-width = "2"></path>
+              ></path>
             <!-- 非自连：
             2.sourceNode 的右侧箭头X >= targetNode的左侧箭头X  
             (1) 且 sourceNode的高度 < targetNode的高度 且 高度未重叠-->
-            <path 
+            <path
+              class="connectorLine"  
               v-if="ele.sourceNode.id != ele.targetNode.id && 
               (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
               (ele.sourceNode.y + ele.sourceNode.height ) < ele.targetNode.y" 
@@ -113,13 +114,12 @@
               'H'+(ele.targetNode.x - connectorWSelf) + 
               'V'+(ele.targetNode.y + ele.targetNode.height / 2) + 
               'h'+connectorWSelf" 
-              stroke = "#768699"
-              fill = "none"
-              stroke-width = "2"></path>
+              ></path>
             <!-- 非自连：
             2.sourceNode 的右侧箭头X >= targetNode的左侧箭头X
              (2) 且 sourceNode的高度 > targetNode的高度 且 高度未重叠-->
             <path 
+              class="connectorLine" 
               v-if="ele.sourceNode.id != ele.targetNode.id && 
               (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
               (ele.targetNode.y + ele.targetNode.height) < ele.sourceNode.y" 
@@ -129,9 +129,7 @@
               'H'+ (ele.targetNode.x - connectorWSelf) + 
               'V'+(ele.targetNode.y + ele.targetNode.height / 2) + 
               'H'+ele.targetNode.x" 
-              stroke = "#768699"
-              fill = "none"
-              stroke-width = "2"></path>
+              ></path>
              <!-- 
              非自连：
              2.sourceNode 的右侧箭头X >= targetNode的左侧箭头X 
@@ -139,6 +137,7 @@
             sourceNode 的y < targetNode的y < = (sourceNode 的y + sourceNode的height) 或者 sourceNode的y介于其间
              高度重叠-->
             <path 
+              class="connectorLine" 
               v-if="ele.sourceNode.id != ele.targetNode.id &&
               (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
               (ele.sourceNode.y + ele.sourceNode.height/2) <= (ele.targetNode.y + ele.targetNode.height / 2) &&
@@ -150,9 +149,7 @@
               'H' + (ele.targetNode.x - connectorWSelf) + 
               'V' +(ele.targetNode.y + ele.targetNode.height / 2) + 
               'H' + ele.targetNode.x" 
-              stroke = "#768699"
-              fill = "none"
-              stroke-width = "2"></path> 
+              ></path> 
              <!-- 
              非自连：
              2.sourceNode 的右侧箭头X > targetNode的左侧箭头X 
@@ -160,6 +157,7 @@
              sourceNode的起点 > targetNode的终点 且 
              高度重叠-->
             <path 
+              class="connectorLine" 
               v-if="ele.sourceNode.id != ele.targetNode.id &&
               (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
               (ele.sourceNode.y + ele.sourceNode.height/2) > (ele.targetNode.y + ele.targetNode.height / 2) &&
@@ -171,9 +169,7 @@
               'H' + (ele.targetNode.x - connectorWSelf) + 
               'V' +(ele.targetNode.y + ele.targetNode.height / 2) + 
               'H' + ele.targetNode.x"
-              stroke = "#768699"
-              fill = "none"
-              stroke-width = "2"></path> 
+              ></path> 
           </g>
           <!-- 动态绘制的连线 -->
           <g>
@@ -208,7 +204,6 @@ export default {
   data () {
     return {
      svgAttr:{width:0,height:0,isHand:false,viewX:0,viewY:0,minW:0,minH:0},
-     maxRowIndexNode:null,
      activeNames: ['1'],
      toolbarNodeData:[
       {name:'Compute',icon:compute,width:150,height:100,num:1,type:'T1'},
@@ -271,9 +266,7 @@ export default {
         {x:100,y:50,width:150,height:100,id:77,isLeftConnectShow:false,isRightConnectShow:false,name:'New_volumn_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1',containNodes:[]},
         {x:500,y:100,width:100,height:100,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'New_proxy_0',isSelect:false,initW:100,initH:100,icon:database,type:'T1',containNodes:[]}
       ],
-      connectors:[
-        
-      ]
+      connectors:[]
      }
     }
   },
@@ -365,9 +358,10 @@ export default {
       let svgMinW = this.svgAttr.minW
       let svgMinH = this.svgAttr.minH
       //取消所有节点选中
-      this.topoData.nodes.forEach((ele,key) =>{
-        ele.isSelect = false
-       })
+      this.cancelAllNodesSelect()
+      //取消连线选中
+      this.cancelAllLinksSelect()
+          
       //移动viewbox位置
       document.onmousemove=(event)=>{
         let disX = event.clientX - mouseX0
@@ -407,10 +401,11 @@ export default {
        this.topoData.nodes.push(CURNODE) 
        /********优化*********/     
        this.putInnerNodeLast(CURNODE) //递归循环将嵌套节点依次放置，判断包含关系，如果内部有子node，则需要将子node放入数组最后的位置
+       //取消所有节点选中
+       this.cancelAllNodesSelect()
+       //取消所有连线选中
+       this.cancelAllLinksSelect()
        //节点选中
-       this.topoData.nodes.forEach((ele,key) =>{
-        ele.isSelect = false
-       })
        CURNODE.isSelect = true       
        this.storeCurnodeStartPosition(CURNODE,nodeStartPosArr)  //将选择的node的子子节点初始位置保存进去
 
@@ -480,7 +475,7 @@ export default {
             return false
          }
          //清除当前node的包含关系
-         this.deleteCurNodeContain(CURNODE) 
+         this.deleteCurNodeContainConnector(CURNODE) 
          // 与NodeData对比，判断是否有值与其他Node重合的
          let isContainNode = false
          let overlapTargetNode = {}
@@ -513,14 +508,10 @@ export default {
               },
               targetNode:{
                 id:overlapTargetNode.id,
-              }
-            }                          
-             
-                         
-
+              },
+              isSelect:false
+            }                                                 
             TOPODATA.connectors.push(connector)
-
-            //this.refreshOuterWidthAndRowPosition(CURNODE,targetNode)
             //如果有嵌套关系，就在父节点放入子节点id
             TOPODATA.nodes.forEach((node,key) => {
               if(node.id == overlapTargetNode.id) node.containNodes.push(CURNODE.id)
@@ -586,7 +577,7 @@ export default {
     },
     
     //清除当前选中元素的Contain关系
-    deleteCurNodeContain(CURNODE){
+    deleteCurNodeContainConnector(CURNODE){
       let curNodeId = CURNODE.id
       this.topoData.connectors.forEach((ele,key) => {
           if(ele.type == 'Contain' && ele.sourceNode.id == curNodeId){
@@ -609,23 +600,6 @@ export default {
             })           
           }
        })
-    },
-    //刷新外部节点宽度 及 右侧节点的位置
-    refreshOuterWidthAndRowPosition(CURNODE,TARGETNODE){
-      this.topoData.connectors.forEach((ele,key) => {
-        if(ele.sourceNode.id == CURNODE.id && ele.type == "Contain") {
-          let targetNodeId = ele.targetNode.id
-          this.topoData.nodes.forEach((node,index) => {
-            if(node.id == targetNodeId){
-              node.width = 2*this.containLeft +node.width
-              if(TARGETNODE.containNodes.length ==0){
-                node.height = 10 + node.height +this.containTop
-              }                          
-              this.refreshOuterNodeWidth(node)
-            }
-          })
-        }
-      })
     },
     //刷新外部node的宽度（递归） 且 刷新右侧所欲并列节点宽度
     refreshOuterNodeWidth(CURNODE){
@@ -768,7 +742,6 @@ export default {
 　　　　 document.onmouseup = null 
         let hasConnected = false   //标记是否已经有过连线 
         let CONNECTORS =  this.topoData.connectors
-        // let pointes = []
         let sourceNodeW = nodeW
         let sourceNodeH = nodeH
         let targetNodeW = 0    //目标节点相关信息
@@ -855,11 +828,118 @@ export default {
     mouseoutLeftConnector(key){
       this.connectingLine.endNode = ''
     },
-    //删除node节点
-    deleteNode(){
-      console.log(123)
+    //点击选中连线
+    selectConnectorLine(key){
+      let connectors =  this.topoData.connectors
+      let nodes = this.topoData.nodes
+      let selectLine = this.topoData.connectors[key]
+      let lastIndex = connectors.length - 1
+      connectors.splice(key,1)
+      connectors.push(selectLine)
+      //取消所有选中样式
+      this.cancelAllNodesSelect()
+      this.cancelAllLinksSelect()
+      selectLine.isSelect = true
+      this.$set(connectors,lastIndex,selectLine)
+    },
+    //取消所有节点选中
+    cancelAllNodesSelect(){
+      this.topoData.nodes.forEach((ele,key) =>{
+          ele.isSelect = false
+          this.$set(this.topoData.nodes,key,ele)
+      })
+    },
+    //取消所有连线选中
+    cancelAllLinksSelect(){
+      this.topoData.connectors.forEach((ele,key)=>{
+          ele.isSelect = false
+          this.$set(this.topoData.connectors,key,ele)
+      }) 
+    },
+    //删除node节点及其关系
+    deleteNodeAndConnetor(){
+      document.onkeydown =(event)=>{
+      let keycode =  event.which //键盘值
+      if(keycode == 46) {
+         this.topoData.nodes.forEach((node,key)=>{
+          if(node.isSelect){          
+            this.deleteSelectNodeLink(node.id)
+            // let targetNodeId=""
+            // let targetNode = null
+            // this.topoData.connectors.forEach((ele,key) => {
+            //   if(ele.sourceNode.id == node.id ) targetNodeId = ele.targetNode.id
+            // })
+            // console.log(targetNodeId)
+            // if(targetNodeId){
+            //   this.topoData.nodes.forEach((node,index) => {
+            //   if(node.id  == targetNodeId)
+            //   this.refreshRowAndOuterNode(node)
+            //  }) 
+            // }            
+            this.topoData.nodes.splice(key,1)
+            //删除包含关系1.如果有父元素，恢复父元素的宽高位置
+            this.deleteCurnodeAndChildnodes(node) // 删除此节点内部所有包含的节点及其关系          
+            this.refreshNodeArrows() //刷新节点的左右箭头展示       
+          }
+         })
+         this.topoData.connectors.forEach((ele,key)=>{
+           if(ele.isSelect){
+             this.topoData.connectors.splice(key,1)
+             this.refreshNodeArrows()//重新绘制node节点左右箭头
+           }
+         })
+      }    
+     }
+    },
+    //删除选中node的连线
+    deleteSelectNodeLink(selectId){
+      let connectorObjArr = this.topoData.connectors
+      let connectorsLen = connectorObjArr.length
+      for(let i=0; i<connectorsLen;i++){
+        let connectorObj = connectorObjArr[i]
+        //删除连线
+        if(connectorObj.type == "Line" && (connectorObj.sourceNode.id == selectId || connectorObj.targetNode.id == selectId)){
+          this.topoData.connectors.splice(i,1)
+          i--
+          connectorsLen --
+        }        
+      }
+    },
+    //删除此节点下所有包含的所有节点
+    deleteCurnodeAndChildnodes(CURNODE){
+      
+      this.deleteCurNodeContainConnector(CURNODE)
+      if(CURNODE.containNodes.length){        
+         CURNODE.containNodes.forEach((containNodeId,key) => {
+          let containId =  containNodeId
+          this.topoData.nodes.forEach((ele,index)=>{
+            if(ele.id == containId) {
+              let curnode = ele
+              this.topoData.nodes.splice(index,1)
+              this.deleteSelectNodeLink(containId)
+              this.deleteCurnodeAndChildnodes(curnode) //递归删除内部所有的节点及其关系
+            }
+          })
+         })
+      }
+    },
+    //重新绘制node节点左右箭头
+    refreshNodeArrows(){
+      this.topoData.nodes.forEach((topoNode,index)=>{
+        topoNode.isLeftConnectShow = false 
+        topoNode.isRightConnectShow = false
+      })
+      this.topoData.connectors.forEach((ele,key)=>{
+        let sourceNodeId = ele.sourceNode.id
+        let targetNodeId = ele.targetNode.id
+        if(ele.type == 'Line'){
+          this.topoData.nodes.forEach((topoNode,index) => {             
+          if(topoNode.id == targetNodeId) topoNode.isLeftConnectShow = true
+          if(topoNode.id == sourceNodeId) topoNode.isRightConnectShow = true
+        })
+        }            
+      })   
     }
-    
   },
   mounted(){
     //初始化：获取topo组件宽高
@@ -869,23 +949,7 @@ export default {
     this.svgAttr.height = $("#topo-wrap").height()
     this.svgAttr.minW = $("#topo-wrap").width()
     this.svgAttr.minH = $("#topo-wrap").height()
-    //删除node节点和连线
-    document.onkeydown =(event)=>{
-      let keycode =  event.which
-      if(keycode == 46) {
-        this.topoData.nodes.forEach((node,key)=>{
-        if(node.isSelect){
-          this.topoData.connectors.forEach((ele,index)=>{
-            if(ele.type == "Line"){
-              if(ele.sourceNode.id == node.id || ele.targetNode.id == node.id ) this.topoData.connectors.splice(index,1)
-            }
-          })
-          this.topoData.nodes.splice(key,1)
-          this.deleteCurNodeContain(node)
-        }
-      })
-      }    
-    } 
+    this.deleteNodeAndConnetor() //绑定删除Node事件    
  }
 }
 </script>
@@ -895,7 +959,7 @@ export default {
 #topoComponent{width:100%;height:650px;box-sizing: border-box;padding:15px;background-color: #fff}
 /*toolbar样式*/
 #toolbar{width:250px;height:100%;float: left;overflow-y: scroll;box-sizing: border-box;padding-right:10px;}
-.toolbar-head{padding:10px;text-align: center;color:#000069;font-size:14px;}
+.toolbar-head{padding:10px;text-align: center;color:#000069;font-size:14px;-webkit-user-select:none;user-select:none;}
 
 /*toolbar node样式*/
 .node-item{float: left;margin:3px 2px;cursor: pointer;border:1px solid #c7d1dd;-webkit-user-select:none;user-select:none;}
@@ -921,7 +985,8 @@ export default {
 .nodesG:hover .connectorArror{display: block}
 .nodeName{font-size:12px;fill:#4f5d71;-webkit-user-select:none;user-select:none;}
 .connector{display: block;}
-
+.connectorsG .connectorLine{stroke:#768699;stroke-width:2;fill:none;}
+.connectorsG.active .connectorLine{stroke:red;stroke-width:3}
 </style>
 <style type="text/css">
   .el-collapse-item__header{-webkit-user-select:none;user-select:none;}

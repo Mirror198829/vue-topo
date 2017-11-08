@@ -17,5 +17,5 @@ export default {
 </script>
 <style  scoped>
 	#footer{padding:20px;background-color: #000069;color:#fff;text-align: center;font-size: 12px;}
-	.foot-txt{margin-bottom:5px;}
+	.foot-txt{margin-bottom:5px;-webkit-user-select:none;user-select:none;}
 </style>
