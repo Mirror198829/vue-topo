@@ -30,155 +30,163 @@
           </el-collapse>
          </div>
     </div>
-    <div id="topo-wrap">
-      <svg id="topo-svg"
-        :width="svgAttr.width" 
-        :height="svgAttr.height" 
-        @mouseover = "moveInTopoSvg" 
-        @mouseout = "moveOutTopoSvg" 
-        @mousedown.stop = "mousedownTopoSvg($event)" 
+    <div id="svgWrap">
+      <div id="svgHead">
+        <el-button-group>
+          <el-button type="primary" icon="edit"></el-button>
+          <el-button type="primary" icon="share"></el-button>
+          <el-button type="primary" icon="delete"></el-button>
+        </el-button-group>
+      </div>
+      <div id="topo-wrap">
+        <svg id="topo-svg"
+          :width="svgAttr.width" 
+          :height="svgAttr.height" 
+          @mouseover = "moveInTopoSvg" 
+          @mouseout = "moveOutTopoSvg" 
+          @mousedown.stop = "mousedownTopoSvg($event)" 
 
-        :viewBox="svgAttr.viewX+' '+svgAttr.viewY+' '+svgAttr.width+' '+svgAttr.height" 
-        :class="{'hand':svgAttr.isHand}">
-        <defs>
-          <pattern id="Pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-            <line :x1="ele.x1" :x2="ele.x2" :y1="ele.y1" :y2="ele.y2" :stroke="ele.color" :stroke-width="ele.strokeWidth" :opacity="ele.opacity" v-for="(ele,key) in gridData"></line>
-          </pattern>
-        </defs>
-        <rect fill="url(#Pattern)" :width="svgAttr.width" :height="svgAttr.height" />
-        <g>                        
-          <g
-            class="nodesG" 
-            v-for="(ele,key) in topoData.nodes" 
-            :transform="'translate('+ele.x+','+ele.y+')'" 
-            :key="key" 
-            @mouseover.stop="mouseoverNode(key,$event)" 
-            @mousedown.stop="dragSvgNode(key,$event)"
-            >
-            <rect x="0" y="0" rx="2" ry="2" :width="ele.width" :height="ele.height" class="reactClass" :class="{isSelect:ele.isSelect}" />
-            <text v-if="ele.type == 'T1'" class="nodeName" x="5" y="15">{{ele.name}}</text>
-            <image v-if="ele.type == 'T1'" :xlink:href="ele.icon" :x="ele.width - 23" :y="5" height="17px" width="17px"/>
+          :viewBox="svgAttr.viewX+' '+svgAttr.viewY+' '+svgAttr.width+' '+svgAttr.height" 
+          :class="{'hand':svgAttr.isHand}">
+          <defs>
+            <pattern id="Pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+              <line :x1="ele.x1" :x2="ele.x2" :y1="ele.y1" :y2="ele.y2" :stroke="ele.color" :stroke-width="ele.strokeWidth" :opacity="ele.opacity" v-for="(ele,key) in gridData"></line>
+            </pattern>
+          </defs>
+          <rect fill="url(#Pattern)" :width="svgAttr.width" :height="svgAttr.height" />
+          <g>                        
+            <g
+              class="nodesG" 
+              v-for="(ele,key) in topoData.nodes" 
+              :transform="'translate('+ele.x+','+ele.y+')'" 
+              :key="key" 
+              @mouseover.stop="mouseoverNode(key,$event)" 
+              @mousedown.stop="dragSvgNode(key,$event)"
+              >
+              <rect x="0" y="0" rx="2" ry="2" :width="ele.width" :height="ele.height" class="reactClass" :class="{isSelect:ele.isSelect}" />
+              <text v-if="ele.type == 'T1'" class="nodeName" x="5" y="15">{{ele.name}}</text>
+              <image v-if="ele.type == 'T1'" :xlink:href="ele.icon" :x="ele.width - 23" :y="5" height="17px" width="17px"/>
 
-            <image v-if="ele.type == 'T2'" :xlink:href="ele.icon" :x="7" :y="7" height="36px" width="36px"/>
-            <text v-if="ele.type == 'T2'" class="nodeName" x="0" :y="ele.height + 14">{{ele.name}}</text>
-            <!-- <text class="fontIcon" x="0" y="50">{{ele.icon}}</text> -->
-            <g class="connectorArror" :class="{'connector':ele.isLeftConnectShow}" :transform="'translate(0,'+ele.height/2+')'"  @mouseover.stop="getConnectLine(key)" @mouseout.stop = "mouseoutLeftConnector(key)">
-              <circle r="8" cx="0" cy="0" fill="#768699"></circle>
-              <line x1="-3" y1="-5" x2="4" y2="0.5" stroke="#fff"></line>
-              <line x1="4" y1="-0.5" x2="-3" y2="5" stroke="#fff"></line>
+              <image v-if="ele.type == 'T2'" :xlink:href="ele.icon" :x="7" :y="7" height="36px" width="36px"/>
+              <text v-if="ele.type == 'T2'" class="nodeName" x="0" :y="ele.height + 14">{{ele.name}}</text>
+              <g class="connectorArror" :class="{'connector':ele.isLeftConnectShow}" :transform="'translate(0,'+ele.height/2+')'"  @mouseover.stop="getConnectLine(key)" @mouseout.stop = "mouseoutLeftConnector(key)">
+                <circle r="8" cx="0" cy="0" class="circleColor"></circle>
+                <line x1="-3" y1="-5" x2="4" y2="0.5" stroke="#fff"></line>
+                <line x1="4" y1="-0.5" x2="-3" y2="5" stroke="#fff"></line>
+              </g>
+              <g class="connectorArror" :class="{'connector':ele.isRightConnectShow}" :transform="'translate('+ele.width+','+ele.height/2+')'" @mousedown.stop="drawConnectLine(key,$event)">
+                <circle r="8" cx="0" cy="0" class="circleColor"></circle>
+                <line x1="-3" y1="-5" x2="4" y2="0.5" stroke="#fff"></line>
+                <line x1="4" y1="-0.5" x2="-3" y2="5" stroke="#fff"></line>
+              </g>
             </g>
-            <g class="connectorArror" :class="{'connector':ele.isRightConnectShow}" :transform="'translate('+ele.width+','+ele.height/2+')'" @mousedown.stop="drawConnectLine(key,$event)">
-              <circle r="8" cx="0" cy="0" fill="#768699"></circle>
-              <line x1="-3" y1="-5" x2="4" y2="0.5" stroke="#fff"></line>
-              <line x1="4" y1="-0.5" x2="-3" y2="5" stroke="#fff"></line>
+            <!-- node间关系连线样式 -->
+            <g 
+              class="connectorsG"
+              :class="{active:ele.isSelect}" 
+              v-for="(ele,key) in topoData.connectors" v-if="ele.type == 'Line'"
+              @mousedown.stop="selectConnectorLine(key)">
+              <!-- 自连 -->
+              <path
+                class="connectorLine" 
+                v-if="ele.sourceNode.id == ele.targetNode.id" 
+                :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2)+
+                'h'+connectorWSelf+
+                'v'+(-(ele.sourceNode.height / 2 + connectorWSelf))+ 
+                'h'+ (-(ele.sourceNode.width +  2 * connectorWSelf)) + 
+                'v'+(ele.sourceNode.height / 2 + connectorWSelf) + 
+                'H' + (ele.targetNode.x)"
+                ></path>
+              <!-- 非自连:1.sourceNode 的右侧箭头X <= targetNode的左侧箭头X -->
+              <path 
+                class="connectorLine" 
+                v-if="ele.sourceNode.id != ele.targetNode.id && 
+                (ele.sourceNode.x +ele.sourceNode.width) < ele.targetNode.x" 
+                :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2) + 
+                'h'+ (ele.targetNode.x - ele.sourceNode.x - ele.sourceNode.width) / 2 + 
+                'V' + (ele.targetNode.y + ele.targetNode.height / 2) + 
+                'H' + ele.targetNode.x" 
+                ></path>
+              <!-- 非自连：
+              2.sourceNode 的右侧箭头X >= targetNode的左侧箭头X  
+              (1) 且 sourceNode的高度 < targetNode的高度 且 高度未重叠-->
+              <path
+                class="connectorLine"  
+                v-if="ele.sourceNode.id != ele.targetNode.id && 
+                (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
+                (ele.sourceNode.y + ele.sourceNode.height ) < ele.targetNode.y" 
+                :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2) +
+                'h'+connectorWSelf+ 
+                'v'+(ele.sourceNode.height / 2 + (ele.targetNode.y - ele.sourceNode.y -  ele.sourceNode.height) / 2) + 
+                'H'+(ele.targetNode.x - connectorWSelf) + 
+                'V'+(ele.targetNode.y + ele.targetNode.height / 2) + 
+                'h'+connectorWSelf" 
+                ></path>
+              <!-- 非自连：
+              2.sourceNode 的右侧箭头X >= targetNode的左侧箭头X
+               (2) 且 sourceNode的高度 > targetNode的高度 且 高度未重叠-->
+              <path 
+                class="connectorLine" 
+                v-if="ele.sourceNode.id != ele.targetNode.id && 
+                (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
+                (ele.targetNode.y + ele.targetNode.height) < ele.sourceNode.y" 
+                :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2) +
+                'h'+connectorWSelf+ 
+                'V'+(ele.sourceNode.y-(ele.sourceNode.y - ele.targetNode.y - ele.targetNode.height) / 2) + 
+                'H'+ (ele.targetNode.x - connectorWSelf) + 
+                'V'+(ele.targetNode.y + ele.targetNode.height / 2) + 
+                'H'+ele.targetNode.x" 
+                ></path>
+               <!-- 
+               非自连：
+               2.sourceNode 的右侧箭头X >= targetNode的左侧箭头X 
+               (3) sourceNode的箭头y < = targetNode的箭头
+              sourceNode 的y < targetNode的y < = (sourceNode 的y + sourceNode的height) 或者 sourceNode的y介于其间
+               高度重叠-->
+              <path 
+                class="connectorLine" 
+                v-if="ele.sourceNode.id != ele.targetNode.id &&
+                (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
+                (ele.sourceNode.y + ele.sourceNode.height/2) <= (ele.targetNode.y + ele.targetNode.height / 2) &&
+                ((ele.targetNode.y <= (ele.sourceNode.y + ele.sourceNode.height) && ele.targetNode.y >= ele.sourceNode.y) ||
+                (ele.sourceNode.y <= (ele.targetNode.y + ele.targetNode.height) && ele.sourceNode.y >= ele.targetNode.y)
+                )" 
+                :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2)+'h'+connectorWSelf + 
+                'V'+ ((ele.sourceNode.y-ele.targetNode.y ) <= 0? (ele.sourceNode.y - connectorWSelf) : (ele.targetNode.y -connectorWSelf)) + 
+                'H' + (ele.targetNode.x - connectorWSelf) + 
+                'V' +(ele.targetNode.y + ele.targetNode.height / 2) + 
+                'H' + ele.targetNode.x" 
+                ></path> 
+               <!-- 
+               非自连：
+               2.sourceNode 的右侧箭头X > targetNode的左侧箭头X 
+               (3) 且 sourceNode的高度 < targetNode的高度 且 
+               sourceNode的起点 > targetNode的终点 且 
+               高度重叠-->
+              <path 
+                class="connectorLine" 
+                v-if="ele.sourceNode.id != ele.targetNode.id &&
+                (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
+                (ele.sourceNode.y + ele.sourceNode.height/2) > (ele.targetNode.y + ele.targetNode.height / 2) &&
+                ((ele.targetNode.y <= (ele.sourceNode.y + ele.sourceNode.height) && ele.targetNode.y >= ele.sourceNode.y) ||
+                (ele.sourceNode.y <= (ele.targetNode.y + ele.targetNode.height) && ele.sourceNode.y >= ele.targetNode.y)
+                )" 
+                :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2)+'h'+connectorWSelf + 
+                'V'+ ((ele.sourceNode.y  + ele.sourceNode.height-ele.targetNode.y -ele.targetNode.height ) >= 0? (ele.sourceNode.y+ele.sourceNode.height + connectorWSelf) : (ele.targetNode.y+ele.targetNode.height +connectorWSelf)) + 
+                'H' + (ele.targetNode.x - connectorWSelf) + 
+                'V' +(ele.targetNode.y + ele.targetNode.height / 2) + 
+                'H' + ele.targetNode.x"
+                ></path> 
             </g>
+            <!-- 动态绘制的连线 -->
+            <g>
+              <line :x1='connectingLine.x1' :y1="connectingLine.y1" :x2="connectingLine.x2" :y2="connectingLine.y2" v-show="connectingLine.isConnecting" stroke="#768699" stroke-width = "2"></line>
+            </g>           
           </g>
-          <!-- node间关系连线样式 -->
-          <g 
-            class="connectorsG"
-            :class="{active:ele.isSelect}" 
-            v-for="(ele,key) in topoData.connectors" v-if="ele.type == 'Line'"
-            @mousedown.stop="selectConnectorLine(key)">
-            <!-- 自连 -->
-            <path
-              class="connectorLine" 
-              v-if="ele.sourceNode.id == ele.targetNode.id" 
-              :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2)+
-              'h'+connectorWSelf+
-              'v'+(-(ele.sourceNode.height / 2 + connectorWSelf))+ 
-              'h'+ (-(ele.sourceNode.width +  2 * connectorWSelf)) + 
-              'v'+(ele.sourceNode.height / 2 + connectorWSelf) + 
-              'H' + (ele.targetNode.x)"
-              ></path>
-            <!-- 非自连:1.sourceNode 的右侧箭头X <= targetNode的左侧箭头X -->
-            <path 
-              class="connectorLine" 
-              v-if="ele.sourceNode.id != ele.targetNode.id && 
-              (ele.sourceNode.x +ele.sourceNode.width) < ele.targetNode.x" 
-              :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2) + 
-              'h'+ (ele.targetNode.x - ele.sourceNode.x - ele.sourceNode.width) / 2 + 
-              'V' + (ele.targetNode.y + ele.targetNode.height / 2) + 
-              'H' + ele.targetNode.x" 
-              ></path>
-            <!-- 非自连：
-            2.sourceNode 的右侧箭头X >= targetNode的左侧箭头X  
-            (1) 且 sourceNode的高度 < targetNode的高度 且 高度未重叠-->
-            <path
-              class="connectorLine"  
-              v-if="ele.sourceNode.id != ele.targetNode.id && 
-              (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
-              (ele.sourceNode.y + ele.sourceNode.height ) < ele.targetNode.y" 
-              :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2) +
-              'h'+connectorWSelf+ 
-              'v'+(ele.sourceNode.height / 2 + (ele.targetNode.y - ele.sourceNode.y -  ele.sourceNode.height) / 2) + 
-              'H'+(ele.targetNode.x - connectorWSelf) + 
-              'V'+(ele.targetNode.y + ele.targetNode.height / 2) + 
-              'h'+connectorWSelf" 
-              ></path>
-            <!-- 非自连：
-            2.sourceNode 的右侧箭头X >= targetNode的左侧箭头X
-             (2) 且 sourceNode的高度 > targetNode的高度 且 高度未重叠-->
-            <path 
-              class="connectorLine" 
-              v-if="ele.sourceNode.id != ele.targetNode.id && 
-              (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
-              (ele.targetNode.y + ele.targetNode.height) < ele.sourceNode.y" 
-              :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2) +
-              'h'+connectorWSelf+ 
-              'V'+(ele.sourceNode.y-(ele.sourceNode.y - ele.targetNode.y - ele.targetNode.height) / 2) + 
-              'H'+ (ele.targetNode.x - connectorWSelf) + 
-              'V'+(ele.targetNode.y + ele.targetNode.height / 2) + 
-              'H'+ele.targetNode.x" 
-              ></path>
-             <!-- 
-             非自连：
-             2.sourceNode 的右侧箭头X >= targetNode的左侧箭头X 
-             (3) sourceNode的箭头y < = targetNode的箭头
-            sourceNode 的y < targetNode的y < = (sourceNode 的y + sourceNode的height) 或者 sourceNode的y介于其间
-             高度重叠-->
-            <path 
-              class="connectorLine" 
-              v-if="ele.sourceNode.id != ele.targetNode.id &&
-              (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
-              (ele.sourceNode.y + ele.sourceNode.height/2) <= (ele.targetNode.y + ele.targetNode.height / 2) &&
-              ((ele.targetNode.y <= (ele.sourceNode.y + ele.sourceNode.height) && ele.targetNode.y >= ele.sourceNode.y) ||
-              (ele.sourceNode.y <= (ele.targetNode.y + ele.targetNode.height) && ele.sourceNode.y >= ele.targetNode.y)
-              )" 
-              :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2)+'h'+connectorWSelf + 
-              'V'+ ((ele.sourceNode.y-ele.targetNode.y ) <= 0? (ele.sourceNode.y - connectorWSelf) : (ele.targetNode.y -connectorWSelf)) + 
-              'H' + (ele.targetNode.x - connectorWSelf) + 
-              'V' +(ele.targetNode.y + ele.targetNode.height / 2) + 
-              'H' + ele.targetNode.x" 
-              ></path> 
-             <!-- 
-             非自连：
-             2.sourceNode 的右侧箭头X > targetNode的左侧箭头X 
-             (3) 且 sourceNode的高度 < targetNode的高度 且 
-             sourceNode的起点 > targetNode的终点 且 
-             高度重叠-->
-            <path 
-              class="connectorLine" 
-              v-if="ele.sourceNode.id != ele.targetNode.id &&
-              (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
-              (ele.sourceNode.y + ele.sourceNode.height/2) > (ele.targetNode.y + ele.targetNode.height / 2) &&
-              ((ele.targetNode.y <= (ele.sourceNode.y + ele.sourceNode.height) && ele.targetNode.y >= ele.sourceNode.y) ||
-              (ele.sourceNode.y <= (ele.targetNode.y + ele.targetNode.height) && ele.sourceNode.y >= ele.targetNode.y)
-              )" 
-              :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2)+'h'+connectorWSelf + 
-              'V'+ ((ele.sourceNode.y  + ele.sourceNode.height-ele.targetNode.y -ele.targetNode.height ) >= 0? (ele.sourceNode.y+ele.sourceNode.height + connectorWSelf) : (ele.targetNode.y+ele.targetNode.height +connectorWSelf)) + 
-              'H' + (ele.targetNode.x - connectorWSelf) + 
-              'V' +(ele.targetNode.y + ele.targetNode.height / 2) + 
-              'H' + ele.targetNode.x"
-              ></path> 
-          </g>
-          <!-- 动态绘制的连线 -->
-          <g>
-            <line :x1='connectingLine.x1' :y1="connectingLine.y1" :x2="connectingLine.x2" :y2="connectingLine.y2" v-show="connectingLine.isConnecting" stroke="#768699" stroke-width = "2"></line>
-          </g>           
-        </g>
-        <line :class="{isMarkerShow:marker.isMarkerShow}" id="xmarker" class="marker" x1="0" :y1="marker.xmarkerY" :x2="marker.xmarkerX" :y2="marker.xmarkerY"></line>
-        <line :class="{isMarkerShow:marker.isMarkerShow}" id="ymarker" class="marker" :x1="marker.ymarkerX" y1="0" :x2="marker.ymarkerX" :y2="marker.ymarkerY"></line>
-      </svg>
+          <line :class="{isMarkerShow:marker.isMarkerShow}" id="xmarker" class="marker" x1="0" :y1="marker.xmarkerY" :x2="marker.xmarkerX" :y2="marker.xmarkerY"></line>
+          <line :class="{isMarkerShow:marker.isMarkerShow}" id="ymarker" class="marker" :x1="marker.ymarkerX" y1="0" :x2="marker.ymarkerX" :y2="marker.ymarkerY"></line>
+        </svg>
+      </div>
     </div>
     <div v-if="toolbarMoveNode.isShow" id="move-node" class="node-css" :style="{ left:toolbarMoveNode.left + 'px', top: toolbarMoveNode.top + 'px' }">
       <div class="node-icon">
@@ -348,7 +356,7 @@ export default {
 
     },
     //1.取消选中的node节点 2. 移动viewbox
-    mousedownTopoSvg(event){
+    mousedownTopoSvg(event){ 
       let mouseX0 = event.clientX //鼠标点击下的位置
       let mouseY0 = event.clientY
       let startViewX = this.svgAttr.viewX
@@ -356,12 +364,9 @@ export default {
       let startSvgW =  this.svgAttr.width
       let startSvgH = this.svgAttr.height
       let svgMinW = this.svgAttr.minW
-      let svgMinH = this.svgAttr.minH
-      //取消所有节点选中
-      this.cancelAllNodesSelect()
-      //取消连线选中
-      this.cancelAllLinksSelect()
-          
+      let svgMinH = this.svgAttr.minH     
+      this.cancelAllNodesSelect() //取消所有节点选中     
+      this.cancelAllLinksSelect() //取消连线选中       
       //移动viewbox位置
       document.onmousemove=(event)=>{
         let disX = event.clientX - mouseX0
@@ -369,7 +374,6 @@ export default {
         let endSvgW = startSvgW - disX
         let endSvgH = startSvgH - disY
         this.svgAttr.isHand = true
-
         this.svgAttr.viewX = (startViewX <= disX) ? 0 : startViewX - disX   //根据鼠标移动的位移，得到视图移动位移
         this.svgAttr.viewY = (startViewY <= disY) ? 0 : startViewY - disY 
         this.svgAttr.width = (endSvgW < svgMinW) ? svgMinW : endSvgW   // 动态设置svg宽高
@@ -590,7 +594,6 @@ export default {
                 if(node.containNodes.length){
                   node.containNodes.forEach((ele,key) => {
                     let targetNode = node
-
                     if(ele == curNodeId){ 
                       targetNode.containNodes.splice(key,1) 
                      }                    
@@ -862,25 +865,27 @@ export default {
       let keycode =  event.which //键盘值
       if(keycode == 46) {
          this.topoData.nodes.forEach((node,key)=>{
-          if(node.isSelect){          
+         if(node.isSelect){          
             this.deleteSelectNodeLink(node.id)
-            // let targetNodeId=""
-            // let targetNode = null
-            // this.topoData.connectors.forEach((ele,key) => {
-            //   if(ele.sourceNode.id == node.id ) targetNodeId = ele.targetNode.id
-            // })
-            // console.log(targetNodeId)
-            // if(targetNodeId){
-            //   this.topoData.nodes.forEach((node,index) => {
-            //   if(node.id  == targetNodeId)
-            //   this.refreshRowAndOuterNode(node)
-            //  }) 
-            // }            
+
+            let targetNodeId=""
+            let targetNode = null
+            this.topoData.connectors.forEach((ele,key) => {
+              if(ele.sourceNode.id == node.id ) targetNodeId = ele.targetNode.id
+            })
+            this.deleteCurNodeContainConnector(node)
+            console.log(targetNodeId)
+            if(targetNodeId){
+              this.topoData.nodes.forEach((node,index) => {
+              if(node.id  == targetNodeId)
+              this.refreshRowAndOuterNode(node)
+             }) 
+            }            
             this.topoData.nodes.splice(key,1)
             //删除包含关系1.如果有父元素，恢复父元素的宽高位置
             this.deleteCurnodeAndChildnodes(node) // 删除此节点内部所有包含的节点及其关系          
             this.refreshNodeArrows() //刷新节点的左右箭头展示       
-          }
+         }
          })
          this.topoData.connectors.forEach((ele,key)=>{
            if(ele.isSelect){
@@ -888,6 +893,7 @@ export default {
              this.refreshNodeArrows()//重新绘制node节点左右箭头
            }
          })
+         this.refreshConnectorsData()
       }    
      }
     },
@@ -953,11 +959,14 @@ export default {
  }
 }
 </script>
+<style scoped lang="less">
+@import '../less/index.less';
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-#topoComponent{width:100%;height:650px;box-sizing: border-box;padding:15px;background-color: #fff}
 /*toolbar样式*/
+@svg-common-color:#768699;
+@stroke-width:2;
+@stroke-select-width:3;
+@stroke-select-color:red;
 #toolbar{width:250px;height:100%;float: left;overflow-y: scroll;box-sizing: border-box;padding-right:10px;}
 .toolbar-head{padding:10px;text-align: center;color:#000069;font-size:14px;-webkit-user-select:none;user-select:none;}
 
@@ -967,26 +976,32 @@ export default {
 .node-icon{text-align: center;-webkit-user-select:none;user-select:none;}
 .toolbar-node-icon{width: 28px;height: 28px;-webkit-user-select:none;user-select:none;}
 .node-name{font-size:12px;text-align: center;position: relative;top:-4px;padding:0 5px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;-webkit-user-select:none;user-select:none;}
+#topoComponent{width:100%;height:650px;box-sizing: border-box;padding:15px;background-color: #fff}
+
 /*移动的node*/
-#move-node{position: absolute;border:1px solid #768699;box-sizing: border-box;}
-/*topo主体样式*/
-#topo-wrap{width:calc(100% - 250px);height:100%;box-sizing: border-box;float:left;border:1px solid #333;overflow:hidden;}
-#topo-svg{box-sizing: border-box;}
-#topo-svg.hand{cursor:pointer}
-#topo-wrap::-webkit-scrollbar{width: 8px;height: 8px;}
-#topo-wrap::-webkit-scrollbar-thumb{background: #000069;border-radius: 3px}
-#topo-wrap::-webkit-scrollbar-track{background-color: #ddd;border-radius: 3px;}
-.reactClass{stroke-width:2;stroke:#768699;fill:#fff;cursor: default;}
-.isSelect{stroke:red;stroke-width:3;}
+#move-node{position: absolute;border:1px solid @svg-common-color;box-sizing: border-box;}
+.reactClass.isSelect{stroke:@stroke-select-color;stroke-width:@stroke-select-width;}
 .marker{stroke:#3d7ed5;stroke-width:1;display: none;}
 .isMarkerShow{display: block;}
-.fontIcon{font-family:FontAwesome;font-size:50px;cursor: default;} 
 .connectorArror{display: none;}
 .nodesG:hover .connectorArror{display: block}
-.nodeName{font-size:12px;fill:#4f5d71;-webkit-user-select:none;user-select:none;}
+.nodeName{font-size:12px;fill:@svg-common-color;-webkit-user-select:none;user-select:none;}
 .connector{display: block;}
-.connectorsG .connectorLine{stroke:#768699;stroke-width:2;fill:none;}
-.connectorsG.active .connectorLine{stroke:red;stroke-width:3}
+.connectorsG .connectorLine{stroke:@svg-common-color;stroke-width:@stroke-width;fill:none;}
+.connectorsG.active .connectorLine{stroke:@stroke-select-color;stroke-width:@stroke-select-width}
+.reactClass{stroke-width:@stroke-width;stroke:@svg-common-color;fill:#fff;cursor: default;}
+.circleColor{fill:@svg-common-color}
+</style>
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+
+/*topo主体样式*/
+#svgWrap{width:calc(100% - 250px);height:100%;box-sizing: border-box;float:left;}
+#svgHead{width: 100%;height:40px;box-sizing: border-box;}
+#topo-wrap{width:100%;height:calc(100% - 40px);box-sizing: border-box;border:1px solid #333;overflow:hidden;}
+#topo-svg{box-sizing: border-box;}
+#topo-svg.hand{cursor:pointer}
+
 </style>
 <style type="text/css">
   .el-collapse-item__header{-webkit-user-select:none;user-select:none;}

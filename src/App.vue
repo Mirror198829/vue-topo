@@ -20,10 +20,11 @@ export default {
 }
 </script>
 
-<style>
+<style lang="less">
+@import '../src/less/index.less';
 .clearfix{ zoom:1;}
 .clearfix:after{ content:''; display:block; clear:both;}
 *{margin:0;padding:0;}
 ul,li{list-style: none;}
-body{background-color: #000069}
+body{background-color: @theme-color}
 </style>

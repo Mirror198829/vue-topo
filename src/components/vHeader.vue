@@ -5,6 +5,7 @@
 </template>
 
 <script>
+
 export default {
   name: 'footer',
   data () {
@@ -14,6 +15,8 @@ export default {
   }
 }
 </script>
-<style  scoped>
-	#header{height:50px;line-height:50px;background-color: #000069;color:#fff;padding:0 20px;}
+
+<style lang="less" scoped>
+@import '../less/index.less';
+ #header{height:50px;line-height:50px;background-color: @theme-color;color:#fff;padding:0 20px;}
 </style>
