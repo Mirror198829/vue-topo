@@ -31,12 +31,12 @@
          </div>
     </div>
     <div id="svgWrap">
-      <div id="svgHead">
-        <el-button-group>
-          <el-button type="primary" icon="edit"></el-button>
-          <el-button type="primary" icon="share"></el-button>
-          <el-button type="primary" icon="delete"></el-button>
-        </el-button-group>
+      <div id="svgHead" class="clearfix">
+        <ul class="svgHeadItemLst clearfix" style="float:left">
+          <li class="svgHeadItem" v-for="(ele,key) in svgToolbar" :class="{'active':ele.isActive}" @mousedown="selectToolbar(key)"  :title="ele.name">
+            <div class="svgHeadItemImg" :class="ele.className"></div>
+          </li>
+        </ul>
       </div>
       <div id="topo-wrap">
         <svg id="topo-svg"
@@ -45,15 +45,15 @@
           @mouseover = "moveInTopoSvg" 
           @mouseout = "moveOutTopoSvg" 
           @mousedown.stop = "mousedownTopoSvg($event)" 
-
           :viewBox="svgAttr.viewX+' '+svgAttr.viewY+' '+svgAttr.width+' '+svgAttr.height" 
-          :class="{'hand':svgAttr.isHand}">
+          :class="{'hand':svgAttr.isHand,'crosshair':svgAttr.isCrosshair}">
           <defs>
             <pattern id="Pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
               <line :x1="ele.x1" :x2="ele.x2" :y1="ele.y1" :y2="ele.y2" :stroke="ele.color" :stroke-width="ele.strokeWidth" :opacity="ele.opacity" v-for="(ele,key) in gridData"></line>
             </pattern>
           </defs>
           <rect fill="url(#Pattern)" :width="svgAttr.width" :height="svgAttr.height" />
+          
           <g>                        
             <g
               class="nodesG" 
@@ -185,6 +185,7 @@
           </g>
           <line :class="{isMarkerShow:marker.isMarkerShow}" id="xmarker" class="marker" x1="0" :y1="marker.xmarkerY" :x2="marker.xmarkerX" :y2="marker.xmarkerY"></line>
           <line :class="{isMarkerShow:marker.isMarkerShow}" id="ymarker" class="marker" :x1="marker.ymarkerX" y1="0" :x2="marker.ymarkerX" :y2="marker.ymarkerY"></line>
+          <rect :x="selectionBox.x" :y="selectionBox.y" :width="selectionBox.width" :height="selectionBox.height" stroke-dasharray="5,5" stroke-width="1" stroke="#222" fill="rgba(170,210,232,0.5)" v-show="selectionBox.isShow"/>
         </svg>
       </div>
     </div>
@@ -211,8 +212,15 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-     svgAttr:{width:0,height:0,isHand:false,viewX:0,viewY:0,minW:0,minH:0},
+     svgAttr:{width:0,height:0,isHand:false,viewX:0,viewY:0,minW:0,minH:0,isCrosshair:false},
      activeNames: ['1'],
+     svgToolbar:[
+      {name:'默认模式',className:'toolbar-default',isActive:true},
+      {name:'框选模式',className:'toolbar-rectangle_selection',isActive:false},
+      {name:'放大',className:'toolbar-zoomin',isActive:false},
+      {name:'缩小',className:'toolbar-zoomout',isActive:false},
+      {name:'恢复出厂设置',className:'toolbar-zoomreset',isActive:false}
+     ],
      toolbarNodeData:[
       {name:'Compute',icon:compute,width:150,height:100,num:1,type:'T1'},
       {name:'Database',icon:database,width:150,height:100,num:1,type:'T1'},
@@ -234,6 +242,13 @@ export default {
      },
      svgTopo:{
       isMoveover:false
+     },
+     selectionBox:{
+      x:0,
+      y:0,
+      width:0,
+      height:0,
+      isShow:false
      },
      connectorWSelf:15, //自连连线的宽度
      connectorW:15,//非自连连线宽度
@@ -364,15 +379,42 @@ export default {
       let startSvgW =  this.svgAttr.width
       let startSvgH = this.svgAttr.height
       let svgMinW = this.svgAttr.minW
-      let svgMinH = this.svgAttr.minH     
+      let svgMinH = this.svgAttr.minH  
+      let selectionBoxX = 0
+      let selectionBoxY = 0   
       this.cancelAllNodesSelect() //取消所有节点选中     
-      this.cancelAllLinksSelect() //取消连线选中       
+      this.cancelAllLinksSelect() //取消连线选中  
+      if(this.svgToolbar[1].isActive) {        
+        selectionBoxX = event.clientX - $("#topo-svg").offset().left + $(document).scrollLeft() + this.svgAttr.viewX  
+        selectionBoxY = event.clientY - $("#topo-svg").offset().top + 4 + $(document).scrollTop() + this.svgAttr.viewY
+        this.selectionBox.isShow = true
+        this.selectionBox.x = selectionBoxX
+        this.selectionBox.y = selectionBoxY
+      }    
       //移动viewbox位置
       document.onmousemove=(event)=>{
         let disX = event.clientX - mouseX0
         let disY = event.clientY - mouseY0
         let endSvgW = startSvgW - disX
         let endSvgH = startSvgH - disY
+        if(this.svgToolbar[1].isActive) {
+          let selectionW = Math.abs(disX)
+          let selectionH = Math.abs(disY)
+          this.svgAttr.isCrosshair = true         
+          if(disX <= 0){
+            this.selectionBox.x = selectionBoxX + disX
+          }else{
+            this.selectionBox.x = selectionBoxX
+          }
+          if(disY <=0){
+            this.selectionBox.y = selectionBoxY + disY
+          }else{
+            this.selectionBox.y = selectionBoxY
+          }
+          this.selectionBox.width = selectionW
+          this.selectionBox.height = selectionH
+          return false
+        }
         this.svgAttr.isHand = true
         this.svgAttr.viewX = (startViewX <= disX) ? 0 : startViewX - disX   //根据鼠标移动的位移，得到视图移动位移
         this.svgAttr.viewY = (startViewY <= disY) ? 0 : startViewY - disY 
@@ -385,6 +427,14 @@ export default {
         document.onmousemove = null
 　　　　 document.onmouseup = null
         this.svgAttr.isHand = false
+        this.svgAttr.isCrosshair = false
+        if(this.svgToolbar[1].isActive){
+          this.selectionBox.isShow = false
+          this.selectionBox.x = 0 
+          this.selectionBox.y = 0
+          this.selectionBox.width = 0
+          this.selectionBox.height = 0
+        }
       }
     },
     //拖拽svg中的node
@@ -874,7 +924,6 @@ export default {
               if(ele.sourceNode.id == node.id ) targetNodeId = ele.targetNode.id
             })
             this.deleteCurNodeContainConnector(node)
-            console.log(targetNodeId)
             if(targetNodeId){
               this.topoData.nodes.forEach((node,index) => {
               if(node.id  == targetNodeId)
@@ -912,8 +961,7 @@ export default {
       }
     },
     //删除此节点下所有包含的所有节点
-    deleteCurnodeAndChildnodes(CURNODE){
-      
+    deleteCurnodeAndChildnodes(CURNODE){      
       this.deleteCurNodeContainConnector(CURNODE)
       if(CURNODE.containNodes.length){        
          CURNODE.containNodes.forEach((containNodeId,key) => {
@@ -945,6 +993,14 @@ export default {
         })
         }            
       })   
+
+    },
+    //svg工具栏选择工具
+    selectToolbar(key){
+      this.svgToolbar.forEach((ele,key) => {
+        ele.isActive = false
+      })
+      this.svgToolbar[key].isActive = true
     }
   },
   mounted(){
@@ -967,6 +1023,7 @@ export default {
 @stroke-width:2;
 @stroke-select-width:3;
 @stroke-select-color:red;
+@border-color:#adadad;
 #toolbar{width:250px;height:100%;float: left;overflow-y: scroll;box-sizing: border-box;padding-right:10px;}
 .toolbar-head{padding:10px;text-align: center;color:#000069;font-size:14px;-webkit-user-select:none;user-select:none;}
 
@@ -991,16 +1048,30 @@ export default {
 .connectorsG.active .connectorLine{stroke:@stroke-select-color;stroke-width:@stroke-select-width}
 .reactClass{stroke-width:@stroke-width;stroke:@svg-common-color;fill:#fff;cursor: default;}
 .circleColor{fill:@svg-common-color}
+
+
+#svgHead{width: 100%;height:40px;box-sizing: border-box;border:solid @border-color;border-width: 1px 1px 0 1px;padding:5px}
+#topo-wrap{width:100%;box-sizing: border-box;border:1px solid @border-color;overflow:hidden;}
+.svgHeadItem{padding:5px 10px;border:1px solid @border-color;cursor:pointer;float:left;list-style:none;border-left-width: 0}
+.svgHeadItem:hover{background-color: #ebebeb}
+.svgHeadItem:first-child{border-left-width: 1px}
+.svgHeadItem.active{background-color: #ebebeb;box-shadow: 2px 2px 1px #ccc inset}
+.svgHeadItemImg{background: url('../assets/topo/icons.png');width:16px;height:16px;background-size:479px 16px;}
+.toolbar-default{background-position:-16px 0px}
+.toolbar-rectangle_selection{background-position:-294px 0px}
+.toolbar-zoomin{background-position:-425px 0px}
+.toolbar-zoomout{background-position:-444px 0px}
+.toolbar-zoomreset{background-position:-462px 0px}
 </style>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
 /*topo主体样式*/
 #svgWrap{width:calc(100% - 250px);height:100%;box-sizing: border-box;float:left;}
-#svgHead{width: 100%;height:40px;box-sizing: border-box;}
-#topo-wrap{width:100%;height:calc(100% - 40px);box-sizing: border-box;border:1px solid #333;overflow:hidden;}
+#topo-wrap{height:calc(100% - 40px);}
 #topo-svg{box-sizing: border-box;}
 #topo-svg.hand{cursor:pointer}
+#topo-svg.crosshair{cursor: crosshair;}
 
 </style>
 <style type="text/css">
