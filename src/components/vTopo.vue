@@ -1084,7 +1084,7 @@ export default {
 .svgHeadItem:first-child{border-left-width: 1px}
 .svgHeadItem.active{background-color: #ebebeb;box-shadow: 2px 2px 1px #ccc inset}
 .svgHeadItemImg{background: url('../assets/topo/icons.png');width:16px;height:16px;background-size:479px 16px;}
-.svgToolBarItem{font-size:14px;background-color:@theme-color;color:@theme-font-color;padding:5px 10px;border-radius: 2px;box-sizing:border-box;margin-left:5px;float:left;cursor:pointer;}
+.svgToolBarItem{font-size:13px;background-color:@theme-color;color:@theme-font-color;padding:5px 10px;border-radius: 2px;box-sizing:border-box;margin-left:5px;float:left;cursor:pointer;}
 .svgToolBarTxt{margin-left:2px;}
 .toolbar-default{background-position:-16px 0px}
 .toolbar-rectangle_selection{background-position:-294px 0px}
