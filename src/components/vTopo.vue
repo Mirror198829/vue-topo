@@ -37,6 +37,20 @@
             <div class="svgHeadItemImg" :class="ele.className"></div>
           </li>
         </ul>
+        <ul style="float:right" class="clearfix">
+          <li class="svgToolBarItem">
+            <i class="fa fa-save svgToolBarIcon"></i>
+            <span  class="svgToolBarTxt">保存</span>
+          </li>
+          <li class="svgToolBarItem">
+            <i class="fa fa-upload svgToolBarIcon"></i>
+            <span  class="svgToolBarTxt">上传</span>
+          </li>
+          <li class="svgToolBarItem">
+            <i class="fa fa-download svgToolBarIcon"></i>
+            <span  class="svgToolBarTxt">下载</span>
+          </li>
+        </ul>
       </div>
       <div id="topo-wrap">
         <svg id="topo-svg"
@@ -359,7 +373,6 @@ export default {
       function GenNonDuplicateID(randomLength){
         return Number(Math.random().toString().substr(3,randomLength) + Date.now()).toString(36)
       }
-
     },
     //svg区域事件
     moveInTopoSvg(){
@@ -428,7 +441,18 @@ export default {
 　　　　 document.onmouseup = null
         this.svgAttr.isHand = false
         this.svgAttr.isCrosshair = false
+        //如果是框选模式
         if(this.svgToolbar[1].isActive){
+          let selectionBoxObj = this.selectionBox
+          let sW = selectionBoxObj.width
+          let sH = selectionBoxObj.height
+          let sX = selectionBoxObj.x
+          let sY = selectionBoxObj.y 
+          this.topoData.nodes.forEach((node,key) => {
+            if(sX <= node.x && sY <= node.y && node.x + node.width <= sX + sW && node.y + node.height <= sY + sH){
+              node.isSelect = true
+            }
+          })
           this.selectionBox.isShow = false
           this.selectionBox.x = 0 
           this.selectionBox.y = 0
@@ -911,31 +935,34 @@ export default {
     },
     //删除node节点及其关系
     deleteNodeAndConnetor(){
-      document.onkeydown =(event)=>{
+     document.onkeydown =(event)=>{
       let keycode =  event.which //键盘值
       if(keycode == 46) {
-         this.topoData.nodes.forEach((node,key)=>{
-         if(node.isSelect){          
-            this.deleteSelectNodeLink(node.id)
-
-            let targetNodeId=""
-            let targetNode = null
-            this.topoData.connectors.forEach((ele,key) => {
-              if(ele.sourceNode.id == node.id ) targetNodeId = ele.targetNode.id
-            })
-            this.deleteCurNodeContainConnector(node)
-            if(targetNodeId){
-              this.topoData.nodes.forEach((node,index) => {
-              if(node.id  == targetNodeId)
-              this.refreshRowAndOuterNode(node)
-             }) 
-            }            
-            this.topoData.nodes.splice(key,1)
-            //删除包含关系1.如果有父元素，恢复父元素的宽高位置
-            this.deleteCurnodeAndChildnodes(node) // 删除此节点内部所有包含的节点及其关系          
-            this.refreshNodeArrows() //刷新节点的左右箭头展示       
+        //单节点和多选删除节点
+         for(let i=0;i<this.topoData.nodes.length;i++){
+           let node = this.topoData.nodes[i]
+           if(node.isSelect){
+              this.deleteSelectNodeLink(node.id)
+              let targetNodeId=""
+              let targetNode = null
+              this.topoData.connectors.forEach((ele,key) => {
+                if(ele.sourceNode.id == node.id ) targetNodeId = ele.targetNode.id
+              })
+              this.deleteCurNodeContainConnector(node)
+              if(targetNodeId){
+                this.topoData.nodes.forEach((node,index) => {
+                if(node.id  == targetNodeId)
+                this.refreshRowAndOuterNode(node)
+               }) 
+              }            
+              this.topoData.nodes.splice(i,1)
+              //删除包含关系1.如果有父元素，恢复父元素的宽高位置
+              this.deleteCurnodeAndChildnodes(node) // 删除此节点内部所有包含的节点及其关系          
+              this.refreshNodeArrows() //刷新节点的左右箭头展示  
+              i --               
+           }
          }
-         })
+         //单选删除连线功能
          this.topoData.connectors.forEach((ele,key)=>{
            if(ele.isSelect){
              this.topoData.connectors.splice(key,1)
@@ -1049,7 +1076,7 @@ export default {
 .reactClass{stroke-width:@stroke-width;stroke:@svg-common-color;fill:#fff;cursor: default;}
 .circleColor{fill:@svg-common-color}
 
-
+/* svg工具栏 */
 #svgHead{width: 100%;height:40px;box-sizing: border-box;border:solid @border-color;border-width: 1px 1px 0 1px;padding:5px}
 #topo-wrap{width:100%;box-sizing: border-box;border:1px solid @border-color;overflow:hidden;}
 .svgHeadItem{padding:5px 10px;border:1px solid @border-color;cursor:pointer;float:left;list-style:none;border-left-width: 0}
@@ -1057,6 +1084,8 @@ export default {
 .svgHeadItem:first-child{border-left-width: 1px}
 .svgHeadItem.active{background-color: #ebebeb;box-shadow: 2px 2px 1px #ccc inset}
 .svgHeadItemImg{background: url('../assets/topo/icons.png');width:16px;height:16px;background-size:479px 16px;}
+.svgToolBarItem{font-size:14px;background-color:@theme-color;color:@theme-font-color;padding:5px 10px;border-radius: 2px;box-sizing:border-box;margin-left:5px;float:left;cursor:pointer;}
+.svgToolBarTxt{margin-left:2px;}
 .toolbar-default{background-position:-16px 0px}
 .toolbar-rectangle_selection{background-position:-294px 0px}
 .toolbar-zoomin{background-position:-425px 0px}

@@ -17,6 +17,6 @@ export default {
 </script>
 <style scoped lang="less">
 @import '../less/index.less';
-#footer{padding:20px;background-color: @theme-color;color:#fff;text-align: center;font-size: 12px;}
+#footer{padding:20px;background-color: @theme-color;color:@theme-font-color;text-align: center;font-size: 12px;}
 .foot-txt{margin-bottom:5px;-webkit-user-select:none;user-select:none;}
 </style>
