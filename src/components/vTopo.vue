@@ -52,7 +52,7 @@
           </li>
         </ul>
       </div>
-      <div id="topo-wrap">
+      <div id="topo-wrap" style="position:relative">
         <svg id="topo-svg"
           :width="svgAttr.width" 
           :height="svgAttr.height" 
@@ -201,6 +201,56 @@
           <line :class="{isMarkerShow:marker.isMarkerShow}" id="ymarker" class="marker" :x1="marker.ymarkerX" y1="0" :x2="marker.ymarkerX" :y2="marker.ymarkerY"></line>
           <rect :x="selectionBox.x" :y="selectionBox.y" :width="selectionBox.width" :height="selectionBox.height" stroke-dasharray="5,5" stroke-width="1" stroke="#222" fill="rgba(170,210,232,0.5)" v-show="selectionBox.isShow"/>
         </svg>
+        <div id="topoAttrWrap" :class="{active:isTopoAttrShow}">
+            <i v-if="isTopoAttrShow" class="fa fa-chevron-circle-right topoAttrArrow" @click="isTopoAttrShow =!isTopoAttrShow"></i>
+            <i v-if="!isTopoAttrShow" class="fa fa-chevron-circle-left topoAttrArrow" @click="isTopoAttrShow =!isTopoAttrShow"></i>
+            <div style="overflow-y: scroll;height:100%;padding:20px 15px">
+              <el-form :model="topoData.nodes[selectNodeIndex]" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm" labelPosition="left">
+                  <el-form-item label="名称" prop="name">
+                    <el-input v-model="topoData.nodes[selectNodeIndex].name"></el-input>
+                  </el-form-item>
+                  <el-form-item label="活动区域" prop="region">
+                    <el-select v-model="ruleForm.region" placeholder="请选择活动区域">
+                      <el-option label="区域一" value="shanghai"></el-option>
+                      <el-option label="区域二" value="beijing"></el-option>
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="活动时间" required>
+                    <el-col :span="11">
+                      <el-form-item prop="date1">
+                        <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.date1" style="width: 100%;"></el-date-picker>
+                      </el-form-item>
+                    </el-col>
+                    <el-col class="line" :span="2">-</el-col>
+                    <el-col :span="11">
+                      <el-form-item prop="date2">
+                        <el-time-picker type="fixed-time" placeholder="选择时间" v-model="ruleForm.date2" style="width: 100%;"></el-time-picker>
+                      </el-form-item>
+                    </el-col>
+                  </el-form-item>
+                  <el-form-item label="即时配送" prop="delivery">
+                    <el-switch on-text="" off-text="" v-model="ruleForm.delivery"></el-switch>
+                  </el-form-item>
+                  <el-form-item label="活动性质" prop="type">
+                    <el-checkbox-group v-model="ruleForm.type">
+                      <el-checkbox label="美食/餐厅线上活动" name="type"></el-checkbox>
+                      <el-checkbox label="地推活动" name="type"></el-checkbox>
+                      <el-checkbox label="线下主题活动" name="type"></el-checkbox>
+                      <el-checkbox label="单纯品牌曝光" name="type"></el-checkbox>
+                    </el-checkbox-group>
+                  </el-form-item>
+                  <el-form-item label="特殊资源" prop="resource">
+                    <el-radio-group v-model="ruleForm.resource">
+                      <el-radio label="线上品牌商赞助"></el-radio>
+                      <el-radio label="线下场地免费"></el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                  <el-form-item label="活动形式" prop="desc">
+                    <el-input type="textarea" v-model="ruleForm.desc"></el-input>
+                  </el-form-item>
+                </el-form>
+            </div>
+        </div>
       </div>
     </div>
     <div v-if="toolbarMoveNode.isShow" id="move-node" class="node-css" :style="{ left:toolbarMoveNode.left + 'px', top: toolbarMoveNode.top + 'px' }">
@@ -226,8 +276,44 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
+      ruleForm: {
+          name: '',
+          region: '',
+          date1: '',
+          date2: '',
+          delivery: false,
+          type: [],
+          resource: '',
+          desc: ''
+      },
+     rules: {
+        name: [
+          { required: true, message: '请输入名称', trigger: 'blur' },
+          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ],
+        region: [
+          { required: true, message: '请选择活动区域', trigger: 'change' }
+        ],
+        date1: [
+          { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
+        ],
+        date2: [
+          { type: 'date', required: true, message: '请选择时间', trigger: 'change' }
+        ],
+        type: [
+          { type: 'array', required: true, message: '请至少选择一个活动性质', trigger: 'change' }
+        ],
+        resource: [
+          { required: true, message: '请选择活动资源', trigger: 'change' }
+        ],
+        desc: [
+          { required: true, message: '请填写活动形式', trigger: 'blur' }
+        ]
+     },
+     selectNodeIndex:0,
      svgAttr:{width:0,height:0,isHand:false,viewX:0,viewY:0,minW:0,minH:0,isCrosshair:false},
      activeNames: ['1'],
+     isTopoAttrShow:true,
      svgToolbar:[
       {name:'默认模式',className:'toolbar-default',isActive:true},
       {name:'框选模式',className:'toolbar-rectangle_selection',isActive:false},
@@ -326,43 +412,75 @@ export default {
         this.toolbarMoveNode.icon = toolbarIcon
         this.toolbarMoveNode.isShow = true
         // 鼠标滑入svg区域 显示标尺并显示标尺正确位置
-        if(this.svgTopo.isMoveover){
-          this.marker.isMarkerShow = true          
-          let n1 = Math.floor(nodeX / 20)  //grid宽高的整数倍
-          let n2 = Math.floor(nodeY / 20)         
-          this.marker.xmarkerY = n2 * 20
-          this.marker.ymarkerX = n1 * 20
-        }
+        this.marker.isMarkerShow = true        
+        let n1 = Math.floor(nodeX / 20)  //grid宽高的整数倍
+        let n2 = Math.floor(nodeY / 20)         
+        this.marker.xmarkerY = n2 * 20
+        this.marker.ymarkerX = n1 * 20
+
       }
       document.onmouseup = (event)=>{
          document.onmousemove = null
 　　　　　document.onmouseup = null
-         // 鼠标在svg区域
-        if(this.svgTopo.isMoveover){
-          let type = NODE.name
-          let name = 'New_'+NODE.name+'_'+ NODE.num
-          NODE.num ++ 
-          let id = GenNonDuplicateID(5)
-          let svgNode ={
-             name,
-             type,
-             x:this.marker.ymarkerX,
-             y:this.marker.xmarkerY,
-             icon:NODE.icon,
-             width:NODE.width,
-             height:NODE.height,
-             initW:NODE.width,
-             initH:NODE.height,
-             id:id,
-             type:NODE.type,
-             isLeftConnectShow:false,
-             isRightConnectShow:false,
-             containNodes:[]
-          }
-          this.marker.isMarkerShow = false    //标尺取消显示
-          this.topoData.nodes.push(svgNode)   //创建一个svg Node                   
+         // 判断鼠标在svg区域
+
+        let TOPODATA = this.topoData
+        let type = NODE.name
+        let name = 'New_'+NODE.name+'_'+ NODE.num
+        NODE.num ++ 
+        let id = GenNonDuplicateID(5)
+        let nodeEndX = this.marker.ymarkerX
+        let nodeEndY = this.marker.xmarkerY
+        
+        if(nodeEndX < 0 ) {
+          nodeEndX = 0
+          this.toolbarMoveNode.left = $("#topo-svg").offset().left + $(document).scrollLeft() 
         }
-        //初始化toolbarMoveNode的值
+        if(nodeEndY < 0 ) {
+          nodeEndY = 0 
+          this.toolbarMoveNode.top =  $("#topo-svg").offset().top + $(document).scrollTop()
+        }   
+        let svgNode ={
+           name,
+           type,
+           x:nodeEndX,
+           y:nodeEndY,
+           icon:NODE.icon,
+           width:NODE.width,
+           height:NODE.height,
+           initW:NODE.width,
+           initH:NODE.height,
+           id:id,
+           type:NODE.type,
+           isLeftConnectShow:false,
+           isRightConnectShow:false,
+           containNodes:[]
+        }
+        this.marker.isMarkerShow = false    //标尺取消显示
+        this.topoData.nodes.push(svgNode)   //创建一个svg Node    
+        //计算是否与某个节点重叠
+        for(let i =( TOPODATA.nodes.length - 1); i >= 0; i-- ){
+          let node = TOPODATA.nodes[i]
+          if(node.x <= nodeEndX && nodeEndX <= (node.x + node.width) && nodeEndY >= node.y && node.y + node.height >= nodeEndY && node.id != id && node.type == "T1" && NODE.type == "T1"){
+            let connector={
+              type:'Contain',
+              sourceNode:{
+                id:id,
+              },
+              targetNode:{
+                id:node.id,
+              },
+              isSelect:false
+            }                                                 
+            TOPODATA.connectors.push(connector)
+            //如果有嵌套关系，就在父节点放入子节点id
+            node.containNodes.push(id)          
+            this.refreshRowAndOuterNode(svgNode)  //刷新并列节点位置和父节点宽高 
+            this.refreshConnectorsData()  
+            break
+          }
+        }    
+        //重新初始toolbarMoveNode的值
           this.toolbarMoveNode.left = 0
           this.toolbarMoveNode.top =  0
           this.toolbarMoveNode.name = ''
@@ -484,7 +602,8 @@ export default {
        //取消所有连线选中
        this.cancelAllLinksSelect()
        //节点选中
-       CURNODE.isSelect = true       
+       CURNODE.isSelect = true
+       this.selectNodeIndex = this.topoData.nodes.length - 1   // 关联属性设置框     
        this.storeCurnodeStartPosition(CURNODE,nodeStartPosArr)  //将选择的node的子子节点初始位置保存进去
 
 　　　　document.onmousemove = (event) => {         
@@ -494,10 +613,19 @@ export default {
            let endY = startY + disY
            let n1 = Math.floor(endX / 20)  //grid宽高的整数倍
            let n2 = Math.floor(endY / 20) 
+           if(n1 <= 0 ) n1 = 0
+           if(n2 <= 0)  n2 = 0
+           if(endX <= 0) {
+            endX = 0 
+            disX = -startX
+           }
+           if(endY <= 0 ){
+            endY = 0 
+            disY = -startY
+           }
            this.marker.isMarkerShow = true  //显示标尺        
            this.marker.xmarkerY = n2 * 20   //标尺的移动位置，以每格20的距离移动
-           this.marker.ymarkerX = n1 * 20
-           
+           this.marker.ymarkerX = n1 * 20          
            this.moveContianNode(disX,disY,nodeStartPosArr) //根据保存的数组数据移动相关节点
            this.refreshConnectorsData()  //及时更新连线数据
 　　　　};
@@ -577,38 +705,43 @@ export default {
             }
          }
          //选中的node 有 与其他node 重合
-          if(isContainNode){                
-            //关系数组中增加包含关系              
-            let connector={
-              type:'Contain',
-              sourceNode:{
-                id:CURNODE.id,
-              },
-              targetNode:{
-                id:overlapTargetNode.id,
-              },
-              isSelect:false
-            }                                                 
-            TOPODATA.connectors.push(connector)
-            //如果有嵌套关系，就在父节点放入子节点id
-            TOPODATA.nodes.forEach((node,key) => {
-              if(node.id == overlapTargetNode.id) node.containNodes.push(CURNODE.id)
-            })
-            this.refreshRowAndOuterNode(CURNODE)  //刷新并列节点位置和父节点宽高
+         if(isContainNode){                
+          //关系数组中增加包含关系              
+          let connector={
+            type:'Contain',
+            sourceNode:{
+              id:CURNODE.id,
+            },
+            targetNode:{
+              id:overlapTargetNode.id,
+            },
+            isSelect:false
+          }                                                 
+          TOPODATA.connectors.push(connector)
+          //如果有嵌套关系，就在父节点放入子节点id
+          TOPODATA.nodes.forEach((node,key) => {
+            if(node.id == overlapTargetNode.id) node.containNodes.push(CURNODE.id)
+          })
+          this.refreshRowAndOuterNode(CURNODE)  //刷新并列节点位置和父节点宽高                               
+        }
+        //移动包含着的子节点 
+        if(isContainNode){
+          nodeStartPosArr.forEach((node,key) => {
+            if(node.id == CURNODE.id){
+              let disX = CURNODE.x - node.x 
+              let disY = CURNODE.y - node.y
+              this.moveContianNode(disX,disY,nodeStartPosArr)   
+            }
+          }) 
+        }
+        //如果初始targetNodeId 与现在重合的taregtNodeId不同，让originTargetNode位置重置
+        if(originTargetNodeId && originTargetNodeId != overlapTargetNode.id){               
+          this.refreshRowAndOuterNode(originTargetNode)
+        }   
+    },
+    //计算是否与其他节点包含
+    computedIsContain(CURNODE){
 
-            //移动包含着的子节点 
-            nodeStartPosArr.forEach((node,key) => {
-              if(node.id == CURNODE.id){
-                let disX = CURNODE.x - node.x 
-                let disY = CURNODE.y - node.y
-                this.moveContianNode(disX,disY,nodeStartPosArr)   
-              }
-            })                    
-          }
-          //如果初始targetNodeId 与现在重合的taregtNodeId不同，让originTargetNode位置重置
-          if(originTargetNodeId && originTargetNodeId != overlapTargetNode.id){               
-            this.refreshRowAndOuterNode(originTargetNode)
-          }   
     },
     //存入node及其子节点位置信息
     storeCurnodeStartPosition(CURNODE,startNodePosition){
@@ -1091,6 +1224,10 @@ export default {
 .toolbar-zoomin{background-position:-425px 0px}
 .toolbar-zoomout{background-position:-444px 0px}
 .toolbar-zoomreset{background-position:-462px 0px}
+/* 属性设置框 */
+#topoAttrWrap{height:100%;width:0;position:absolute;top:0;right:0;background:#fff;border-left:1px solid @border-color;transition:width 1s;box-sizing:border-box;}
+.topoAttrArrow{color:@theme-color;font-size:20px;position:absolute;top:50%;left:-10px;translate:transform(0 -50%);z-index:10000;background-color:#fff;cursor:pointer;}
+#topoAttrWrap.active{width:350px;}
 </style>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
