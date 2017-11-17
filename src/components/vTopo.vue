@@ -205,50 +205,31 @@
             <i v-if="isTopoAttrShow" class="fa fa-chevron-circle-right topoAttrArrow" @click="isTopoAttrShow =!isTopoAttrShow"></i>
             <i v-if="!isTopoAttrShow" class="fa fa-chevron-circle-left topoAttrArrow" @click="isTopoAttrShow =!isTopoAttrShow"></i>
             <div style="overflow-y: scroll;height:100%;padding:20px 15px">
-              <el-form :model="topoData.nodes[selectNodeIndex]" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm" labelPosition="left">
-                  <el-form-item label="名称" prop="name">
+              <el-form  :model="topoData.nodes[selectNodeIndex]"  ref="ruleForm" label-width="100px" class="demo-ruleForm" labelPosition="left">
+                <div>
+                  <el-form-item label="名称">
                     <el-input v-model="topoData.nodes[selectNodeIndex].name"></el-input>
                   </el-form-item>
-                  <el-form-item label="活动区域" prop="region">
-                    <el-select v-model="ruleForm.region" placeholder="请选择活动区域">
-                      <el-option label="区域一" value="shanghai"></el-option>
-                      <el-option label="区域二" value="beijing"></el-option>
-                    </el-select>
+                </div>
+                <div v-if="topoData.nodes[selectNodeIndex].attrs.length == 0" id="infoWrap">
+                    <i class="infoIcon fa fa-info-circle"></i>
+                    暂无属性信息
+                </div>
+                <div v-if="topoData.nodes[selectNodeIndex].attrs.length > 0">
+                  <el-form-item :label="ele.name" :prop="ele.name" v-for="(ele,key) in topoData.nodes[selectNodeIndex].attrs" :rules="ele.rules" :key="key">
+                      <!--input选项-->
+                      <el-input v-if="ele.type == 'input'" v-model="ele.value" :placeholder="ele.placeholder"></el-input>
+                      <!-- 下拉框 -->
+                      <el-select v-if="ele.type == 'select'" v-model="ele.value" :placeholder="ele.placeholder">
+                        <el-option v-for="(option,key) in ele.options" :key="key" :label="option.label" :value="option.value"></el-option>
+                      </el-select>
+                      <!-- checkbox展示 -->
+                      <el-checkbox-group v-if="ele.type == 'checkbox'" v-model="ele.value">
+                        <el-checkbox :label="option.label" v-for="(option,key) in ele.options" :key="key"></el-checkbox>
+                      </el-checkbox-group>
                   </el-form-item>
-                  <el-form-item label="活动时间" required>
-                    <el-col :span="11">
-                      <el-form-item prop="date1">
-                        <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.date1" style="width: 100%;"></el-date-picker>
-                      </el-form-item>
-                    </el-col>
-                    <el-col class="line" :span="2">-</el-col>
-                    <el-col :span="11">
-                      <el-form-item prop="date2">
-                        <el-time-picker type="fixed-time" placeholder="选择时间" v-model="ruleForm.date2" style="width: 100%;"></el-time-picker>
-                      </el-form-item>
-                    </el-col>
-                  </el-form-item>
-                  <el-form-item label="即时配送" prop="delivery">
-                    <el-switch on-text="" off-text="" v-model="ruleForm.delivery"></el-switch>
-                  </el-form-item>
-                  <el-form-item label="活动性质" prop="type">
-                    <el-checkbox-group v-model="ruleForm.type">
-                      <el-checkbox label="美食/餐厅线上活动" name="type"></el-checkbox>
-                      <el-checkbox label="地推活动" name="type"></el-checkbox>
-                      <el-checkbox label="线下主题活动" name="type"></el-checkbox>
-                      <el-checkbox label="单纯品牌曝光" name="type"></el-checkbox>
-                    </el-checkbox-group>
-                  </el-form-item>
-                  <el-form-item label="特殊资源" prop="resource">
-                    <el-radio-group v-model="ruleForm.resource">
-                      <el-radio label="线上品牌商赞助"></el-radio>
-                      <el-radio label="线下场地免费"></el-radio>
-                    </el-radio-group>
-                  </el-form-item>
-                  <el-form-item label="活动形式" prop="desc">
-                    <el-input type="textarea" v-model="ruleForm.desc"></el-input>
-                  </el-form-item>
-                </el-form>
+                </div>
+              </el-form>
             </div>
         </div>
       </div>
@@ -286,30 +267,6 @@ export default {
           resource: '',
           desc: ''
       },
-     rules: {
-        name: [
-          { required: true, message: '请输入名称', trigger: 'blur' },
-          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
-        ],
-        region: [
-          { required: true, message: '请选择活动区域', trigger: 'change' }
-        ],
-        date1: [
-          { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
-        ],
-        date2: [
-          { type: 'date', required: true, message: '请选择时间', trigger: 'change' }
-        ],
-        type: [
-          { type: 'array', required: true, message: '请至少选择一个活动性质', trigger: 'change' }
-        ],
-        resource: [
-          { required: true, message: '请选择活动资源', trigger: 'change' }
-        ],
-        desc: [
-          { required: true, message: '请填写活动形式', trigger: 'blur' }
-        ]
-     },
      selectNodeIndex:0,
      svgAttr:{width:0,height:0,isHand:false,viewX:0,viewY:0,minW:0,minH:0,isCrosshair:false},
      activeNames: ['1'],
@@ -385,9 +342,16 @@ export default {
      ],
      topoData:{
       nodes:[
-        {x:30,y:10,width:150,height:100,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'New_server_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1',containNodes:[]},
-        {x:100,y:50,width:150,height:100,id:77,isLeftConnectShow:false,isRightConnectShow:false,name:'New_volumn_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1',containNodes:[]},
-        {x:500,y:100,width:100,height:100,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'New_proxy_0',isSelect:false,initW:100,initH:100,icon:database,type:'T1',containNodes:[]}
+        {x:30,y:10,width:150,height:100,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'New_server_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1',containNodes:[],
+        attrs:[
+          {type:'input',name:'portId',value:'2222141',placeholder:'请输入portId',rules:[{ required: true, message: '请输入活动名称', trigger: 'blur'}]},
+          {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}]},
+          {type:'checkbox',name:'数据库类型',value:[],options:[{label:'SQL server'},{label:'Access'},{label:'mySQL'},{label:'Oracle'}]}
+        ]},
+        {x:100,y:50,width:150,height:100,id:77,isLeftConnectShow:false,isRightConnectShow:false,name:'New_volumn_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1',containNodes:[],attrs:[
+
+        ]},
+        {x:500,y:100,width:100,height:100,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'New_proxy_0',isSelect:false,initW:100,initH:100,icon:database,type:'T1',containNodes:[],attrs:[]}
       ],
       connectors:[]
      }
@@ -1225,13 +1189,14 @@ export default {
 .toolbar-zoomout{background-position:-444px 0px}
 .toolbar-zoomreset{background-position:-462px 0px}
 /* 属性设置框 */
-#topoAttrWrap{height:100%;width:0;position:absolute;top:0;right:0;background:#fff;border-left:1px solid @border-color;transition:width 1s;box-sizing:border-box;}
+#topoAttrWrap{height:100%;width:350px;position:absolute;top:0;right:-350px;background:#fff;border-left:1px solid @border-color;transition:right 1s;box-sizing:border-box;box-shadow:-2px 0px 2px  #ccc}
 .topoAttrArrow{color:@theme-color;font-size:20px;position:absolute;top:50%;left:-10px;translate:transform(0 -50%);z-index:10000;background-color:#fff;cursor:pointer;}
-#topoAttrWrap.active{width:350px;}
+#topoAttrWrap.active{right:0;}
+.infoIcon{font-size:30px;}
+#infoWrap{padding:15px;background-color:#20a0ff;text-align:center;color:#fff;border-radius:2px;margin-top:60px}
 </style>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
 /*topo主体样式*/
 #svgWrap{width:calc(100% - 250px);height:100%;box-sizing: border-box;float:left;}
 #topo-wrap{height:calc(100% - 40px);}
