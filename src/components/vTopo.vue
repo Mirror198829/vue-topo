@@ -42,15 +42,15 @@
               </li>
             </ul>
             <ul style="float:right" class="clearfix">
-              <li class="svgToolBarItem" @click="saveTopoJson">
+              <li class="svgToolBarItem" @click="saveTopoJson" title="保存">
                 <i class="fa fa-save svgToolBarIcon"></i>
                 <span  class="svgToolBarTxt hidden-xs-only">保存</span>
               </li>
-              <li class="svgToolBarItem">
+              <li class="svgToolBarItem" title="上传">
                 <i class="fa fa-upload svgToolBarIcon"></i>
                 <span  class="svgToolBarTxt hidden-xs-only">上传</span>
               </li>
-              <li class="svgToolBarItem">
+              <li class="svgToolBarItem" title="下载">
                 <i class="fa fa-download svgToolBarIcon"></i>
                 <span  class="svgToolBarTxt hidden-xs-only">下载</span>
               </li>
@@ -208,8 +208,8 @@
             <div id="topoAttrWrap" :class="{active:isTopoAttrShow}">
                 <i v-if="isTopoAttrShow" class="fa fa-chevron-circle-right topoAttrArrow" @click="isTopoAttrShow =!isTopoAttrShow"></i>
                 <i v-if="!isTopoAttrShow" class="fa fa-chevron-circle-left topoAttrArrow" @click="isTopoAttrShow =!isTopoAttrShow"></i>
-                <div v-if="selectNodeIndex == null ">
-                    <div style="padding:50px;text-align:center">没有节点属性</div>
+                <div v-if="selectNodeIndex == null">
+                    <div style="padding:50px;text-align:center">没有任何节点属性</div>
                 </div>
                 <div v-if="selectNodeIndex != null " style="overflow-y: scroll;height:100%;padding:20px 15px">
                   <el-form  :model="topoData.nodes[selectNodeIndex]"  ref="ruleForm" label-width="100px" class="demo-ruleForm" labelPosition="left">
@@ -249,7 +249,7 @@
         </div>
       </el-col>    
     </el-row>
-    <div v-if="toolbarMoveNode.isShow" id="move-node" class="node-css" :style="{ left:toolbarMoveNode.left + 'px', top: toolbarMoveNode.top + 'px' }">
+    <div v-if="toolbarMoveNode.isShow" id="move-node" class="nodeMoveCss" :style="{ left:toolbarMoveNode.left + 'px', top: toolbarMoveNode.top + 'px' }">
       <div class="node-icon">
         <img class="toolbar-node-icon" :src="toolbarMoveNode.icon"/>
       </div>
@@ -360,6 +360,12 @@ export default {
         {x:30,y:10,width:150,height:100,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'New_server_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1',containNodes:[],
         attrs:[
           {type:'input',name:'portId',value:'2222141',placeholder:'请输入portId',rules:[{ required: true, message: '请输入活动名称', trigger: 'blur'}],disabled:true},
+          {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
+          {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
+          {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
+          {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
+          {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
+          {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
           {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
           {type:'checkbox',name:'数据库类型',value:[],options:[{label:'SQL server'},{label:'Access'},{label:'mySQL'},{label:'Oracle'}],disabled:false},
           {type:'textarea',name:'数据库',value:'',rules:[],disabled:false},
@@ -1081,6 +1087,7 @@ export default {
                 this.selectNodeIndex = 0 
               }else{
                 this.selectNodeIndex = null
+                this.isTopoAttrShow = false
               } 
            }
          }
@@ -1186,6 +1193,7 @@ export default {
 /*toolbar node样式*/
 .node-item{margin-top:5px;cursor: pointer;border:1px solid #c7d1dd;-webkit-user-select:none;user-select:none;}
 .node-css{height: 57px;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:5px 0;}
+.nodeMoveCss{width:57px;height: 57px;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:5px 0;}
 .node-icon{text-align: center;-webkit-user-select:none;user-select:none;}
 .toolbar-node-icon{width: 28px;height: 28px;-webkit-user-select:none;user-select:none;}
 .node-name{font-size:12px;text-align: center;position: relative;top:-4px;padding:0 5px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;-webkit-user-select:none;user-select:none;}
