@@ -19,16 +19,6 @@
                        </li>
                      </el-col>
                   </el-row>
-                  <!-- <div class="according-inner">
-                    <ul class="nodelist clearfix">
-                       <li v-for="(ele,key) in toolbarNodeData" :key="key" class="node-item node-css" @mousedown.stop.prevent = "dragToolbarNode(toolbarNodeData,key,$event)">
-                          <div class="node-icon">
-                            <img class="toolbar-node-icon" :src="ele.icon"/>
-                          </div>
-                          <div class="node-name" :title="ele.name">{{ele.name}}</div>
-                       </li>
-                    </ul>
-                  </div> -->
                 </el-collapse-item>
                 <el-collapse-item title="haproxy.nodes" name="2">
                   
@@ -218,7 +208,10 @@
             <div id="topoAttrWrap" :class="{active:isTopoAttrShow}">
                 <i v-if="isTopoAttrShow" class="fa fa-chevron-circle-right topoAttrArrow" @click="isTopoAttrShow =!isTopoAttrShow"></i>
                 <i v-if="!isTopoAttrShow" class="fa fa-chevron-circle-left topoAttrArrow" @click="isTopoAttrShow =!isTopoAttrShow"></i>
-                <div style="overflow-y: scroll;height:100%;padding:20px 15px">
+                <div v-if="selectNodeIndex == null ">
+                    <div style="padding:50px;text-align:center">没有节点属性</div>
+                </div>
+                <div v-if="selectNodeIndex != null " style="overflow-y: scroll;height:100%;padding:20px 15px">
                   <el-form  :model="topoData.nodes[selectNodeIndex]"  ref="ruleForm" label-width="100px" class="demo-ruleForm" labelPosition="left">
                     <div>
                       <el-form-item label="名称">
@@ -231,16 +224,22 @@
                     </div>
                     <div v-if="topoData.nodes[selectNodeIndex].attrs.length > 0">
                       <el-form-item :label="ele.name" :prop="ele.name" v-for="(ele,key) in topoData.nodes[selectNodeIndex].attrs" :rules="ele.rules" :key="key">
-                          <!--input选项-->
+                      
                           <el-input v-if="ele.type == 'input'" v-model="ele.value" :placeholder="ele.placeholder" :disabled="ele.disabled"></el-input>
-                          <!-- 下拉框 -->
+                
                           <el-select v-if="ele.type == 'select'" v-model="ele.value" :placeholder="ele.placeholder" :disabled="ele.disabled">
                             <el-option v-for="(option,key) in ele.options" :key="key" :label="option.label" :value="option.value"></el-option>
                           </el-select>
-                          <!-- checkbox展示 -->
+                
                           <el-checkbox-group v-if="ele.type == 'checkbox'" v-model="ele.value" :disabled="ele.disabled">
                             <el-checkbox :label="option.label" v-for="(option,key) in ele.options" :key="key"></el-checkbox>
                           </el-checkbox-group>
+                    
+                          <el-input v-if="ele.type == 'textarea'" type="textarea" v-model="ele.value" :disabled="ele.disabled"></el-input>
+             
+                          <el-radio-group  v-if="ele.type == 'radio'" v-model="ele.value" :disabled="ele.disabled">
+                            <el-radio :label="option.label" v-for="(option,key) in ele.options" :key="key"></el-radio>
+                          </el-radio-group>
                       </el-form-item>
                     </div>
                   </el-form>
@@ -361,8 +360,10 @@ export default {
         {x:30,y:10,width:150,height:100,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'New_server_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1',containNodes:[],
         attrs:[
           {type:'input',name:'portId',value:'2222141',placeholder:'请输入portId',rules:[{ required: true, message: '请输入活动名称', trigger: 'blur'}],disabled:true},
-          {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:true},
-          {type:'checkbox',name:'数据库类型',value:[],options:[{label:'SQL server'},{label:'Access'},{label:'mySQL'},{label:'Oracle'}],disabled:true}
+          {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
+          {type:'checkbox',name:'数据库类型',value:[],options:[{label:'SQL server'},{label:'Access'},{label:'mySQL'},{label:'Oracle'}],disabled:false},
+          {type:'textarea',name:'数据库',value:'',rules:[],disabled:false},
+          {type:'radio',name:'数据类型',value:'',options:[{label:'sql'},{label:'oracle'}],disabled:true}
         ]},
         {x:100,y:50,width:150,height:100,id:77,isLeftConnectShow:false,isRightConnectShow:false,name:'New_volumn_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1',containNodes:[],attrs:[
 
@@ -583,9 +584,11 @@ export default {
        //取消所有连线选中
        this.cancelAllLinksSelect()
        //节点选中
-       CURNODE.isSelect = true
-       this.selectNodeIndex = this.topoData.nodes.length - 1   // 关联属性设置框     
+       CURNODE.isSelect = true    
        this.storeCurnodeStartPosition(CURNODE,nodeStartPosArr)  //将选择的node的子子节点初始位置保存进去
+       this.topoData.nodes.forEach((node,key)=>{            // 关联属性设置框       
+          if(node.id == CURNODE.id) this.selectNodeIndex= key
+       })
 
 　　　　document.onmousemove = (event) => {         
 　　　　　　let disX = event.clientX - mouseX0  //移动位置
@@ -1073,9 +1076,15 @@ export default {
               //删除包含关系1.如果有父元素，恢复父元素的宽高位置
               this.deleteCurnodeAndChildnodes(node) // 删除此节点内部所有包含的节点及其关系          
               this.refreshNodeArrows() //刷新节点的左右箭头展示  
-              i --               
+              i -- 
+              if(this.topoData.nodes.length > 0){
+                this.selectNodeIndex = 0 
+              }else{
+                this.selectNodeIndex = null
+              } 
            }
          }
+
          //单选删除连线功能
          this.topoData.connectors.forEach((ele,key)=>{
            if(ele.isSelect){
@@ -1083,6 +1092,7 @@ export default {
              this.refreshNodeArrows()//重新绘制node节点左右箭头
            }
          })
+
          this.refreshConnectorsData()
       }    
      }
@@ -1215,8 +1225,9 @@ export default {
 #topoAttrWrap{height:100%;width:350px;position:absolute;top:0;right:-350px;background:#fff;border-left:1px solid @border-color;transition:right 1s;box-sizing:border-box;box-shadow:-2px 0px 2px  #ccc}
 .topoAttrArrow{color:@theme-color;font-size:20px;position:absolute;top:50%;left:-10px;translate:transform(0 -50%);z-index:10000;background-color:#fff;cursor:pointer;}
 #topoAttrWrap.active{right:0;}
-.infoIcon{font-size:30px;}
-#infoWrap{padding:15px;background-color:#20a0ff;text-align:center;color:#fff;border-radius:2px;margin-top:60px}
+.infoIcon{font-size:30px;position:relative;top:5px;left:-4px}
+#infoWrap{padding:15px;text-align:center;margin-top:60px}
+
 </style>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>

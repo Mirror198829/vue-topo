@@ -1,6 +1,6 @@
 <template>
   <header id="header">
-  	VUE拓扑组件
+  	Vue2.0 拓扑组件
   </header>
 </template>
 
