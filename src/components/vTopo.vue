@@ -1,7 +1,7 @@
 <template>
   <div id="topoComponent">
-  <el-row>
-      <el-col :xs="5" :sm="6" :md="6" :lg="4" :xl="6">
+  <el-row class="topoRow">
+      <el-col :xs="5" :sm="6" :md="6" :lg="4" :xl="6" class="topoCol">
         <div id="toolbar">
             <div class="toolbar-head">
                 Node Types
@@ -33,7 +33,7 @@
              </div>
         </div>
       </el-col>
-      <el-col :xs="19" :sm="18" :md="18" :lg="20" :xl="18">
+      <el-col :xs="19" :sm="18" :md="18" :lg="20" :xl="18" class="svgCol">
         <div id="svgWrap">
           <div id="svgHead" class="clearfix">
             <ul class="svgHeadItemLst clearfix" style="float:left">
@@ -80,6 +80,7 @@
                   :key="key" 
                   @mouseover.stop="mouseoverNode(key,$event)" 
                   @mousedown.stop="dragSvgNode(key,$event)"
+                  @mouseout.stop = "mouseoutLeftConnector(key)"
                   >
                   <rect x="0" y="0" rx="2" ry="2" :width="ele.width" :height="ele.height" class="reactClass" :class="{isSelect:ele.isSelect}" />
                   <text v-if="ele.type == 'T1'" class="nodeName" x="5" y="15">{{ele.name}}</text>
@@ -87,7 +88,7 @@
 
                   <image v-if="ele.type == 'T2'" :xlink:href="ele.icon" :x="7" :y="7" height="36px" width="36px"/>
                   <text v-if="ele.type == 'T2'" class="nodeName" x="0" :y="ele.height + 14">{{ele.name}}</text>
-                  <g class="connectorArror" :class="{'connector':ele.isLeftConnectShow}" :transform="'translate(0,'+ele.height/2+')'"  @mouseover.stop="getConnectLine(key)" @mouseout.stop = "mouseoutLeftConnector(key)">
+                  <g class="connectorArror" :class="{'connector':ele.isLeftConnectShow}" :transform="'translate(0,'+ele.height/2+')'">
                     <circle r="8" cx="0" cy="0" class="circleColor"></circle>
                     <line x1="-3" y1="-5" x2="4" y2="0.5" stroke="#fff"></line>
                     <line x1="4" y1="-0.5" x2="-3" y2="5" stroke="#fff"></line>
@@ -1019,6 +1020,7 @@ export default {
     mouseoverNode(key,event){
       this.marker.xmarkerY = this.topoData.nodes[key].y
       this.marker.ymarkerX = this.topoData.nodes[key].x
+      this.getConnectLine(key)
     },
     //获取连线终点时的node的ID值
     getConnectLine(key){
@@ -1186,8 +1188,8 @@ export default {
 @stroke-select-width:3;
 @stroke-select-color:red;
 @border-color:#adadad;
-@svg-height:620px;
-#toolbar{height:@svg-height;overflow-y: scroll;box-sizing: border-box;padding-right:10px;}
+
+#toolbar{height:100%;overflow-y: scroll;box-sizing: border-box;padding-right:10px;}
 .toolbar-head{padding:10px;text-align: center;color:#000069;font-size:14px;-webkit-user-select:none;user-select:none;}
 
 /*toolbar node样式*/
@@ -1197,7 +1199,8 @@ export default {
 .node-icon{text-align: center;-webkit-user-select:none;user-select:none;}
 .toolbar-node-icon{width: 28px;height: 28px;-webkit-user-select:none;user-select:none;}
 .node-name{font-size:12px;text-align: center;position: relative;top:-4px;padding:0 5px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;-webkit-user-select:none;user-select:none;}
-#topoComponent{width:100%;box-sizing: border-box;padding:15px;background-color: #fff}
+#topoComponent{width:100%;box-sizing: border-box;padding:15px;background-color: #fff;height:100%}
+.topoRow,.topoCol,.svgCol{height:100%}
 
 /*移动的node*/
 #move-node{position: absolute;border:1px solid @svg-common-color;box-sizing: border-box;}
@@ -1214,7 +1217,7 @@ export default {
 .circleColor{fill:@svg-common-color}
 
 /* svg工具栏 */
-#svgWrap{height:@svg-height;box-sizing: border-box;}
+#svgWrap{height:100%;box-sizing: border-box;}
 #svgHead{width: 100%;height:40px;box-sizing: border-box;border:solid @border-color;border-width: 1px 1px 0 1px;padding:5px}
 #topo-wrap{width:100%;box-sizing: border-box;border:1px solid @border-color;overflow:hidden;}
 .svgHeadItem{padding:5px 10px;border:1px solid @border-color;cursor:pointer;float:left;list-style:none;border-left-width: 0}

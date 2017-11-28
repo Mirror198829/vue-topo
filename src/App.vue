@@ -1,7 +1,9 @@
 <template>
   <div id="app">
     <v-header></v-header>
-    <v-topo></v-topo>
+    <div class="topoArea">
+        <v-topo></v-topo>
+    </div>
     <v-footer></v-footer>
   </div>
 </template>
@@ -26,5 +28,6 @@ export default {
 .clearfix:after{ content:''; display:block; clear:both;}
 *{margin:0;padding:0;}
 ul,li{list-style: none;}
-body{background-color: @theme-color}
+body{background-color: @theme-color;overflow-y:scroll}
+.topoArea{height:600px;}
 </style>
