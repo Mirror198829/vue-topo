@@ -15,7 +15,7 @@
                           <div class="node-icon">
                             <img class="toolbar-node-icon" :src="ele.icon"/>
                           </div>
-                          <div class="node-name" :title="ele.name">{{ele.name}}</div>
+                          <div class="node-name" :title="ele.type">{{ele.type}}</div>
                        </li>
                      </el-col>
                   </el-row>
@@ -83,11 +83,11 @@
                   @mouseout.stop = "mouseoutLeftConnector(key)"
                   >
                   <rect x="0" y="0" rx="2" ry="2" :width="ele.width" :height="ele.height" class="reactClass" :class="{isSelect:ele.isSelect}" />
-                  <text v-if="ele.type == 'T1'" class="nodeName" x="5" y="15">{{ele.name}}</text>
-                  <image v-if="ele.type == 'T1'" :xlink:href="ele.icon" :x="ele.width - 23" :y="5" height="17px" width="17px"/>
+                  <text v-if="ele.classType == 'T1'" class="nodeName" x="5" y="15">{{ele.name}}</text>
+                  <image v-if="ele.classType == 'T1'" :xlink:href="ele.icon" :x="ele.width - 23" :y="5" height="17px" width="17px"/>
 
-                  <image v-if="ele.type == 'T2'" :xlink:href="ele.icon" :x="7" :y="7" height="36px" width="36px"/>
-                  <text v-if="ele.type == 'T2'" class="nodeName" x="0" :y="ele.height + 14">{{ele.name}}</text>
+                  <image v-if="ele.classType == 'T2'" :xlink:href="ele.icon" :x="7" :y="7" height="36px" width="36px"/>
+                  <text v-if="ele.classType == 'T2'" class="nodeName" x="0" :y="ele.height + 14">{{ele.name}}</text>
                   <g class="connectorArror" :class="{'connector':ele.isLeftConnectShow}" :transform="'translate(0,'+ele.height/2+')'">
                     <circle r="8" cx="0" cy="0" class="circleColor"></circle>
                     <line x1="-3" y1="-5" x2="4" y2="0.5" stroke="#fff"></line>
@@ -213,7 +213,7 @@
                     <div style="padding:50px;text-align:center">没有任何节点属性</div>
                 </div>
                 <div v-if="selectNodeIndex != null " style="overflow-y: scroll;height:100%;padding:20px 15px">
-                  <el-form  :model="topoData.nodes[selectNodeIndex]"  ref="ruleForm" label-width="100px" class="demo-ruleForm" labelPosition="left">
+                  <el-form  :model="topoData.nodes[selectNodeIndex]"  label-width="100px" class="demo-ruleForm" labelPosition="left">
                     <div>
                       <el-form-item label="名称">
                         <el-input v-model="topoData.nodes[selectNodeIndex].name"></el-input>
@@ -273,20 +273,14 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-      ruleForm: {
-          name: '',
-          region: '',
-          date1: '',
-          date2: '',
-          delivery: false,
-          type: [],
-          resource: '',
-          desc: ''
-      },
+      connectorRules:[
+        {type:'Compute',canBeContainedType:['Database'],canLinkToType:['Database','Compute']},
+        {type:'Database',canBeContainedType:['Database'],canLinkToType:['Database','Compute']}
+      ],//节点间关系的规则
      selectNodeIndex:0,
      svgAttr:{width:0,height:0,isHand:false,viewX:0,viewY:0,minW:0,minH:0,isCrosshair:false},
      activeNames: ['1'],
-     isTopoAttrShow:true,
+     isTopoAttrShow:false,
      svgToolbar:[
       {name:'默认模式',className:'toolbar-default',isActive:true},
       {name:'框选模式',className:'toolbar-rectangle_selection',isActive:false},
@@ -295,16 +289,16 @@ export default {
       // {name:'恢复出厂设置',className:'toolbar-zoomreset',isActive:false}
      ],
      toolbarNodeData:[
-      {name:'Compute',icon:compute,width:150,height:100,num:1,type:'T1'},
-      {name:'Database',icon:database,width:150,height:100,num:1,type:'T1'},
-      {name:'Cloud',icon:cloud,width:150,height:100,num:1,type:'T1'},
-      {name:'Network',icon:network,width:150,height:100,num:1,type:'T1'},
-      {name:'Router',icon:router,width:150,height:100,num:1,type:'T1'},
-      {name:'Sercurity',icon:sercurity,width:50,height:50,num:1,type:'T2'},
-      {name:'webserver',icon:webserver,width:150,height:100,num:1,type:'T1'},
-      {name:'filesystem',icon:filesystem,width:150,height:100,num:1,type:'T1'},
-      {name:'message',icon:message,width:150,height:100,num:1,type:'T1'},
-      {name:'virtualip',icon:virtualip,width:50,height:50,num:1,type:'T2'}
+      {type:'Compute',icon:compute,width:150,height:100,num:1,classType:'T1'},
+      {type:'Database',icon:database,width:150,height:100,num:1,classType:'T1'},
+      {type:'Cloud',icon:cloud,width:150,height:100,num:1,classType:'T1'},
+      {type:'Network',icon:network,width:150,height:100,num:1,classType:'T1'},
+      {type:'Router',icon:router,width:150,height:100,num:1,classType:'T1'},
+      {type:'Sercurity',icon:sercurity,width:50,height:50,num:1,classType:'T2'},
+      {type:'webserver',icon:webserver,width:150,height:100,num:1,classType:'T1'},
+      {type:'filesystem',icon:filesystem,width:150,height:100,num:1,classType:'T1'},
+      {type:'message',icon:message,width:150,height:100,num:1,classType:'T1'},
+      {type:'virtualip',icon:virtualip,width:50,height:50,num:1,classType:'T2'}
      ],
      toolbarMoveNode:{
       left:0,
@@ -358,24 +352,16 @@ export default {
      ],
      topoData:{
       nodes:[
-        {x:30,y:10,width:150,height:100,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'New_server_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1',containNodes:[],
+        {x:30,y:10,width:150,height:100,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'New_server_0',isSelect:false,initW:150,initH:100,icon:database,classType:'T1',containNodes:[],type:'Database',
         attrs:[
           {type:'input',name:'portId',value:'2222141',placeholder:'请输入portId',rules:[{ required: true, message: '请输入活动名称', trigger: 'blur'}],disabled:true},
-          {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
-          {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
-          {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
-          {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
-          {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
-          {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
           {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
           {type:'checkbox',name:'数据库类型',value:[],options:[{label:'SQL server'},{label:'Access'},{label:'mySQL'},{label:'Oracle'}],disabled:false},
           {type:'textarea',name:'数据库',value:'',rules:[],disabled:false},
           {type:'radio',name:'数据类型',value:'',options:[{label:'sql'},{label:'oracle'}],disabled:true}
         ]},
-        {x:100,y:50,width:150,height:100,id:77,isLeftConnectShow:false,isRightConnectShow:false,name:'New_volumn_0',isSelect:false,initW:150,initH:100,icon:database,type:'T1',containNodes:[],attrs:[
-
-        ]},
-        {x:500,y:100,width:100,height:100,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'New_proxy_0',isSelect:false,initW:100,initH:100,icon:database,type:'T1',containNodes:[],attrs:[]}
+        {x:100,y:50,width:150,height:100,id:77,isLeftConnectShow:false,isRightConnectShow:false,name:'New_volumn_0',isSelect:false,initW:150,initH:100,icon:database,classType:'T1',containNodes:[],attrs:[],type:'Database'},
+        {x:500,y:100,width:100,height:100,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'New_proxy_0',isSelect:false,initW:100,initH:100,icon:database,classType:'T1',containNodes:[],attrs:[],type:'Database'}
       ],
       connectors:[]
      }
@@ -384,10 +370,31 @@ export default {
   computed:{
   },
   methods:{
+    canConnectorTo(curNodeType,connectorToNodeType,connectorType){
+      let canConnector = false
+      if(connectorType == 'Link'){
+        this.connectorRules.forEach((ele,key)=>{
+          if(ele.type == curNodeType){
+            ele.canLinkToType.forEach((el,index)=>{
+              if(el == connectorToNodeType) canConnector = true
+            })
+          }
+        })       
+      }else if(connectorType == 'Contain'){
+        this.connectorRules.forEach((ele,key)=>{
+          if(ele.type == curNodeType){
+            ele.canBeContainedType.forEach((el,index)=>{
+              if(el == connectorToNodeType) canConnector = true
+            })
+          }
+        })
+      }     
+      return canConnector
+    },
     //拖拽toolbar中的node
     dragToolbarNode(nodeData,key,event){
       let NODE = nodeData[key]
-      let toolbarName =NODE.name
+      let toolbarName =NODE.type
       let toolbarIcon = NODE.icon
       document.onmousemove = (event) =>{        
         let mouseX = event.clientX    //当前鼠标位置
@@ -413,13 +420,12 @@ export default {
          // 判断鼠标在svg区域
 
         let TOPODATA = this.topoData
-        let type = NODE.name
-        let name = 'New_'+NODE.name+'_'+ NODE.num
+        let type = NODE.type
+        let name = 'New_'+NODE.type+'_'+ NODE.num
         NODE.num ++ 
         let id = GenNonDuplicateID(5)
         let nodeEndX = this.marker.ymarkerX
         let nodeEndY = this.marker.xmarkerY
-        
         if(nodeEndX < 0 ) {
           nodeEndX = 0
           this.toolbarMoveNode.left = $("#topo-svg").offset().left + $(document).scrollLeft() 
@@ -427,7 +433,8 @@ export default {
         if(nodeEndY < 0 ) {
           nodeEndY = 0 
           this.toolbarMoveNode.top =  $("#topo-svg").offset().top + $(document).scrollTop()
-        }   
+        }  
+
         let svgNode ={
            name,
            type,
@@ -439,7 +446,7 @@ export default {
            height:NODE.height,
            initW:NODE.width,
            initH:NODE.height,           
-           type:NODE.type,
+           classType:NODE.classType,
            isLeftConnectShow:false,
            isRightConnectShow:false,
            containNodes:[],
@@ -450,31 +457,33 @@ export default {
         //计算是否与某个节点重叠
         for(let i =( TOPODATA.nodes.length - 1); i >= 0; i-- ){
           let node = TOPODATA.nodes[i]
-          if(node.x <= nodeEndX && nodeEndX <= (node.x + node.width) && nodeEndY >= node.y && node.y + node.height >= nodeEndY && node.id != id && node.type == "T1" && NODE.type == "T1"){
-            let connector={
-              type:'Contain',
-              sourceNode:{
-                id:id,
-              },
-              targetNode:{
-                id:node.id,
-              },
-              isSelect:false
-            }                                                 
-            TOPODATA.connectors.push(connector)
-            //如果有嵌套关系，就在父节点放入子节点id
-            node.containNodes.push(id)          
-            this.refreshRowAndOuterNode(svgNode)  //刷新并列节点位置和父节点宽高 
-            this.refreshConnectorsData()  
-            break
+          if(node.x <= nodeEndX && nodeEndX <= (node.x + node.width) && nodeEndY >= node.y && node.y + node.height >= nodeEndY && node.id != id){
+            let canBeContain =  this.canConnectorTo(NODE.type,node.type,'Contain')  //判断是否能被包含在目标元素中
+            if(canBeContain){
+              let connector={
+                type:'Contain',
+                sourceNode:{
+                  id:id,
+                },
+                targetNode:{
+                  id:node.id,
+                },
+                isSelect:false
+              }                                                 
+              TOPODATA.connectors.push(connector)             
+              node.containNodes.push(id)   //如果有嵌套关系，就在父节点放入子节点id        
+              this.refreshRowAndOuterNode(svgNode)  //刷新并列节点位置和父节点宽高 
+              this.refreshConnectorsData()  
+              break
+            }          
           }
         }    
         //重新初始toolbarMoveNode的值
-          this.toolbarMoveNode.left = 0
-          this.toolbarMoveNode.top =  0
-          this.toolbarMoveNode.name = ''
-          this.toolbarMoveNode.icon = ''
-          this.toolbarMoveNode.isShow = false
+        this.toolbarMoveNode.left = 0
+        this.toolbarMoveNode.top =  0
+        this.toolbarMoveNode.name = ''
+        this.toolbarMoveNode.icon = ''
+        this.toolbarMoveNode.isShow = false
       }
       //生成唯一id值
       function GenNonDuplicateID(randomLength){
@@ -674,22 +683,23 @@ export default {
          //清除当前node的包含关系
          this.deleteCurNodeContainConnector(CURNODE) 
          // 与NodeData对比，判断是否有值与其他Node重合的
-         let isContainNode = false
+         var isContainNode = false
          let overlapTargetNode = {}
          for(let i =( TOPODATA.nodes.length - 1); i >= 0; i--){      //forEach无法跳出循环,暂用for循环
             let targetNode = TOPODATA.nodes[i]
-            if(CURNODE.id != targetNode.id && targetNode.type == "T1" && CURNODE.type == "T1"){   //排除自身元素             
+            isContainNode = false   //初始isContainNode为false的值
+            if(CURNODE.id != targetNode.id){   //排除自身元素                       
               let minX = targetNode.x
               let maxX = targetNode.x + targetNode.width
               let minY = targetNode.y
               let maxY = targetNode.y + targetNode.height
+              let canContianTargetNode = this.canConnectorTo(CURNODE.type,targetNode.type,'Contain')//确认是否能被包含
               //四种包含情况判重合
               if(NodePoint1[0] <= maxX && NodePoint1[0] >= minX && NodePoint1[1] <=  maxY && NodePoint1[1] >= minY) isContainNode = true
               if(NodePoint2[0] <= maxX && NodePoint2[0] >= minX && NodePoint2[1] <=  maxY && NodePoint2[1] >= minY) isContainNode = true
               if(NodePoint4[0] <= maxX && NodePoint4[0] >= minX && NodePoint4[1] <=  maxY && NodePoint4[1] >= minY) isContainNode = true
-              if(NodePoint3[0] <= maxX && NodePoint3[0] >= minX && NodePoint3[1] <=  maxY && NodePoint3[1] >= minY) isContainNode = true
-              
-              if(isContainNode){
+              if(NodePoint3[0] <= maxX && NodePoint3[0] >= minX && NodePoint3[1] <=  maxY && NodePoint3[1] >= minY) isContainNode = true             
+              if(isContainNode && canContianTargetNode){
                   overlapTargetNode = targetNode
                   break
                 }                          
@@ -921,8 +931,8 @@ export default {
       let sourceNodeY = CURNODE.y    
       let mouseX0 = event.clientX    
       let mouseY0 = event.clientY
-      let x1 = event.clientX - $("#topo-svg").offset().left + $(document).scrollLeft() + this.svgAttr.viewX   //连线开始位置的位置：鼠标点击的实际位置   为鼠标位置 - 当前元素的偏移值
-      let y1 = event.clientY - $("#topo-svg").offset().top + 4 + $(document).scrollTop() + this.svgAttr.viewY
+      let x1 = event.clientX - $("#topo-svg").offset().left-2 + $(document).scrollLeft() + this.svgAttr.viewX   //连线开始位置的位置：鼠标点击的实际位置   为鼠标位置 - 当前元素的偏移值
+      let y1 = event.clientY - $("#topo-svg").offset().top+4+ $(document).scrollTop() + this.svgAttr.viewY
       CONNECTLINE.isConnecting = true   //显示绘制连线
       CONNECTLINE.x1 = x1 
       CONNECTLINE.y1 = y1 
@@ -949,8 +959,8 @@ export default {
         let targetNodeH = 0
         let targetNodeX = 0 
         let targetNodeY = 0
+        let targetNodeType = ""
         let connectType = ""
-
 
         if(CONNECTLINE.endNode){      //正确连线：添加连线信息在connectors中
 
@@ -969,32 +979,47 @@ export default {
                 targetNodeH = item.height
                 targetNodeX = item.x
                 targetNodeY = item.y
+                targetNodeType = item.type
               }
             })
-           
-            //类型：包含
-            let connector = {
-              type:connectType,
-              targetNode:{
-                x:targetNodeX,
-                y:targetNodeY,
-                id:CONNECTLINE.endNode,
-                width:targetNodeW,
-                height:targetNodeH
-              },
-              sourceNode:{
-                x:sourceNodeX,
-                y:sourceNodeY,
-                id:CURNODE.id,
-                width:sourceNodeW,
-                height:sourceNodeH
+            let canLinkToTargetNode = this.canConnectorTo(CURNODE.type,targetNodeType,'Link')
+            if(!canLinkToTargetNode){
+               this.$message({
+                  showClose: true,
+                  message: CURNODE.type+"类型 不能连接 "+targetNodeType+"类型！",
+                  type: 'error'
+               })
+               CURNODE.isRightConnectShow = false     //连线失败：起点右侧箭头暂且设置为消失
+               CONNECTORS.forEach((item,key) => {     //连线判断，如果已经有连线起点为当前的node，将起点箭头设置为显示
+                  this.topoData.nodes.forEach((node,key) => {
+                    if(node.id == item.sourceNode.id && item.type == 'Line') node.isRightConnectShow = true
+                  })
+               })
+            }else{
+               //类型：包含
+              let connector = {
+                type:connectType,
+                targetNode:{
+                  x:targetNodeX,
+                  y:targetNodeY,
+                  id:CONNECTLINE.endNode,
+                  width:targetNodeW,
+                  height:targetNodeH
+                },
+                sourceNode:{
+                  x:sourceNodeX,
+                  y:sourceNodeY,
+                  id:CURNODE.id,
+                  width:sourceNodeW,
+                  height:sourceNodeH
+                }
               }
-            }
-            CURNODE.isRightConnectShow = true
-            this.topoData.nodes.forEach((item,key) => {
-              if(item.id == CONNECTLINE.endNode) item.isLeftConnectShow = true
-            })
-            CONNECTORS.push(connector)
+              CURNODE.isRightConnectShow = true
+              this.topoData.nodes.forEach((item,key) => {
+                if(item.id == CONNECTLINE.endNode) item.isLeftConnectShow = true
+              })
+              CONNECTORS.push(connector)
+              }           
           }         
         }else{
 
@@ -1175,7 +1200,7 @@ export default {
     this.svgAttr.height = $("#topo-wrap").height()
     this.svgAttr.minW = $("#topo-wrap").width()
     this.svgAttr.minH = $("#topo-wrap").height()
-    this.deleteNodeAndConnetor() //绑定删除Node事件    
+    this.deleteNodeAndConnetor() //绑定删除Node事件 
  }
 }
 </script>
