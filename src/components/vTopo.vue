@@ -284,8 +284,32 @@ export default {
   data () {
     return {
       connectorRules:[
-        {type:'Root',canBeContainedType:[],canLinkToType:['Container']},
-        {type:'Compute',canBeContainedType:['Database'],canLinkToType:['Database','Compute']},
+        { 
+          type:'Root',
+          canBeContainedType:['Root','Compute','Container','FileSystem','ObjectStorage','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','CloudifyManager'],
+          canLinkToType:['Root','Compute','Container','Volume','FileSystem','ObjectStorage','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','CloudifyManager']
+        },
+        {
+          type:'Compute',
+          canBeContainedType:[],
+          canLinkToType:['Compute','Root','Container','Volume','FileSystem','ObjectStorage','Network','VirtualIP','SercurityGroup','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','ApplicationModule','CloudifyManager']
+        },
+        {
+          type:'Container',
+          canBeContainedType:['Container','Compute'],
+          canLinkToType:['Container','Root','Volume','FileSystem','ObjectStorage','Network','VirtualIP','SercurityGroup','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','ApplicationModule','CloudifyManager']
+        },
+        {
+          type:'Volume',
+          canBeContainedType:['Root','Compute','Container','FileSystem','ObjectStorage','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','CloudifyManager'],
+          canLinkToType:['Volume','Root','Compute','Container','FileSystem','ObjectStorage','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','CloudifyManager']
+        },
+        {
+          type:'FileSystem',
+          canBeContainedType:['FileSystem','Root','Compute','Container','ObjectStorage','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','CloudifyManager'],
+          canLinkToType:['FileSystem','Root','Compute','Container','Volume','ObjectStorage','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','ApplicationModule','CloudifyManager']
+        },
+
         {type:'Database',canBeContainedType:['Database'],canLinkToType:['Database','Compute']}
       ],//节点间关系的规则
      selectNodeIndex:0,
@@ -303,10 +327,10 @@ export default {
       {type:'Root',icon:Root,width:150,height:100,num:1,classType:'T1'},     
       {type:'Compute',icon:compute,width:150,height:100,num:1,classType:'T1'},
       {type:'Container',icon:Container,width:150,height:100,num:1,classType:'T1'},
-      {type:'Volume',icon:Volume,width:150,height:100,num:1,classType:'T1'},
-      {type:'Filesystem',icon:filesystem,width:150,height:100,num:1,classType:'T1'},
+      {type:'Volume',icon:Volume,width:50,height:50,num:1,classType:'T2'},
+      {type:'FileSystem',icon:filesystem,width:150,height:100,num:1,classType:'T1'},
       {type:'ObjectStorage',icon:Storage,width:150,height:100,num:1,classType:'T1'},
-      {type:'Network',icon:network,width:150,height:100,num:1,classType:'T1'},
+      {type:'Network',icon:network,width:130,height:80,num:1,classType:'T1'},
       {type:'Subnet',icon:Subnet,width:150,height:100,num:1,classType:'T1'},
       {type:'Port',icon:Port,width:150,height:100,num:1,classType:'T1'},
       {type:'Router',icon:router,width:150,height:100,num:1,classType:'T1'},
@@ -318,7 +342,7 @@ export default {
       {type:'WebServer',icon:webserver,width:150,height:100,num:1,classType:'T1'}, 
       {type:'ApplicationServer',icon:Application,width:150,height:100,num:1,classType:'T1'}, 
       {type:'MessageBusServer',icon:message,width:150,height:100,num:1,classType:'T1'},
-      {type:'ApplicationModule',icon:Application,width:150,height:100,num:1,classType:'T1'},
+      {type:'ApplicationModule',icon:Application,width:50,height:50,num:1,classType:'T2'},
       {type:'CloudifyManager',icon:cloud,width:150,height:100,num:1,classType:'T1'},           
      ],
      toolbarMoveNode:{
@@ -373,7 +397,7 @@ export default {
      ],
      topoData:{
       nodes:[
-        {x:30,y:10,width:150,height:100,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'New_server_0',isSelect:false,initW:150,initH:100,icon:database,classType:'T1',containNodes:[],type:'Database',
+        {x:30,y:10,width:150,height:100,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'DataBase_9',isSelect:false,initW:150,initH:100,icon:database,classType:'T1',containNodes:[],type:'Database',
         attrs:[
           {type:'input',name:'portId',value:'2222141',placeholder:'请输入portId',rules:[{ required: true, message: '请输入活动名称', trigger: 'blur'}],disabled:true},
           {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
@@ -381,8 +405,8 @@ export default {
           {type:'textarea',name:'数据库',value:'',rules:[],disabled:false},
           {type:'radio',name:'数据类型',value:'',options:[{label:'sql'},{label:'oracle'}],disabled:true}
         ]},
-        {x:100,y:50,width:150,height:100,id:77,isLeftConnectShow:false,isRightConnectShow:false,name:'New_volumn_0',isSelect:false,initW:150,initH:100,icon:database,classType:'T1',containNodes:[],attrs:[],type:'Database'},
-        {x:500,y:100,width:100,height:100,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'New_proxy_0',isSelect:false,initW:100,initH:100,icon:database,classType:'T1',containNodes:[],attrs:[],type:'Database'}
+        {x:100,y:50,width:150,height:100,id:77,isLeftConnectShow:false,isRightConnectShow:false,name:'DataBase_8',isSelect:false,initW:150,initH:100,icon:database,classType:'T1',containNodes:[],attrs:[],type:'Database'},
+        {x:500,y:100,width:150,height:100,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'DataBase_10',isSelect:false,initW:150,initH:100,icon:database,classType:'T1',containNodes:[],attrs:[],type:'Database'}
       ],
       connectors:[]
      }
