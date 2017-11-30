@@ -309,7 +309,16 @@ export default {
           canBeContainedType:['FileSystem','Root','Compute','Container','ObjectStorage','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','CloudifyManager'],
           canLinkToType:['FileSystem','Root','Compute','Container','Volume','ObjectStorage','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','ApplicationModule','CloudifyManager']
         },
-
+        {
+          type:'ObjectStorage',
+          canBeContainedType:['ObjectStorage','Root','Compute','Container','FileSystem','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','CloudifyManager'],
+          canLinkToType:['ObjectStorage','Root','Compute','Container','Volume','FileSystem','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','ApplicationModule','CloudifyManager']
+        },
+        {
+          type:'Network',
+          canBeContainedType:[],
+          canLinkToType:[]
+        },
         {type:'Database',canBeContainedType:['Database'],canLinkToType:['Database','Compute']}
       ],//节点间关系的规则
      selectNodeIndex:0,
@@ -338,7 +347,7 @@ export default {
       {type:'VirtualIP',icon:virtualip,width:50,height:50,num:1,classType:'T2'},
       {type:'SercurityGroup',icon:sercurity,width:50,height:50,num:1,classType:'T2'},      
       {type:'DBMS',icon:DBMS,width:150,height:100,num:1,classType:'T1'},
-      {type:'Database',icon:database,width:150,height:100,num:1,classType:'T1'},
+      {type:'DataBase',icon:database,width:150,height:100,num:1,classType:'T1'},
       {type:'WebServer',icon:webserver,width:150,height:100,num:1,classType:'T1'}, 
       {type:'ApplicationServer',icon:Application,width:150,height:100,num:1,classType:'T1'}, 
       {type:'MessageBusServer',icon:message,width:150,height:100,num:1,classType:'T1'},
@@ -397,7 +406,7 @@ export default {
      ],
      topoData:{
       nodes:[
-        {x:30,y:10,width:150,height:100,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'DataBase_9',isSelect:false,initW:150,initH:100,icon:database,classType:'T1',containNodes:[],type:'Database',
+        {x:30,y:10,width:150,height:100,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'DataBase_9',isSelect:false,initW:150,initH:100,icon:database,classType:'T1',containNodes:[],type:'DataBase',
         attrs:[
           {type:'input',name:'portId',value:'2222141',placeholder:'请输入portId',rules:[{ required: true, message: '请输入活动名称', trigger: 'blur'}],disabled:true},
           {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
@@ -405,8 +414,8 @@ export default {
           {type:'textarea',name:'数据库',value:'',rules:[],disabled:false},
           {type:'radio',name:'数据类型',value:'',options:[{label:'sql'},{label:'oracle'}],disabled:true}
         ]},
-        {x:100,y:50,width:150,height:100,id:77,isLeftConnectShow:false,isRightConnectShow:false,name:'DataBase_8',isSelect:false,initW:150,initH:100,icon:database,classType:'T1',containNodes:[],attrs:[],type:'Database'},
-        {x:500,y:100,width:150,height:100,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'DataBase_10',isSelect:false,initW:150,initH:100,icon:database,classType:'T1',containNodes:[],attrs:[],type:'Database'}
+        {x:100,y:50,width:150,height:100,id:77,isLeftConnectShow:false,isRightConnectShow:false,name:'DataBase_8',isSelect:false,initW:150,initH:100,icon:database,classType:'T1',containNodes:[],attrs:[],type:'DataBase'},
+        {x:500,y:100,width:150,height:100,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'DataBase_10',isSelect:false,initW:150,initH:100,icon:database,classType:'T1',containNodes:[],attrs:[],type:'DataBase'}
       ],
       connectors:[]
      }
