@@ -29,5 +29,5 @@ export default {
 *{margin:0;padding:0;}
 ul,li{list-style: none;}
 body{background-color: @theme-color;overflow-y:scroll}
-.topoArea{height:600px;}
+.topoArea{height:800px;}
 </style>

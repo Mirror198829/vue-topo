@@ -11,12 +11,14 @@
                 <el-collapse-item title="nodecellar.nodes" name="1">
                   <el-row :gutter="5">
                      <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="4"  v-for="(ele,key) in toolbarNodeData" :key="key">
-                        <li class="node-item node-css" @mousedown.stop.prevent = "dragToolbarNode(toolbarNodeData,key,$event)">
-                          <div class="node-icon">
-                            <img class="toolbar-node-icon" :src="ele.icon"/>
-                          </div>
-                          <div class="node-name" :title="ele.type">{{ele.type}}</div>
-                       </li>
+                      <el-tooltip class="item" effect="dark" :content="ele.type" placement="right-start">
+                        <li class="node-item node-css" @mousedown.stop.prevent = "dragToolbarNode(toolbarNodeData,key,$event)">                          
+                            <div class="node-icon">
+                              <img class="toolbar-node-icon" :src="ele.icon"/>
+                            </div>
+                            <div class="node-name">{{ele.type}}</div>                           
+                         </li>
+                       </el-tooltip>
                      </el-col>
                   </el-row>
                 </el-collapse-item>
@@ -83,11 +85,11 @@
                   @mouseout.stop = "mouseoutLeftConnector(key)"
                   >
                   <rect x="0" y="0" rx="2" ry="2" :width="ele.width" :height="ele.height" class="reactClass" :class="{isSelect:ele.isSelect}" />
-                  <text v-if="ele.classType == 'T1'" class="nodeName" x="5" y="15">{{ele.name}}</text>
+                  <text  v-if="ele.classType == 'T1'" class="nodeName" x="5" y="15">{{ele.name}}</text>
                   <image v-if="ele.classType == 'T1'" :xlink:href="ele.icon" :x="ele.width - 23" :y="5" height="17px" width="17px"/>
 
                   <image v-if="ele.classType == 'T2'" :xlink:href="ele.icon" :x="7" :y="7" height="36px" width="36px"/>
-                  <text v-if="ele.classType == 'T2'" class="nodeName" x="0" :y="ele.height + 14">{{ele.name}}</text>
+                  <text  v-if="ele.classType == 'T2'" class="nodeName" x="0" :y="ele.height + 14">{{ele.name}}</text>
                   <g class="connectorArror" :class="{'connector':ele.isLeftConnectShow}" :transform="'translate(0,'+ele.height/2+')'">
                     <circle r="8" cx="0" cy="0" class="circleColor"></circle>
                     <line x1="-3" y1="-5" x2="4" y2="0.5" stroke="#fff"></line>
@@ -259,6 +261,11 @@
   </div>
 </template>
 <script>
+import Root from  '../assets/topo/root.png'
+import Container from '../assets/topo/container.png'
+import Volume from '../assets/topo/volume.png'
+import Storage from '../assets/topo/storage.png'
+import Subnet from '../assets/topo/subnet.png'
 import database from '../assets/topo/database.png'
 import cloud from '../assets/topo/cloud.png'
 import compute from '../assets/topo/compute.png'
@@ -269,11 +276,15 @@ import sercurity from  '../assets/topo/sercurity.png'
 import webserver from  '../assets/topo/webserver.png'
 import filesystem from '../assets/topo/filesystem.png'
 import virtualip from '../assets/topo/virtualip.png'
+import Port from '../assets/topo/port.png'
+import DBMS from '../assets/topo/dbms.png'
+import Application from '../assets/topo/application.png'
 export default {
   name: 'HelloWorld',
   data () {
     return {
       connectorRules:[
+        {type:'Root',canBeContainedType:[],canLinkToType:['Container']},
         {type:'Compute',canBeContainedType:['Database'],canLinkToType:['Database','Compute']},
         {type:'Database',canBeContainedType:['Database'],canLinkToType:['Database','Compute']}
       ],//节点间关系的规则
@@ -289,16 +300,26 @@ export default {
       // {name:'恢复出厂设置',className:'toolbar-zoomreset',isActive:false}
      ],
      toolbarNodeData:[
+      {type:'Root',icon:Root,width:150,height:100,num:1,classType:'T1'},     
       {type:'Compute',icon:compute,width:150,height:100,num:1,classType:'T1'},
-      {type:'Database',icon:database,width:150,height:100,num:1,classType:'T1'},
-      {type:'Cloud',icon:cloud,width:150,height:100,num:1,classType:'T1'},
+      {type:'Container',icon:Container,width:150,height:100,num:1,classType:'T1'},
+      {type:'Volume',icon:Volume,width:150,height:100,num:1,classType:'T1'},
+      {type:'Filesystem',icon:filesystem,width:150,height:100,num:1,classType:'T1'},
+      {type:'ObjectStorage',icon:Storage,width:150,height:100,num:1,classType:'T1'},
       {type:'Network',icon:network,width:150,height:100,num:1,classType:'T1'},
+      {type:'Subnet',icon:Subnet,width:150,height:100,num:1,classType:'T1'},
+      {type:'Port',icon:Port,width:150,height:100,num:1,classType:'T1'},
       {type:'Router',icon:router,width:150,height:100,num:1,classType:'T1'},
-      {type:'Sercurity',icon:sercurity,width:50,height:50,num:1,classType:'T2'},
-      {type:'webserver',icon:webserver,width:150,height:100,num:1,classType:'T1'},
-      {type:'filesystem',icon:filesystem,width:150,height:100,num:1,classType:'T1'},
-      {type:'message',icon:message,width:150,height:100,num:1,classType:'T1'},
-      {type:'virtualip',icon:virtualip,width:50,height:50,num:1,classType:'T2'}
+      {type:'LoadBalancer',icon:router,width:150,height:100,num:1,classType:'T1'},
+      {type:'VirtualIP',icon:virtualip,width:50,height:50,num:1,classType:'T2'},
+      {type:'SercurityGroup',icon:sercurity,width:50,height:50,num:1,classType:'T2'},      
+      {type:'DBMS',icon:DBMS,width:150,height:100,num:1,classType:'T1'},
+      {type:'Database',icon:database,width:150,height:100,num:1,classType:'T1'},
+      {type:'WebServer',icon:webserver,width:150,height:100,num:1,classType:'T1'}, 
+      {type:'ApplicationServer',icon:Application,width:150,height:100,num:1,classType:'T1'}, 
+      {type:'MessageBusServer',icon:message,width:150,height:100,num:1,classType:'T1'},
+      {type:'ApplicationModule',icon:Application,width:150,height:100,num:1,classType:'T1'},
+      {type:'CloudifyManager',icon:cloud,width:150,height:100,num:1,classType:'T1'},           
      ],
      toolbarMoveNode:{
       left:0,
@@ -320,7 +341,7 @@ export default {
      connectorWSelf:15, //自连连线的宽度
      connectorW:15,//非自连连线宽度
      containTop:30, //包含关系的子node距离父node
-     containLeft:25,//包含关系的左右距离
+     containLeft:22,//包含关系的左右距离
      classchoose:false,    
      connectingLine:{
       x1:0,
@@ -986,7 +1007,7 @@ export default {
             if(!canLinkToTargetNode){
                this.$message({
                   showClose: true,
-                  message: CURNODE.type+"类型 不能连接 "+targetNodeType+"类型！",
+                  message: CURNODE.type+"类型 不能连接 "+targetNodeType+"类型",
                   type: 'error'
                })
                CURNODE.isRightConnectShow = false     //连线失败：起点右侧箭头暂且设置为消失
@@ -1219,11 +1240,11 @@ export default {
 
 /*toolbar node样式*/
 .node-item{margin-top:5px;cursor: pointer;border:1px solid #c7d1dd;-webkit-user-select:none;user-select:none;}
-.node-css{height: 57px;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:5px 0;}
+.node-css{height: 60px;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:5px 0;}
 .nodeMoveCss{width:57px;height: 57px;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:5px 0;}
 .node-icon{text-align: center;-webkit-user-select:none;user-select:none;}
 .toolbar-node-icon{width: 28px;height: 28px;-webkit-user-select:none;user-select:none;}
-.node-name{font-size:12px;text-align: center;position: relative;top:-4px;padding:0 5px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;-webkit-user-select:none;user-select:none;}
+.node-name{font-size:12px;text-align: center;position: relative;top:-4px;padding:0 5px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;-webkit-user-select:none;user-select:none;color:#000}
 #topoComponent{width:100%;box-sizing: border-box;padding:15px;background-color: #fff;height:100%}
 .topoRow,.topoCol,.svgCol{height:100%}
 
