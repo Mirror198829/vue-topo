@@ -10,15 +10,13 @@
               <el-collapse v-model="activeNames">
                 <el-collapse-item title="nodecellar.nodes" name="1">
                   <el-row :gutter="5">
-                     <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="4"  v-for="(ele,key) in toolbarNodeData" :key="key">
-                      <el-tooltip class="item" effect="dark" :content="ele.type" placement="right-start">
-                        <li class="node-item node-css" @mousedown.stop.prevent = "dragToolbarNode(toolbarNodeData,key,$event)">                          
-                            <div class="node-icon">
-                              <img class="toolbar-node-icon" :src="ele.icon"/>
-                            </div>
-                            <div class="node-name">{{ele.type}}</div>                           
-                         </li>
-                       </el-tooltip>
+                     <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="4"  v-for="(ele,key) in toolbarNodeData" :key="key">              
+                      <li class="node-item node-css" @mousedown.stop.prevent = "dragToolbarNode(toolbarNodeData,key,$event)" :title="ele.type">                          
+                          <div class="node-icon">
+                            <img class="toolbar-node-icon" :src="ele.icon"/>
+                          </div>
+                          <div class="node-name">{{ele.type}}</div>                           
+                       </li>
                      </el-col>
                   </el-row>
                 </el-collapse-item>
@@ -279,48 +277,12 @@ import virtualip from '../assets/topo/virtualip.png'
 import Port from '../assets/topo/port.png'
 import DBMS from '../assets/topo/dbms.png'
 import Application from '../assets/topo/application.png'
+import connectorRules from '../config/connectorRules.js'
 export default {
   name: 'HelloWorld',
   data () {
     return {
-      connectorRules:[
-        { 
-          type:'Root',
-          canBeContainedType:['Root','Compute','Container','FileSystem','ObjectStorage','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','CloudifyManager'],
-          canLinkToType:['Root','Compute','Container','Volume','FileSystem','ObjectStorage','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','CloudifyManager']
-        },
-        {
-          type:'Compute',
-          canBeContainedType:[],
-          canLinkToType:['Compute','Root','Container','Volume','FileSystem','ObjectStorage','Network','VirtualIP','SercurityGroup','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','ApplicationModule','CloudifyManager']
-        },
-        {
-          type:'Container',
-          canBeContainedType:['Container','Compute'],
-          canLinkToType:['Container','Root','Volume','FileSystem','ObjectStorage','Network','VirtualIP','SercurityGroup','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','ApplicationModule','CloudifyManager']
-        },
-        {
-          type:'Volume',
-          canBeContainedType:['Root','Compute','Container','FileSystem','ObjectStorage','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','CloudifyManager'],
-          canLinkToType:['Volume','Root','Compute','Container','FileSystem','ObjectStorage','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','CloudifyManager']
-        },
-        {
-          type:'FileSystem',
-          canBeContainedType:['FileSystem','Root','Compute','Container','ObjectStorage','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','CloudifyManager'],
-          canLinkToType:['FileSystem','Root','Compute','Container','Volume','ObjectStorage','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','ApplicationModule','CloudifyManager']
-        },
-        {
-          type:'ObjectStorage',
-          canBeContainedType:['ObjectStorage','Root','Compute','Container','FileSystem','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','CloudifyManager'],
-          canLinkToType:['ObjectStorage','Root','Compute','Container','Volume','FileSystem','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','ApplicationModule','CloudifyManager']
-        },
-        {
-          type:'Network',
-          canBeContainedType:[],
-          canLinkToType:[]
-        },
-        {type:'Database',canBeContainedType:['Database'],canLinkToType:['Database','Compute']}
-      ],//节点间关系的规则
+     connectorRules:connectorRules,//节点间关系的规则
      selectNodeIndex:0,
      svgAttr:{width:0,height:0,isHand:false,viewX:0,viewY:0,minW:0,minH:0,isCrosshair:false},
      activeNames: ['1'],
@@ -424,6 +386,16 @@ export default {
   computed:{
   },
   methods:{
+    //测试节点性能
+    testNodeNums(num){
+        for(let i=0;i<num;i++){
+          let x = Math.random()*1000+50
+          let y = Math.random()*1000+50
+          let id = Math.random()*10000+50
+          let node = {x:x,y:y,width:50,height:50,id:id,isLeftConnectShow:false,isRightConnectShow:false,name:i,isSelect:false,initW:50,initH:50,icon:database,classType:'T1',containNodes:[],attrs:[],type:'DataBase'}
+          this.topoData.nodes.push(node)
+        }
+    },
     canConnectorTo(curNodeType,connectorToNodeType,connectorType){
       let canConnector = false
       if(connectorType == 'Link'){
