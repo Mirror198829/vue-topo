@@ -59,9 +59,7 @@
           <div id="topo-wrap" style="position:relative">
             <svg id="topo-svg"
               :width="svgAttr.width" 
-              :height="svgAttr.height" 
-              @mouseover = "moveInTopoSvg" 
-              @mouseout = "moveOutTopoSvg" 
+              :height="svgAttr.height"  
               @mousedown.stop = "mousedownTopoSvg($event)" 
               :viewBox="svgAttr.viewX+' '+svgAttr.viewY+' '+svgAttr.width+' '+svgAttr.height" 
               :class="{'hand':svgAttr.isHand,'crosshair':svgAttr.isCrosshair}">
@@ -70,8 +68,7 @@
                   <line :x1="ele.x1" :x2="ele.x2" :y1="ele.y1" :y2="ele.y2" :stroke="ele.color" :stroke-width="ele.strokeWidth" :opacity="ele.opacity" v-for="(ele,key) in gridData"></line>
                 </pattern>
               </defs>
-              <rect fill="url(#Pattern)" :width="svgAttr.width" :height="svgAttr.height" />
-              
+              <rect fill="url(#Pattern)" :width="svgAttr.width" :height="svgAttr.height" />             
               <g>                        
                 <g
                   class="nodesG" 
@@ -422,87 +419,92 @@ export default {
       let NODE = nodeData[key]
       let toolbarName =NODE.type
       let toolbarIcon = NODE.icon
+      let svgOffsetLeft = $("#topo-svg").offset().left
+      let svgOffsetTop = $("#topo-svg").offset().top
+      let svgWidth = $("#topo-svg").width()
+      let svgHeight = $("#topo-svg").height()
+      let isContainSvgArea = false
       document.onmousemove = (event) =>{        
         let mouseX = event.clientX    //当前鼠标位置
         let mouseY = event.clientY 
-        let nodeX = event.clientX - $("#topo-svg").offset().left + $(document).scrollLeft()+ this.svgAttr.viewX   //svg最终位置
-        let nodeY = event.clientY - $("#topo-svg").offset().top  + $(document).scrollTop() + this.svgAttr.viewY
+        let nodeX = event.clientX - svgOffsetLeft + $(document).scrollLeft()+ this.svgAttr.viewX   //svg最终位置
+        let nodeY = event.clientY - svgOffsetTop  + $(document).scrollTop() + this.svgAttr.viewY
+        isContainSvgArea = false
         this.toolbarMoveNode.left = mouseX + 4 + $(document).scrollLeft()  // 鼠标位置 + 文档滚动的距离
         this.toolbarMoveNode.top =  mouseY + 4 + $(document).scrollTop()
         this.toolbarMoveNode.name = toolbarName
         this.toolbarMoveNode.icon = toolbarIcon
         this.toolbarMoveNode.isShow = true
-        // 鼠标滑入svg区域 显示标尺并显示标尺正确位置
-        this.marker.isMarkerShow = true        
-        let n1 = Math.floor(nodeX / 20)  //grid宽高的整数倍
-        let n2 = Math.floor(nodeY / 20)         
-        this.marker.xmarkerY = n2 * 20
-        this.marker.ymarkerX = n1 * 20
-
+        this.marker.isMarkerShow = false
+        // 鼠标滑入svg区域内显示标尺并显示标尺正确位置
+        if( mouseX >= svgOffsetLeft && 
+            mouseX <= (svgOffsetLeft + svgWidth) && 
+            mouseY >= (svgOffsetTop - $(document).scrollTop()) && 
+            mouseY <= (svgOffsetTop+svgHeight - $(document).scrollTop())
+          ){
+          this.marker.isMarkerShow = true
+          isContainSvgArea = true
+          let n1 = Math.floor(nodeX / 20)  //grid宽高的整数倍
+          let n2 = Math.floor(nodeY / 20)         
+          this.marker.xmarkerY = n2 * 20
+          this.marker.ymarkerX = n1 * 20
+        }
       }
       document.onmouseup = (event)=>{
          document.onmousemove = null
 　　　　　document.onmouseup = null
          // 判断鼠标在svg区域
-
-        let TOPODATA = this.topoData
-        let type = NODE.type
-        let name = 'New_'+NODE.type+'_'+ NODE.num
-        NODE.num ++ 
-        let id = GenNonDuplicateID(5)
-        let nodeEndX = this.marker.ymarkerX
-        let nodeEndY = this.marker.xmarkerY
-        if(nodeEndX < 0 ) {
-          nodeEndX = 0
-          this.toolbarMoveNode.left = $("#topo-svg").offset().left + $(document).scrollLeft() 
-        }
-        if(nodeEndY < 0 ) {
-          nodeEndY = 0 
-          this.toolbarMoveNode.top =  $("#topo-svg").offset().top + $(document).scrollTop()
-        }  
-
-        let svgNode ={
-           name,
-           type,
-           id:id,
-           x:nodeEndX,
-           y:nodeEndY,
-           icon:NODE.icon,
-           width:NODE.width,
-           height:NODE.height,
-           initW:NODE.width,
-           initH:NODE.height,           
-           classType:NODE.classType,
-           isLeftConnectShow:false,
-           isRightConnectShow:false,
-           containNodes:[],
-           attrs:[]
-        }
-        this.marker.isMarkerShow = false    //标尺取消显示
-        this.topoData.nodes.push(svgNode)   //创建一个svg Node    
-        //计算是否与某个节点重叠
-        for(let i =( TOPODATA.nodes.length - 1); i >= 0; i-- ){
-          let node = TOPODATA.nodes[i]
-          if(node.x <= nodeEndX && nodeEndX <= (node.x + node.width) && nodeEndY >= node.y && node.y + node.height >= nodeEndY && node.id != id){
-            let canBeContain =  this.canConnectorTo(NODE.type,node.type,'Contain')  //判断是否能被包含在目标元素中
-            if(canBeContain){
-              let connector={
-                type:'Contain',
-                sourceNode:{
-                  id:id,
-                },
-                targetNode:{
-                  id:node.id,
-                },
-                isSelect:false
-              }                                                 
-              TOPODATA.connectors.push(connector)             
-              node.containNodes.push(id)   //如果有嵌套关系，就在父节点放入子节点id        
-              this.refreshRowAndOuterNode(svgNode)  //刷新并列节点位置和父节点宽高 
-              this.refreshConnectorsData()  
-              break
-            }          
-          }
+        if(isContainSvgArea){
+            let TOPODATA = this.topoData
+            let type = NODE.type
+            let name = 'New_'+NODE.type+'_'+ NODE.num
+            NODE.num ++ 
+            let id = GenNonDuplicateID(5)
+            let nodeEndX = this.marker.ymarkerX
+            let nodeEndY = this.marker.xmarkerY
+            let svgNode ={
+               name,
+               type,
+               id:id,
+               x:nodeEndX,
+               y:nodeEndY,
+               icon:NODE.icon,
+               width:NODE.width,
+               height:NODE.height,
+               initW:NODE.width,
+               initH:NODE.height,           
+               classType:NODE.classType,
+               isLeftConnectShow:false,
+               isRightConnectShow:false,
+               containNodes:[],
+               attrs:[]
+            }
+            this.marker.isMarkerShow = false    //标尺取消显示
+            this.topoData.nodes.push(svgNode)   //创建一个svg Node    
+            //计算是否与某个节点重叠
+            for(let i =( TOPODATA.nodes.length - 1); i >= 0; i-- ){
+              let node = TOPODATA.nodes[i]
+              if(node.x <= nodeEndX && nodeEndX <= (node.x + node.width) && nodeEndY >= node.y && node.y + node.height >= nodeEndY && node.id != id){
+                let canBeContain =  this.canConnectorTo(NODE.type,node.type,'Contain')  //判断是否能被包含在目标元素中
+                if(canBeContain){
+                  let connector={
+                    type:'Contain',
+                    sourceNode:{
+                      id:id,
+                    },
+                    targetNode:{
+                      id:node.id,
+                    },
+                    isSelect:false
+                  }                                                 
+                  TOPODATA.connectors.push(connector)             
+                  node.containNodes.push(id)   //如果有嵌套关系，就在父节点放入子节点id        
+                  this.refreshRowAndOuterNode(svgNode)  //刷新并列节点位置和父节点宽高 
+                  this.refreshConnectorsData()  
+                  break
+                }          
+              }
+            }
         }    
         //重新初始toolbarMoveNode的值
         this.toolbarMoveNode.left = 0
@@ -517,14 +519,13 @@ export default {
       }
     },
     //svg区域事件
-    moveInTopoSvg(){
-      this.svgTopo.isMoveover = true
-    },
-    moveOutTopoSvg(){
-      this.svgTopo.isMoveover = false
-      this.marker.isMarkerShow = false
-
-    },
+    // moveInTopoSvg(){
+    //   //this.svgTopo.isMoveover = true
+    // },
+    // moveOutTopoSvg(){
+    //   // this.svgTopo.isMoveover = false
+    //   // this.marker.isMarkerShow = false
+    // },
     //1.取消选中的node节点 2. 移动viewbox
     mousedownTopoSvg(event){ 
       let mouseX0 = event.clientX //鼠标点击下的位置
@@ -552,6 +553,7 @@ export default {
         let disY = event.clientY - mouseY0
         let endSvgW = startSvgW - disX
         let endSvgH = startSvgH - disY
+
         if(this.svgToolbar[1].isActive) {
           let selectionW = Math.abs(disX)
           let selectionH = Math.abs(disY)
@@ -605,8 +607,8 @@ export default {
     },
     //拖拽svg中的node
     dragSvgNode(key,event){
-       let mouseX0 = event.clientX //鼠标点击下的位置
-       let mouseY0 = event.clientY
+       let mouseX0 = event.clientX + $(document).scrollLeft()//鼠标点击下的位置
+       let mouseY0 = event.clientY + $(document).scrollTop()
        let CURNODE = this.topoData.nodes[key] //点击的node对象
        let startX = CURNODE.x //节点开始位置
        let startY = CURNODE.y
@@ -633,8 +635,8 @@ export default {
        })
 
 　　　　document.onmousemove = (event) => {         
-　　　　　　let disX = event.clientX - mouseX0  //移动位置
-           let disY = event.clientY - mouseY0
+　　　　　　let disX = event.clientX - mouseX0 + $(document).scrollLeft() //移动位置
+           let disY = event.clientY - mouseY0 + $(document).scrollTop()
            let endX = startX + disX //最终位置
            let endY = startY + disY
            let n1 = Math.floor(endX / 20)  //grid宽高的整数倍
@@ -1276,7 +1278,7 @@ export default {
 .svgHeadItem:first-child{border-left-width: 1px}
 .svgHeadItem.active{background-color: #ebebeb;box-shadow: 2px 2px 1px #ccc inset}
 .svgHeadItemImg{background: url('../assets/topo/icons.png');width:16px;height:16px;background-size:479px 16px;}
-.svgToolBarItem{font-size:13px;background-color:@theme-color;color:@theme-font-color;padding:5px 10px;border-radius: 2px;box-sizing:border-box;margin-left:5px;float:left;cursor:pointer;}
+.svgToolBarItem{font-size:13px;background-color:@theme-color;color:@theme-font-color;padding:5px 10px;border-radius: 2px;box-sizing:border-box;margin-left:5px;float:left;cursor:pointer;-webkit-user-select:none;user-select:none;}
 .svgToolBarTxt{margin-left:2px;}
 .toolbar-default{background-position:-16px 0px}
 .toolbar-rectangle_selection{background-position:-294px 0px}
