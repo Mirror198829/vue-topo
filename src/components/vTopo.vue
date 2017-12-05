@@ -8,7 +8,7 @@
             </div>
             <div class="toolbar-main">
               <el-collapse v-model="activeNames">
-                <el-collapse-item title="nodecellar.nodes" name="1">
+                <el-collapse-item title="cloudify.nodes" name="1">
                   <el-row :gutter="5">
                      <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="4"  v-for="(ele,key) in toolbarNodeData" :key="key">              
                       <li class="node-item node-css" @mousedown.stop.prevent = "dragToolbarNode(toolbarNodeData,key,$event)" :title="ele.type">                          
@@ -45,7 +45,7 @@
               <li class="svgToolBarItem" @click="saveTopoJson" title="保存">
                 <i class="fa fa-save svgToolBarIcon"></i>
                 <span  class="svgToolBarTxt hidden-xs-only">保存</span>
-              </li>
+              </li>              
               <li class="svgToolBarItem" title="上传">
                 <i class="fa fa-upload svgToolBarIcon"></i>
                 <span  class="svgToolBarTxt hidden-xs-only">上传</span>
@@ -53,6 +53,10 @@
               <li class="svgToolBarItem" title="下载">
                 <i class="fa fa-download svgToolBarIcon"></i>
                 <span  class="svgToolBarTxt hidden-xs-only">下载</span>
+              </li>
+              <li class="svgToolBarItem" @click="saveTopoImage" title="保存图片">
+                <i class="fa fa-file-image-o svgToolBarIcon"></i>
+                <span  class="svgToolBarTxt hidden-xs-only">保存图片</span>
               </li>
             </ul>
           </div>
@@ -81,10 +85,10 @@
                   >
                   <rect x="0" y="0" rx="2" ry="2" :width="ele.width" :height="ele.height" class="reactClass" :class="{isSelect:ele.isSelect}" />
                   <text  v-if="ele.classType == 'T1'" class="nodeName" x="5" y="15">{{ele.name}}</text>
-                  <image v-if="ele.classType == 'T1'" :xlink:href="ele.icon" :x="ele.width - 23" :y="5" height="17px" width="17px"/>
+                  <image class="nodeImg" v-if="ele.classType == 'T1'" :xlink:href="ele.icon" :x="ele.width - 23" :y="5" height="17px" width="17px"/>
 
-                  <image v-if="ele.classType == 'T2'" :xlink:href="ele.icon" :x="7" :y="7" height="36px" width="36px"/>
-                  <text  v-if="ele.classType == 'T2'" class="nodeName" x="0" :y="ele.height + 14">{{ele.name}}</text>
+                  <image class="nodeImg" v-if="ele.classType == 'T2'" :xlink:href="ele.icon" :x="7" :y="7" height="36px" width="36px"/>
+                  <text ondragstart="return false"  v-if="ele.classType == 'T2'" class="nodeName" x="0" :y="ele.height + 14">{{ele.name}}</text>
                   <g class="connectorArror" :class="{'connector':ele.isLeftConnectShow}" :transform="'translate(0,'+ele.height/2+')'">
                     <circle r="8" cx="0" cy="0" class="circleColor"></circle>
                     <line x1="-3" y1="-5" x2="4" y2="0.5" stroke="#fff"></line>
@@ -256,6 +260,7 @@
   </div>
 </template>
 <script>
+
 import Root from  '../assets/topo/root.png'
 import Container from '../assets/topo/container.png'
 import Volume from '../assets/topo/volume.png'
@@ -1216,8 +1221,31 @@ export default {
       this.svgToolbar[key].isActive = true
     },
     //保存topo的json数据
-    saveTopoJson(){
+    saveTopoJson(){      
       console.log(JSON.stringify(this.topoData))
+    },
+    saveTopoImage(){
+      let maxW = 0
+      let maxH = 0
+      let initW = this.svgAttr.width
+      let initH = this.svgAttr.height
+      this.topoData.nodes.forEach((node,key)=>{
+        let nodeEndX = node.width + node.x
+        let nodeEndY = node.height + node.y
+        if(nodeEndX > maxW) maxW = nodeEndX
+        if(nodeEndY > maxH) maxH = nodeEndY
+      })
+      maxW = (maxW < this.svgAttr.minW) ? this.svgAttr.minW : maxW
+      maxH = (maxH < this.svgAttr.minH) ? this.svgAttr.minH : maxH
+      this.svgAttr.width = maxW + 50
+      this.svgAttr.height = maxH + 20
+      saveSvgAsPng(document.getElementById("topo-svg"), "topo.png")
+      // 建议使用promise进行优化
+      setTimeout(()=>{
+        this.svgAttr.width = initW
+        this.svgAttr.height = initH
+      },1000)
+      
     }
   },
   mounted(){
@@ -1261,7 +1289,9 @@ export default {
 .marker{stroke:#3d7ed5;stroke-width:1;display: none;}
 .isMarkerShow{display: block;}
 .connectorArror{display: none;}
+.nodesG{-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none;}
 .nodesG:hover .connectorArror{display: block}
+.nodeImg{-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none;}
 .nodeName{font-size:12px;fill:@svg-common-color;-webkit-user-select:none;user-select:none;}
 .connector{display: block;}
 .connectorsG .connectorLine{stroke:@svg-common-color;stroke-width:@stroke-width;fill:none;}
@@ -1291,16 +1321,15 @@ export default {
 #topoAttrWrap.active{right:0;}
 .infoIcon{font-size:30px;position:relative;top:5px;left:-4px}
 #infoWrap{padding:15px;text-align:center;margin-top:60px}
-
+#topo-svg{box-sizing: border-box;background-color: #fff;-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none;}
+#topo-svg.hand{cursor:pointer}
+#topo-svg.crosshair{cursor: crosshair;}
 </style>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 /*topo主体样式*/
 #topo-wrap{height:calc(100% - 40px);}
-#topo-svg{box-sizing: border-box;}
-#topo-svg.hand{cursor:pointer}
-#topo-svg.crosshair{cursor: crosshair;}
 </style>
 <style type="text/css">
-  .el-collapse-item__header{-webkit-user-select:none;user-select:none;}
+  .el-collapse-item__header{-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none;}
 </style>
