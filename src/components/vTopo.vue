@@ -54,10 +54,10 @@
                 <i class="fa fa-download svgToolBarIcon"></i>
                 <span  class="svgToolBarTxt hidden-xs-only">下载</span>
               </li>
-              <li class="svgToolBarItem" @click="saveTopoImage" title="保存图片">
+              <!-- <li class="svgToolBarItem" @click="saveTopoImage" title="保存图片">
                 <i class="fa fa-file-image-o svgToolBarIcon"></i>
                 <span  class="svgToolBarTxt hidden-xs-only">保存图片</span>
-              </li>
+              </li> -->
             </ul>
           </div>
           <div id="topo-wrap" style="position:relative">
@@ -88,7 +88,7 @@
                   <image class="nodeImg" v-if="ele.classType == 'T1'" :xlink:href="ele.icon" :x="ele.width - 23" :y="5" height="17px" width="17px"/>
 
                   <image class="nodeImg" v-if="ele.classType == 'T2'" :xlink:href="ele.icon" :x="7" :y="7" height="36px" width="36px"/>
-                  <text ondragstart="return false"  v-if="ele.classType == 'T2'" class="nodeName" x="0" :y="ele.height + 14">{{ele.name}}</text>
+                  <text  v-if="ele.classType == 'T2'" class="nodeName" x="0" :y="ele.height + 14">{{ele.name}}</text>
                   <g class="connectorArror" :class="{'connector':ele.isLeftConnectShow}" :transform="'translate(0,'+ele.height/2+')'">
                     <circle r="8" cx="0" cy="0" class="circleColor"></circle>
                     <line x1="-3" y1="-5" x2="4" y2="0.5" stroke="#fff"></line>
@@ -213,7 +213,7 @@
                 <div v-if="selectNodeIndex == null">
                     <div style="padding:50px;text-align:center">没有任何节点属性</div>
                 </div>
-                <div v-if="selectNodeIndex != null " style="overflow-y: scroll;height:100%;padding:20px 15px">
+                <div v-if="selectNodeIndex != null && topoData.nodes > 0" style="overflow-y: scroll;height:100%;padding:20px 15px">
                   <el-form  :model="topoData.nodes[selectNodeIndex]"  label-width="100px" class="demo-ruleForm" labelPosition="left">
                     <div>
                       <el-form-item label="名称">
