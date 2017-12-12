@@ -213,7 +213,7 @@
                 <div v-if="selectNodeIndex == null">
                     <div style="padding:50px;text-align:center">没有任何节点属性</div>
                 </div>
-                <div v-if="selectNodeIndex != null && topoData.nodes > 0" style="overflow-y: scroll;height:100%;padding:20px 15px">
+                <div v-if="selectNodeIndex != null && topoData.nodes.length > 0" style="overflow-y: scroll;height:100%;padding:20px 15px">
                   <el-form  :model="topoData.nodes[selectNodeIndex]"  label-width="100px" class="demo-ruleForm" labelPosition="left">
                     <div>
                       <el-form-item label="名称">
