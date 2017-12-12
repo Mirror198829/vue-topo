@@ -1,7 +1,7 @@
 <template>
   <footer id="footer">
-  	<div class="foot-txt">江苏新大陆</div>
-  	<div class="foot-txt">苏ICP备17040376号-5 苏B2-20130048号</div>
+  	<div class="foot-txt">江苏省南京市</div>
+  	<div class="foot-txt">Github：https://github.com/Mirror198829</a></div>
   </footer>
 </template>
 
