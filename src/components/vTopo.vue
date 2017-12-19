@@ -295,7 +295,7 @@ import Port from '../assets/topo/port.png'
 import DBMS from '../assets/topo/dbms.png'
 import Application from '../assets/topo/application.png'
 import connectorRules from '../config/connectorRules.js'
-import topoJson from '../../topoJson.js'
+import topoJson from '../config/topoJson.js'
 export default {
   data () {
     return {
