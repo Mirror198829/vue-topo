@@ -456,7 +456,6 @@ export default {
     },
     //提交key-value值
     submitKeyValueForm(formName){
-      console.log(formName)
       this.$refs[formName].validate((valid) => {
           if (valid) {
             this.$message({
@@ -485,24 +484,26 @@ export default {
       $("#topoAttrWrap").width(maxWidth)
     },
     canConnectorTo(curNodeType,connectorToNodeType,connectorType){
-      let canConnector = false
-      if(connectorType == 'Link'){
-        this.connectorRules.forEach((ele,key)=>{
-          if(ele.type == curNodeType){
-            ele.canLinkToType.forEach((el,index)=>{
-              if(el == connectorToNodeType) canConnector = true
-            })
-          }
-        })       
-      }else if(connectorType == 'Contain'){
-        this.connectorRules.forEach((ele,key)=>{
-          if(ele.type == curNodeType){
-            ele.canBeContainedType.forEach((el,index)=>{
-              if(el == connectorToNodeType) canConnector = true
-            })
-          }
-        })
-      }     
+      //当需要包含和连线规则的时候 清除以下注释
+      // let canConnector = false
+      // if(connectorType == 'Link'){
+      //   this.connectorRules.forEach((ele,key)=>{
+      //     if(ele.type == curNodeType){
+      //       ele.canLinkToType.forEach((el,index)=>{
+      //         if(el == connectorToNodeType) canConnector = true
+      //       })
+      //     }
+      //   })       
+      // }else if(connectorType == 'Contain'){
+      //   this.connectorRules.forEach((ele,key)=>{
+      //     if(ele.type == curNodeType){
+      //       ele.canBeContainedType.forEach((el,index)=>{
+      //         if(el == connectorToNodeType) canConnector = true
+      //       })
+      //     }
+      //   })
+      // }  
+      let canConnector = true   
       return canConnector
     },
     //拖拽toolbar中的node
@@ -1333,13 +1334,6 @@ export default {
       },1000)
       
     },
-    // getInitData(){
-    //   this.$http.get('http://172.32.147.125:9090/k8s/api/v1/namespaces').then(response => {
-    //     console.log(response)
-    //   },response=>{
-
-    //   })
-    // }
   },
   mounted(){
     //初始化：获取topo组件宽高
@@ -1352,7 +1346,6 @@ export default {
     this.deleteNodeAndConnetor() //绑定删除Node事件 
 
    this.topoData =  topoJson
-    console.log(topoJson)
  }
 }
 </script>

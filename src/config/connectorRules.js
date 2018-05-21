@@ -1,4 +1,9 @@
 let connectorRules = [
+	{
+	  type:'Service',
+	  canBeContainedType:['Service'],
+	  canLinkToType:['Service']
+	},
 	{ 
 	  type:'Root',
 	  canBeContainedType:['Root','Compute','Container','FileSystem','ObjectStorage','DBMS','DataBase','WebServer','ApplicationServer','MessageBusServer','CloudifyManager'],
