@@ -1,3 +1,9 @@
+/*
+ * @Author: caojing
+ * @Date: 2018-09-04 14:19:25
+ * @LastEditors: caojing
+ * @LastEditTime: 2018-11-17 14:36:16
+ */
 <template>
   <div id="app">
     <v-header></v-header>
