@@ -24,7 +24,7 @@
         <div id="svgWrap">
           <div id="svgHead" class="clearfix">
             <ul class="svgHeadItemLst clearfix" style="float:left">
-              <li class="svgHeadItem" v-for="(ele,key) in svgToolbar" :class="{'active':ele.isActive}" @mousedown="selectToolbar(key)"  :title="ele.name">
+              <li class="svgHeadItem" v-for="(ele,key) in svgToolbar" :key="key" :class="{'active':ele.isActive}" @mousedown="selectToolbar(key)"  :title="ele.name">
                 <div class="svgHeadItemImg" :class="ele.className"></div>
               </li>
             </ul>
@@ -56,7 +56,7 @@
               :class="{'hand':svgAttr.isHand,'crosshair':svgAttr.isCrosshair}">
               <defs>
                 <pattern id="Pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-                  <line :x1="ele.x1" :x2="ele.x2" :y1="ele.y1" :y2="ele.y2" :stroke="ele.color" :stroke-width="ele.strokeWidth" :opacity="ele.opacity" v-for="(ele,key) in gridData"></line>
+                  <line :x1="ele.x1" :x2="ele.x2" :y1="ele.y1" :y2="ele.y2" :stroke="ele.color" :stroke-width="ele.strokeWidth" :opacity="ele.opacity" v-for="(ele,key) in gridData" :key="key"></line>
                 </pattern>
               </defs>
               <rect fill="url(#Pattern)" :width="svgAttr.width" :height="svgAttr.height" />             
@@ -93,7 +93,8 @@
                   class="connectorsG"
                   :class="{active:ele.isSelect}" 
                   v-for="(ele,key) in topoData.connectors" v-if="ele.type == 'Line'"
-                  @mousedown.stop="selectConnectorLine(key)">
+                  @mousedown.stop="selectConnectorLine(key)"
+                  :key="key">
                   <!-- 自连 -->
                   <path
                     class="connectorLine" 
@@ -239,7 +240,7 @@
                       <div class="clearfix" style="margin-bottom:10px">
                           <i class="fa fa-plus-square" style="font-size:25px;float:right;cursor:pointer" @click="openKeyValueDialog(selectNodeIndex)"></i>
                       </div>
-                      <div class="clearfix" v-for="(ele,key) in topoData.nodes[selectNodeIndex].attrs" v-if="ele.type == 'keyVal'" style="margin:15px 0">
+                      <div class="clearfix" v-for="(ele,key) in topoData.nodes[selectNodeIndex].attrs" :key="key" v-if="ele.type == 'keyVal'" style="margin:15px 0">
                           <el-input style="float:left;width:20%"  v-model="ele.name" placeholder="key"></el-input>
                           <el-input style="float:left;width:calc(80% - 15px - 25px);margin-left:15px;" v-model="ele.value" placeholder="value"></el-input>
                           <i class="removeAttrArrow fa fa-remove"  @click="removeKeyValue(selectNodeIndex,key)"></i>
