@@ -11,7 +11,7 @@
                    <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="4"  v-for="(ele,key) in toolbarNodeData" :key="key">              
                     <li class="node-item node-css" @mousedown.stop.prevent = "dragToolbarNode(toolbarNodeData,key,$event)" :title="ele.type">                          
                         <div class="node-icon">
-                          <img class="toolbar-node-icon" :src="ele.icon"/>
+                          <img class="toolbar-node-icon" :src="ele.icon" />
                         </div>
                         <div class="node-name">{{ele.type}}</div>                           
                      </li>
@@ -276,25 +276,6 @@
   </div>
 </template>
 <script>
-
-import Service from  '../assets/topo/root.png'
-import Container from '../assets/topo/container.png'
-import Volume from '../assets/topo/volume.png'
-import Storage from '../assets/topo/storage.png'
-import Subnet from '../assets/topo/subnet.png'
-import database from '../assets/topo/database.png'
-import cloud from '../assets/topo/cloud.png'
-import compute from '../assets/topo/compute.png'
-import message from  '../assets/topo/message.png'
-import network from '../assets/topo/network.png'
-import router from  '../assets/topo/router.png'
-import sercurity from  '../assets/topo/sercurity.png'
-import webserver from  '../assets/topo/webserver.png'
-import filesystem from '../assets/topo/filesystem.png'
-import virtualip from '../assets/topo/virtualip.png'
-import Port from '../assets/topo/port.png'
-import DBMS from '../assets/topo/dbms.png'
-import Application from '../assets/topo/application.png'
 import connectorRules from '../config/connectorRules.js'
 import topoJson from '../config/topoJson.js'
 export default {
@@ -327,28 +308,28 @@ export default {
       // {name:'恢复出厂设置',className:'toolbar-zoomreset',isActive:false}
      ],
      toolbarNodeData:[
-      {type:'Service',icon:Service,width:140,height:80,num:1,classType:'T1'}, 
-      {type:'Router',icon:router,width:50,height:50,num:1,classType:'T2'},
-      {type:'Container',icon:Container,width:140,height:80,num:1,classType:'T1'}, 
-      {type:'Pod',icon:Container,width:140,height:80,num:1,classType:'T1'},
-      {type:'LoadBalancer',icon:router,width:115,height:60,num:1,classType:'T1'},
-      {type:'Compute',icon:compute,width:150,height:100,num:1,classType:'T1'},     
-      {type:'Volume',icon:Volume,width:50,height:50,num:1,classType:'T2'},
-      {type:'FileSystem',icon:filesystem,width:150,height:100,num:1,classType:'T1'},
-      {type:'ObjectStorage',icon:Storage,width:150,height:100,num:1,classType:'T1'},
-      {type:'Network',icon:network,width:130,height:80,num:1,classType:'T1'},
-      {type:'Subnet',icon:Subnet,width:150,height:100,num:1,classType:'T1'},
-      {type:'Port',icon:Port,width:150,height:100,num:1,classType:'T1'},      
-      {type:'LoadBalancer',icon:router,width:150,height:100,num:1,classType:'T1'},
-      {type:'VirtualIP',icon:virtualip,width:50,height:50,num:1,classType:'T2'},
-      {type:'SercurityGroup',icon:sercurity,width:50,height:50,num:1,classType:'T2'},      
-      {type:'DBMS',icon:DBMS,width:150,height:100,num:1,classType:'T1'},
-      {type:'DataBase',icon:database,width:150,height:100,num:1,classType:'T1'},
-      {type:'WebServer',icon:webserver,width:150,height:100,num:1,classType:'T1'}, 
-      {type:'ApplicationServer',icon:Application,width:150,height:100,num:1,classType:'T1'}, 
-      {type:'MessageBusServer',icon:message,width:150,height:100,num:1,classType:'T1'},
-      {type:'ApplicationModule',icon:Application,width:50,height:50,num:1,classType:'T2'},
-      {type:'CloudifyManager',icon:cloud,width:150,height:100,num:1,classType:'T1'},           
+      {type:'Service',icon:require('../assets/topo/root.png'),width:140,height:80,num:1,classType:'T1'}, 
+      {type:'Router',icon:require('../assets/topo/router.png'),width:50,height:50,num:1,classType:'T2'},
+      {type:'Container',icon:require('../assets/topo/container.png'),width:140,height:80,num:1,classType:'T1'}, 
+      {type:'Pod',icon:require('../assets/topo/container.png'),width:140,height:80,num:1,classType:'T1'},
+      {type:'LoadBalancer',icon:require('../assets/topo/router.png'),width:115,height:60,num:1,classType:'T1'},
+      {type:'Compute',icon:require('../assets/topo/compute.png'),width:150,height:100,num:1,classType:'T1'},     
+      {type:'Volume',icon:require('../assets/topo/volume.png'),width:50,height:50,num:1,classType:'T2'},
+      {type:'FileSystem',icon:require('../assets/topo/filesystem.png'),width:150,height:100,num:1,classType:'T1'},
+      {type:'ObjectStorage',icon:require('../assets/topo/storage.png'),width:150,height:100,num:1,classType:'T1'},
+      {type:'Network',icon:require('../assets/topo/network.png'),width:130,height:80,num:1,classType:'T1'},
+      {type:'Subnet',icon:require('../assets/topo/subnet.png'),width:150,height:100,num:1,classType:'T1'},
+      {type:'Port',icon:require('../assets/topo/port.png'),width:150,height:100,num:1,classType:'T1'},      
+      {type:'LoadBalancer',icon:require('../assets/topo/router.png'),width:150,height:100,num:1,classType:'T1'},
+      {type:'VirtualIP',icon:require('../assets/topo/virtualip.png'),width:50,height:50,num:1,classType:'T2'},
+      {type:'SercurityGroup',icon:require('../assets/topo/sercurity.png'),width:50,height:50,num:1,classType:'T2'},      
+      {type:'DBMS',icon:require('../assets/topo/dbms.png'),width:150,height:100,num:1,classType:'T1'},
+      {type:'DataBase',icon:require('../assets/topo/database.png'),width:150,height:100,num:1,classType:'T1'},
+      {type:'WebServer',icon:require('../assets/topo/webserver.png'),width:150,height:100,num:1,classType:'T1'}, 
+      {type:'ApplicationServer',icon:require('../assets/topo/application.png'),width:150,height:100,num:1,classType:'T1'}, 
+      {type:'MessageBusServer',icon:require('../assets/topo/message.png'),width:150,height:100,num:1,classType:'T1'},
+      {type:'ApplicationModule',icon:require('../assets/topo/application.png'),width:50,height:50,num:1,classType:'T2'},
+      {type:'CloudifyManager',icon:require('../assets/topo/cloud.png'),width:150,height:100,num:1,classType:'T1'},           
      ],
      toolbarMoveNode:{
       left:0,
@@ -402,7 +383,7 @@ export default {
      ],
      topoData:{
       nodes:[
-        {x:30,y:10,width:140,height:80,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'Container_a',isSelect:false,initW:140,initH:80,icon:Container,classType:'T1',containNodes:[],type:'Container',
+        {x:30,y:10,width:140,height:80,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'Container_a',isSelect:false,initW:140,initH:80,icon:require('../assets/topo/container.png'),classType:'T1',containNodes:[],type:'Container',
           attrs:[
             {type:'input',name:'portId',value:'2222141',placeholder:'请输入portId',rules:[{ required: true, message: '请输入活动名称', trigger: 'blur'}],disabled:true},
             {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
@@ -411,7 +392,7 @@ export default {
             {type:'radio',name:'数据类型',value:'',options:[{label:'sql'},{label:'oracle'}],disabled:true}
           ]
         },
-        {x:500,y:100,width:140,height:80,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'Container_c',isSelect:false,initW:140,initH:80,icon:Container,classType:'T1',containNodes:[],attrs:[],type:'Container'}
+        {x:500,y:100,width:140,height:80,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'Container_c',isSelect:false,initW:140,initH:80,icon:require('../assets/topo/container.png'),classType:'T1',containNodes:[],attrs:[],type:'Container'}
       ],
       connectors:[]
      }
