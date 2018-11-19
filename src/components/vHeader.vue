@@ -1,6 +1,6 @@
 <template>
   <header id="header">
-  	Vue2.0 拓扑组件
+  	<span>Vue2.0拓扑组件</span>
   </header>
 </template>
 
@@ -18,5 +18,5 @@ export default {
 
 <style lang="less" scoped>
 @import '../less/index.less';
- #header{height:50px;line-height:50px;background-color: @theme-color;color:@theme-font-color;padding:0 20px;}
+ #header{height:50px;background-color: @theme-color;color:@theme-font-color;padding:0 20px;display: flex;align-items: center;}
 </style>
