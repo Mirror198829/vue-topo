@@ -1,6 +1,6 @@
 <template>
   <div id="topoComponent">
-  <el-row class="topoRow">
+    <el-row class="topoRow">
       <el-col :xs="5" :sm="6" :md="6" :lg="4" :xl="6" class="topoCol">
         <div id="toolbar">
             <div class="toolbar-head">
