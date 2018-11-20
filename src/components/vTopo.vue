@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-6-30 17:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-20 17:35:39
+ * @LastEditTime: 2018-11-20 19:23:31
  -->
 <template>
   <div id="topoComponent">
@@ -1095,6 +1095,8 @@ export default {
                //类型：包含
               let connector = {
                 type:connectType,
+                strokeW:null,//仅用于Line类型
+                color:'', //仅用于Line类型
                 targetNode:{
                   x:targetNodeX,
                   y:targetNodeY,
