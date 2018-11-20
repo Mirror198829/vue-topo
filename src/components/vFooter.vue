@@ -6,8 +6,8 @@
       </a>
     </div>
   	<div class="foot-txt">
-      <a href="https://github.com/Mirror198829" target="_blank">
-      Github：https://github.com/Mirror198829
+      <a href="https://github.com/Mirror198829/vue-topo" target="_blank">
+      Github：https://github.com/Mirror198829/vue-topo
       </a>
     </div>
   </footer>

@@ -1,3 +1,9 @@
+<!--
+ * @Author: caojing
+ * @Date: 2017-6-30 17:29:55
+ * @LastEditors: caojing
+ * @LastEditTime: 2018-11-20 11:49:32
+ -->
 <template>
   <div id="topoComponent">
     <el-row class="topoRow">
@@ -276,8 +282,9 @@
   </div>
 </template>
 <script>
-import connectorRules from '../config/connectorRules.js'
-import topoJson from '../config/topoJson.js'
+import connectorRules from '../config/connectorRules' //连线包含关系规则
+import topoJson from '../data/topoJson' //初始topo的数据（从后台获取）
+import toolbarNodeData from '../data/toolbarNodeData' //初始左侧toolbarNode数据（可从后台获取）
 export default {
   data () {
     return {
@@ -307,30 +314,7 @@ export default {
       // {name:'缩小',className:'toolbar-zoomout',isActive:false},
       // {name:'恢复出厂设置',className:'toolbar-zoomreset',isActive:false}
      ],
-     toolbarNodeData:[
-      {type:'Service',icon:require('../assets/topo/root.png'),width:140,height:80,num:1,classType:'T1'}, 
-      {type:'Router',icon:require('../assets/topo/router.png'),width:50,height:50,num:1,classType:'T2'},
-      {type:'Container',icon:require('../assets/topo/container.png'),width:140,height:80,num:1,classType:'T1'}, 
-      {type:'Pod',icon:require('../assets/topo/container.png'),width:140,height:80,num:1,classType:'T1'},
-      {type:'LoadBalancer',icon:require('../assets/topo/router.png'),width:115,height:60,num:1,classType:'T1'},
-      {type:'Compute',icon:require('../assets/topo/compute.png'),width:150,height:100,num:1,classType:'T1'},     
-      {type:'Volume',icon:require('../assets/topo/volume.png'),width:50,height:50,num:1,classType:'T2'},
-      {type:'FileSystem',icon:require('../assets/topo/filesystem.png'),width:150,height:100,num:1,classType:'T1'},
-      {type:'ObjectStorage',icon:require('../assets/topo/storage.png'),width:150,height:100,num:1,classType:'T1'},
-      {type:'Network',icon:require('../assets/topo/network.png'),width:130,height:80,num:1,classType:'T1'},
-      {type:'Subnet',icon:require('../assets/topo/subnet.png'),width:150,height:100,num:1,classType:'T1'},
-      {type:'Port',icon:require('../assets/topo/port.png'),width:150,height:100,num:1,classType:'T1'},      
-      {type:'LoadBalancer',icon:require('../assets/topo/router.png'),width:150,height:100,num:1,classType:'T1'},
-      {type:'VirtualIP',icon:require('../assets/topo/virtualip.png'),width:50,height:50,num:1,classType:'T2'},
-      {type:'SercurityGroup',icon:require('../assets/topo/sercurity.png'),width:50,height:50,num:1,classType:'T2'},      
-      {type:'DBMS',icon:require('../assets/topo/dbms.png'),width:150,height:100,num:1,classType:'T1'},
-      {type:'DataBase',icon:require('../assets/topo/database.png'),width:150,height:100,num:1,classType:'T1'},
-      {type:'WebServer',icon:require('../assets/topo/webserver.png'),width:150,height:100,num:1,classType:'T1'}, 
-      {type:'ApplicationServer',icon:require('../assets/topo/application.png'),width:150,height:100,num:1,classType:'T1'}, 
-      {type:'MessageBusServer',icon:require('../assets/topo/message.png'),width:150,height:100,num:1,classType:'T1'},
-      {type:'ApplicationModule',icon:require('../assets/topo/application.png'),width:50,height:50,num:1,classType:'T2'},
-      {type:'CloudifyManager',icon:require('../assets/topo/cloud.png'),width:150,height:100,num:1,classType:'T1'},           
-     ],
+     toolbarNodeData:[],//toolbarNodeData的初始数据
      toolbarMoveNode:{
       left:0,
       top:0,
@@ -382,18 +366,7 @@ export default {
       {x1:0,x2:100,y1:100,y2:100,color:'#c0c0c0',strokeWidth:2,opacity:0.6}
      ],
      topoData:{
-      nodes:[
-        {x:30,y:10,width:140,height:80,id:66,isLeftConnectShow:false,isRightConnectShow:false,name:'Container_a',isSelect:false,initW:140,initH:80,icon:require('../assets/topo/container.png'),classType:'T1',containNodes:[],type:'Container',
-          attrs:[
-            {type:'input',name:'portId',value:'2222141',placeholder:'请输入portId',rules:[{ required: true, message: '请输入活动名称', trigger: 'blur'}],disabled:true},
-            {type:'select',name:'server',value:'',placeholder:'请选择服务器',options:[{label:'上海服务器',value:'shagnhai'},{label:'北京服务器',value:'beijing'}],disabled:false},
-            {type:'checkbox',name:'数据库类型',value:[],options:[{label:'SQL server'},{label:'Access'},{label:'mySQL'},{label:'Oracle'}],disabled:false},
-            {type:'textarea',name:'数据库',value:'',rules:[],disabled:false},
-            {type:'radio',name:'数据类型',value:'',options:[{label:'sql'},{label:'oracle'}],disabled:true}
-          ]
-        },
-        {x:500,y:100,width:140,height:80,id:88,isLeftConnectShow:false,isRightConnectShow:false,name:'Container_c',isSelect:false,initW:140,initH:80,icon:require('../assets/topo/container.png'),classType:'T1',containNodes:[],attrs:[],type:'Container'}
-      ],
+      nodes:[],
       connectors:[]
      }
     }
@@ -1316,18 +1289,54 @@ export default {
       },1000)
       
     },
+    //初始化获取topo组件宽高
+    initTopoWH(){
+      this.marker.xmarkerX = $("#topo-wrap").width()
+      this.marker.ymarkerY = $("#topo-wrap").height()
+      this.svgAttr.width = $("#topo-wrap").width()
+      this.svgAttr.height = $("#topo-wrap").height()
+      this.svgAttr.minW = $("#topo-wrap").width()
+      this.svgAttr.minH = $("#topo-wrap").height()
+    },
+    //初始toolbarNodes
+    initToolbarNodes(){
+      let initToolbarNodeLst = toolbarNodeData //toolbarNodeData从后台获取
+      if(!initToolbarNodeLst instanceof Array){ //类型检测，必须为Array
+          console.error('toolbarNodeData must be Array')
+          initToolbarNodeLst = []
+      }
+      this.toolbarNodeData = initToolbarNodeLst
+    },
+    //初始化topo数据
+    initTopoData(){
+      let initTopoData = topoJson//开发：topoJson从后台获取数据
+      let nullTopoData = {
+        nodes:[],
+        connectors:[]
+      }
+      //类型检测
+      if(initTopoData instanceof Object && !Array.prototype.isPrototypeOf(initTopoData)){
+        if('nodes' in initTopoData && 'connectors' in initTopoData){
+          if(!initTopoData.nodes instanceof Array  || !initTopoData.connectors instanceof Array){
+            console.error('topoJson.nodes or topoJson.connectors must be Array')
+            initTopoData = nullTopoData
+          }
+        }else{
+          console.error('topoJson must has nodes key and connectors key')
+          initTopoData = nullTopoData
+        }
+      }else{
+        console.error('topoJson must be {nodes:[],connectors:[]}')
+        initTopoData = nullTopoData
+      }
+      this.topoData =  initTopoData
+    }
   },
   mounted(){
-    //初始化：获取topo组件宽高
-    this.marker.xmarkerX = $("#topo-wrap").width()
-    this.marker.ymarkerY = $("#topo-wrap").height()
-    this.svgAttr.width = $("#topo-wrap").width()
-    this.svgAttr.height = $("#topo-wrap").height()
-    this.svgAttr.minW = $("#topo-wrap").width()
-    this.svgAttr.minH = $("#topo-wrap").height()
+    this.initTopoWH() //初始化topo组件宽高
     this.deleteNodeAndConnetor() //绑定删除Node事件 
-
-   this.topoData =  topoJson
+    this.initToolbarNodes() //初始化toolbarNodes数据
+    this.initTopoData() //初始化topo数据
  }
 }
 </script>

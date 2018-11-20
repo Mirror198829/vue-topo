@@ -1,0 +1,25 @@
+const toolbarNodeData = [
+    {type:'Service',icon:require('../assets/topo/root.png'),width:140,height:80,num:1,classType:'T1'}, 
+    {type:'Router',icon:require('../assets/topo/router.png'),width:50,height:50,num:1,classType:'T2'},
+    {type:'Container',icon:require('../assets/topo/container.png'),width:140,height:80,num:1,classType:'T1'}, 
+    {type:'Pod',icon:require('../assets/topo/container.png'),width:140,height:80,num:1,classType:'T1'},
+    {type:'LoadBalancer',icon:require('../assets/topo/router.png'),width:115,height:60,num:1,classType:'T1'},
+    {type:'Compute',icon:require('../assets/topo/compute.png'),width:150,height:100,num:1,classType:'T1'},     
+    {type:'Volume',icon:require('../assets/topo/volume.png'),width:50,height:50,num:1,classType:'T2'},
+    {type:'FileSystem',icon:require('../assets/topo/filesystem.png'),width:150,height:100,num:1,classType:'T1'},
+    {type:'ObjectStorage',icon:require('../assets/topo/storage.png'),width:150,height:100,num:1,classType:'T1'},
+    {type:'Network',icon:require('../assets/topo/network.png'),width:130,height:80,num:1,classType:'T1'},
+    {type:'Subnet',icon:require('../assets/topo/subnet.png'),width:150,height:100,num:1,classType:'T1'},
+    {type:'Port',icon:require('../assets/topo/port.png'),width:150,height:100,num:1,classType:'T1'},      
+    {type:'LoadBalancer',icon:require('../assets/topo/router.png'),width:150,height:100,num:1,classType:'T1'},
+    {type:'VirtualIP',icon:require('../assets/topo/virtualip.png'),width:50,height:50,num:1,classType:'T2'},
+    {type:'SercurityGroup',icon:require('../assets/topo/sercurity.png'),width:50,height:50,num:1,classType:'T2'},      
+    {type:'DBMS',icon:require('../assets/topo/dbms.png'),width:150,height:100,num:1,classType:'T1'},
+    {type:'DataBase',icon:require('../assets/topo/database.png'),width:150,height:100,num:1,classType:'T1'},
+    {type:'WebServer',icon:require('../assets/topo/webserver.png'),width:150,height:100,num:1,classType:'T1'}, 
+    {type:'ApplicationServer',icon:require('../assets/topo/application.png'),width:150,height:100,num:1,classType:'T1'}, 
+    {type:'MessageBusServer',icon:require('../assets/topo/message.png'),width:150,height:100,num:1,classType:'T1'},
+    {type:'ApplicationModule',icon:require('../assets/topo/application.png'),width:50,height:50,num:1,classType:'T2'},
+    {type:'CloudifyManager',icon:require('../assets/topo/cloud.png'),width:150,height:100,num:1,classType:'T1'}
+]
+export default toolbarNodeData
