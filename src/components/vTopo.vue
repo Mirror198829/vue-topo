@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-6-30 17:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-20 14:47:04
+ * @LastEditTime: 2018-11-20 17:35:39
  -->
 <template>
   <div id="topoComponent">
@@ -101,9 +101,15 @@
                   v-for="(ele,key) in topoData.connectors" v-if="ele.type == 'Line'"
                   @mousedown.stop="selectConnectorLine(key)"
                   :key="key">
+                  /**
+                  * 连线方式一共7种情况
+                  */
                   <!-- 自连 -->
                   <path
-                    class="connectorLine" 
+                    class="connectorLine"
+                    :class="{'defaultStrokeColor':!ele.color,'defaultStrokeW':!ele.strokeW}" 
+                    :stroke="ele.color"
+                    :stroke-width = "ele.strokeW"
                     v-if="ele.sourceNode.id == ele.targetNode.id" 
                     :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2)+
                     'h'+connectorWSelf+
@@ -115,6 +121,9 @@
                   <!-- 非自连:1.sourceNode 的右侧箭头X <= targetNode的左侧箭头X -->
                   <path 
                     class="connectorLine" 
+                    :class="{'defaultStrokeColor':!ele.color,'defaultStrokeW':!ele.strokeW}"
+                    :stroke="ele.color"
+                    :stroke-width = "ele.strokeW"
                     v-if="ele.sourceNode.id != ele.targetNode.id && 
                     (ele.sourceNode.x +ele.sourceNode.width) < ele.targetNode.x" 
                     :d="'M'+(ele.sourceNode.x + ele.sourceNode.width)+','+(ele.sourceNode.y + ele.sourceNode.height / 2) + 
@@ -126,7 +135,10 @@
                   2.sourceNode 的右侧箭头X >= targetNode的左侧箭头X  
                   (1) 且 sourceNode的高度 < targetNode的高度 且 高度未重叠-->
                   <path
-                    class="connectorLine"  
+                    class="connectorLine" 
+                    :class="{'defaultStrokeColor':!ele.color,'defaultStrokeW':!ele.strokeW}"
+                    :stroke="ele.color"
+                    :stroke-width = "ele.strokeW" 
                     v-if="ele.sourceNode.id != ele.targetNode.id && 
                     (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
                     (ele.sourceNode.y + ele.sourceNode.height ) < ele.targetNode.y" 
@@ -142,6 +154,9 @@
                    (2) 且 sourceNode的高度 > targetNode的高度 且 高度未重叠-->
                   <path 
                     class="connectorLine" 
+                    :class="{'defaultStrokeColor':!ele.color,'defaultStrokeW':!ele.strokeW}"
+                    :stroke="ele.color"
+                    :stroke-width = "ele.strokeW"
                     v-if="ele.sourceNode.id != ele.targetNode.id && 
                     (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
                     (ele.targetNode.y + ele.targetNode.height) < ele.sourceNode.y" 
@@ -159,7 +174,10 @@
                   sourceNode 的y < targetNode的y < = (sourceNode 的y + sourceNode的height) 或者 sourceNode的y介于其间
                    高度重叠-->
                   <path 
-                    class="connectorLine" 
+                    class="connectorLine"
+                    :class="{'defaultStrokeColor':!ele.color,'defaultStrokeW':!ele.strokeW}"
+                    :stroke="ele.color"
+                    :stroke-width = "ele.strokeW" 
                     v-if="ele.sourceNode.id != ele.targetNode.id &&
                     (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
                     (ele.sourceNode.y + ele.sourceNode.height/2) <= (ele.targetNode.y + ele.targetNode.height / 2) &&
@@ -180,6 +198,9 @@
                    高度重叠-->
                   <path 
                     class="connectorLine" 
+                    :class="{'defaultStrokeColor':!ele.color,'defaultStrokeW':!ele.strokeW}"
+                    :stroke="ele.color"
+                    :stroke-width = "ele.strokeW"
                     v-if="ele.sourceNode.id != ele.targetNode.id &&
                     (ele.sourceNode.x + ele.sourceNode.width) >= ele.targetNode.x &&
                     (ele.sourceNode.y + ele.sourceNode.height/2) > (ele.targetNode.y + ele.targetNode.height / 2) &&
@@ -1376,8 +1397,15 @@ export default {
 .nodeImg{-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none;}
 .nodeName{font-size:12px;fill:@svg-common-color;-webkit-user-select:none;user-select:none;}
 .connector{display: block;}
-.connectorsG .connectorLine{stroke:@svg-common-color;stroke-width:@stroke-width;fill:none;}
-.connectorsG.active .connectorLine{stroke:@stroke-select-color;stroke-width:@stroke-select-width}
+.connectorsG{
+  .connectorLine{fill:none;
+    &.defaultStrokeColor{stroke:@svg-common-color;}
+    &.defaultStrokeW{stroke-width:@stroke-width;}
+  }
+  &.active .connectorLine{stroke:@stroke-select-color;}
+} 
+
+
 .reactClass{stroke-width:@stroke-width;stroke:@svg-common-color;fill:#fff;cursor: default;}
 .circleColor{fill:@svg-common-color}
 /*
