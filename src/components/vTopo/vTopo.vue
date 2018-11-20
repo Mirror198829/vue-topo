@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-6-30 17:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-20 19:23:31
+ * @LastEditTime: 2018-11-20 19:53:33
  -->
 <template>
   <div id="topoComponent">
@@ -228,7 +228,6 @@
                 <i v-if="!isTopoAttrShow" class="fa fa-chevron-circle-left topoAttrArrow" @click="isTopoAttrShow =!isTopoAttrShow"></i>
                 <div id="topoAttrHeader">
                   属性设置框
-                  <!-- <i class="fa fa-window-maximize" @click="maxAttrWindow()"></i> -->
                 </div>
                 <div v-if="selectNodeIndex == null">
                     <div style="padding:50px;text-align:center">没有任何节点属性</div>
@@ -303,9 +302,9 @@
   </div>
 </template>
 <script>
-import connectorRules from '../config/connectorRules' //连线包含关系规则
-import topoJson from '../data/topoJson' //初始topo的数据（从后台获取）
-import toolbarNodeData from '../data/toolbarNodeData' //初始左侧toolbarNode数据（可从后台获取）
+import connectorRules from '../../config/connectorRules' //连线包含关系规则
+import topoJson from '../../data/topoJson' //初始topo的数据（从后台获取）
+import toolbarNodeData from '../../data/toolbarNodeData' //初始左侧toolbarNode数据（可从后台获取）
 export default {
   data () {
     return {
@@ -453,11 +452,6 @@ export default {
     closeKeyValueDialog(formName){
       this.keyFormDialog.visible =  false
       this.$refs[formName].resetFields();
-    },
-    //全屏属性设置框
-    maxAttrWindow(){
-      let maxWidth = $("#topo-wrap").width()
-      $("#topoAttrWrap").width(maxWidth)
     },
     canConnectorTo(curNodeType,connectorToNodeType,connectorType){
       //当需要包含和连线规则的时候 清除以下注释
@@ -1364,7 +1358,7 @@ export default {
 }
 </script>
 <style scoped lang="less">
-@import '../less/index.less';
+@import '../../less/index.less';
 
 /*toolbar样式*/
 @svg-common-color:#768699;
@@ -1421,7 +1415,7 @@ export default {
       &:hover{background-color: #ebebeb}
       &:first-child{border-left-width: 1px}
       &.active{background-color: #ebebeb;box-shadow: 2px 2px 1px #ccc inset}
-      .svgHeadItemImg{background: url('../assets/topo/icons.png');width:16px;height:16px;background-size:479px 16px;
+      .svgHeadItemImg{background: url('../../assets/topo/icons.png');width:16px;height:16px;background-size:479px 16px;
         &.toolbar-default{background-position:-16px 0px}
         &.toolbar-rectangle_selection{background-position:-294px 0px}
         &.toolbar-zoomin{background-position:-425px 0px}

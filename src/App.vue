@@ -15,9 +15,9 @@
 </template>
 
 <script>
-import vHeader from './components/vHeader.vue'
-import vFooter from './components/vFooter.vue'
-import vTopo from './components/vTopo.vue'
+import vHeader from './components/vHeader'
+import vFooter from './components/vFooter'
+import vTopo from './components/vTopo/vTopo'
 export default {
   name: 'app',
   components:{
