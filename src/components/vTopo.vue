@@ -2,13 +2,13 @@
  * @Author: caojing
  * @Date: 2017-6-30 17:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-20 14:09:03
+ * @LastEditTime: 2018-11-20 14:47:04
  -->
 <template>
   <div id="topoComponent">
     <el-row class="topoRow">
       <el-col :xs="5" :sm="6" :md="6" :lg="4" :xl="6" class="topoCol">
-        <div id="toolbar">
+        <div id="toolbarWrap">
             <div class="toolbar-head">
                 Node Types
             </div>
@@ -53,7 +53,7 @@
               </li> -->
             </ul>
           </div>
-          <div id="topo-wrap" style="position:relative">
+          <div id="topo-wrap">
             <svg id="topo-svg"
               :width="svgAttr.width" 
               :height="svgAttr.height"  
@@ -1350,10 +1350,11 @@ export default {
 @stroke-select-color:red;
 @border-color:#adadad;
 
-#toolbar{height:100%;box-sizing: border-box;}
-.toolbar-head{height:40px;line-height:40px;text-align: center;font-size:14px;-webkit-user-select:none;user-select:none;font-weight: 700;color:@theme-color;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
-
-/*toolbar node样式*/
+/*toolbar node样式 左侧工具菜单*/
+#toolbarWrap{height:100%;box-sizing: border-box;display: flex;flex-direction: column;
+  .toolbar-head{height:40px;line-height:40px;text-align: center;font-size:14px;-webkit-user-select:none;user-select:none;font-weight: 700;color:@theme-color;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
+  .toolbar-main{overflow-y: auto;box-sizing:border-box;padding:10px 15px;flex:1;}
+}
 .node-item{margin-top:5px;cursor: pointer;border:1px solid #c7d1dd;-webkit-user-select:none;user-select:none;}
 .node-css{background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:8px 0;}
 .nodeMoveCss{width:57px;height: 57px;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:5px;}
@@ -1379,9 +1380,10 @@ export default {
 .connectorsG.active .connectorLine{stroke:@stroke-select-color;stroke-width:@stroke-select-width}
 .reactClass{stroke-width:@stroke-width;stroke:@svg-common-color;fill:#fff;cursor: default;}
 .circleColor{fill:@svg-common-color}
-
-/* svg区域 */
-#svgWrap{height:100%;box-sizing: border-box;}
+/*
+* svg区域
+ */
+#svgWrap{height:100%;box-sizing: border-box;display: flex;flex-direction: column;}
 /*svgHead工具栏*/
 #svgHead{width: 100%;height:40px;box-sizing: border-box;padding:0 15px;border:solid @border-color;border-width: 0px 1px 0 1px;display:flex;justify-content: space-between;align-items:center;
   .svgHeadItemLst{display:flex;
@@ -1402,7 +1404,13 @@ export default {
     }
   }
 }
-#topo-wrap{width:100%;box-sizing: border-box;border:1px solid @border-color;overflow:hidden;border-bottom:0}
+/*topo-wrap主体区域*/
+#topo-wrap{flex:1;width:100%;box-sizing: border-box;border:1px solid @border-color;overflow:hidden;border-bottom:0;position:relative;
+  #topo-svg{box-sizing: border-box;background-color: #fff;-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none; 
+    &.hand{cursor:pointer}
+    &.crosshair{cursor: crosshair;}
+  }
+}
 /* 属性设置框 */
 #topoAttrWrap{height:100%;width:400px;position:absolute;top:0;right:-400px;background:#fff;border-left:1px solid @theme-color;transition:all 1s;box-sizing:border-box;}
 #topoAttrHeader{padding:10px 0;background-color:@theme-color;color:#fff;text-align:center}
@@ -1410,17 +1418,9 @@ export default {
 #topoAttrWrap.active{right:0;box-shadow:-1px 0px 8px  @theme-color}
 .infoIcon{font-size:30px;position:relative;top:5px;left:-4px;color:#f7ba2a}
 #infoWrap{padding:15px;text-align:center;margin-top:60px}
-#topo-svg{box-sizing: border-box;background-color: #fff;-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none;}
-#topo-svg.hand{cursor:pointer}
-#topo-svg.crosshair{cursor: crosshair;}
 .removeAttrArrow{float:right;cursor:pointer;font-size:20px;position:relative;top:8px;color:@theme-color;transition:all .2s}
 .removeAttrArrow:hover{transform:rotate(360deg);text-shadow:2px 2px 1px #000}
 </style>
-<style scoped>
-/*topo主体样式*/
-#topo-wrap{height:calc(100% - 40px);}
-.toolbar-main{height:calc(100% - 40px);overflow-y: auto;box-sizing:border-box;padding:10px 15px;}
-</style>
-<style type="text/css">
+<style>
   .el-collapse-item__header{-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none;}
 </style>
