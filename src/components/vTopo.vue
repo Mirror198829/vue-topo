@@ -1189,7 +1189,7 @@ export default {
     deleteNodeAndConnetor(){
      document.onkeydown =(event)=>{
       let keycode =  event.which //键盘值
-      if(keycode == 46) {
+      if(keycode == 46 || keycode == 8) {   //在mac上del的keycode是8,这样又会引起win下输入backspace也会删除
         //单节点和多选删除节点
          for(let i=0;i<this.topoData.nodes.length;i++){
            let node = this.topoData.nodes[i]
