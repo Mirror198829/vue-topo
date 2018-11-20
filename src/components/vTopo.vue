@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-6-30 17:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-20 11:49:32
+ * @LastEditTime: 2018-11-20 14:09:03
  -->
 <template>
   <div id="topoComponent">
@@ -28,13 +28,13 @@
       </el-col>
       <el-col :xs="19" :sm="18" :md="18" :lg="20" :xl="18" class="svgCol">
         <div id="svgWrap">
-          <div id="svgHead" class="clearfix">
-            <ul class="svgHeadItemLst clearfix" style="float:left">
+          <div id="svgHead">
+            <ul class="svgHeadItemLst">
               <li class="svgHeadItem" v-for="(ele,key) in svgToolbar" :key="key" :class="{'active':ele.isActive}" @mousedown="selectToolbar(key)"  :title="ele.name">
                 <div class="svgHeadItemImg" :class="ele.className"></div>
               </li>
             </ul>
-            <ul style="float:right" class="clearfix">
+            <ul class="svgHeadItemLst">
               <li class="svgToolBarItem" @click="saveTopoJson" title="保存">
                 <i class="fa fa-save svgToolBarIcon"></i>
                 <span  class="svgToolBarTxt hidden-xs-only">保存</span>
@@ -1380,22 +1380,29 @@ export default {
 .reactClass{stroke-width:@stroke-width;stroke:@svg-common-color;fill:#fff;cursor: default;}
 .circleColor{fill:@svg-common-color}
 
-/* svg工具栏 */
+/* svg区域 */
 #svgWrap{height:100%;box-sizing: border-box;}
-#svgHead{width: 100%;height:40px;box-sizing: border-box;border:solid @border-color;border-width: 0px 1px 0 1px;padding:5px}
+/*svgHead工具栏*/
+#svgHead{width: 100%;height:40px;box-sizing: border-box;padding:0 15px;border:solid @border-color;border-width: 0px 1px 0 1px;display:flex;justify-content: space-between;align-items:center;
+  .svgHeadItemLst{display:flex;
+    .svgHeadItem{padding:5px 10px;border:1px solid @border-color;cursor:pointer;list-style:none;border-left-width: 0;
+      &:hover{background-color: #ebebeb}
+      &:first-child{border-left-width: 1px}
+      &.active{background-color: #ebebeb;box-shadow: 2px 2px 1px #ccc inset}
+      .svgHeadItemImg{background: url('../assets/topo/icons.png');width:16px;height:16px;background-size:479px 16px;
+        &.toolbar-default{background-position:-16px 0px}
+        &.toolbar-rectangle_selection{background-position:-294px 0px}
+        &.toolbar-zoomin{background-position:-425px 0px}
+        &.toolbar-zoomout{background-position:-444px 0px}
+        &.toolbar-zoomreset{background-position:-462px 0px}
+      }
+    }
+    .svgToolBarItem{font-size:13px;background-color:@theme-color;color:@theme-font-color;padding:5px 10px;border-radius: 2px;box-sizing:border-box;margin-left:5px;cursor:pointer;-webkit-user-select:none;user-select:none;
+      .svgToolBarTxt{margin-left:2px;}
+    }
+  }
+}
 #topo-wrap{width:100%;box-sizing: border-box;border:1px solid @border-color;overflow:hidden;border-bottom:0}
-.svgHeadItem{padding:5px 10px;border:1px solid @border-color;cursor:pointer;float:left;list-style:none;border-left-width: 0}
-.svgHeadItem:hover{background-color: #ebebeb}
-.svgHeadItem:first-child{border-left-width: 1px}
-.svgHeadItem.active{background-color: #ebebeb;box-shadow: 2px 2px 1px #ccc inset}
-.svgHeadItemImg{background: url('../assets/topo/icons.png');width:16px;height:16px;background-size:479px 16px;}
-.svgToolBarItem{font-size:13px;background-color:@theme-color;color:@theme-font-color;padding:5px 10px;border-radius: 2px;box-sizing:border-box;margin-left:5px;float:left;cursor:pointer;-webkit-user-select:none;user-select:none;}
-.svgToolBarTxt{margin-left:2px;}
-.toolbar-default{background-position:-16px 0px}
-.toolbar-rectangle_selection{background-position:-294px 0px}
-.toolbar-zoomin{background-position:-425px 0px}
-.toolbar-zoomout{background-position:-444px 0px}
-.toolbar-zoomreset{background-position:-462px 0px}
 /* 属性设置框 */
 #topoAttrWrap{height:100%;width:400px;position:absolute;top:0;right:-400px;background:#fff;border-left:1px solid @theme-color;transition:all 1s;box-sizing:border-box;}
 #topoAttrHeader{padding:10px 0;background-color:@theme-color;color:#fff;text-align:center}
@@ -1409,7 +1416,6 @@ export default {
 .removeAttrArrow{float:right;cursor:pointer;font-size:20px;position:relative;top:8px;color:@theme-color;transition:all .2s}
 .removeAttrArrow:hover{transform:rotate(360deg);text-shadow:2px 2px 1px #000}
 </style>
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 /*topo主体样式*/
 #topo-wrap{height:calc(100% - 40px);}
