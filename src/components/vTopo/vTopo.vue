@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-6-30 17:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-21 17:22:18
+ * @LastEditTime: 2018-11-21 17:35:02
  -->
 <template>
   <div id="topoComponent">
@@ -70,7 +70,7 @@
                   <feOffset result="offOut" in="SourceGraphic" dx="4" dy="4" />
                   <feColorMatrix result="matrixOut" in="offOut" type="matrix"
                   values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0" />
-                  <feGaussianBlur result="blurOut" in="matrixOut" stdDeviation="10" />
+                  <feGaussianBlur result="blurOut" in="matrixOut" stdDeviation="2" />
                   <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
                 </filter>
               </defs>
