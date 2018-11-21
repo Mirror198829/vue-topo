@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-6-30 17:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-20 19:53:33
+ * @LastEditTime: 2018-11-21 16:53:25
  -->
 <template>
   <div id="topoComponent">
@@ -65,18 +65,28 @@
                   <line :x1="ele.x1" :x2="ele.x2" :y1="ele.y1" :y2="ele.y2" :stroke="ele.color" :stroke-width="ele.strokeWidth" :opacity="ele.opacity" v-for="(ele,key) in gridData" :key="key"></line>
                 </pattern>
               </defs>
+              <defs>
+                <filter id="f1" x="0" y="0" width="200%" height="200%">
+                  <feOffset result="offOut" in="SourceGraphic" dx="4" dy="4" />
+                  <feColorMatrix result="matrixOut" in="offOut" type="matrix"
+                  values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0" />
+                  <feGaussianBlur result="blurOut" in="matrixOut" stdDeviation="10" />
+                  <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+                </filter>
+              </defs>
               <rect fill="url(#Pattern)" :width="svgAttr.width" :height="svgAttr.height" />             
               <g>                        
                 <g
                   class="nodesG" 
                   v-for="(ele,key) in topoData.nodes" 
+                  :class="{isSelect:ele.isSelect}" 
                   :transform="'translate('+ele.x+','+ele.y+')'" 
                   :key="key" 
                   @mouseover.stop="mouseoverNode(key,$event)" 
                   @mousedown.stop="dragSvgNode(key,$event)"
                   @mouseout.stop = "mouseoutLeftConnector(key)"
                   >
-                  <rect x="0" y="0" rx="2" ry="2" :width="ele.width" :height="ele.height" class="reactClass" :class="{isSelect:ele.isSelect}" />
+                  <rect x="0" y="0" rx="2" ry="2" :width="ele.width" :height="ele.height" class="reactClass"/>
                   <!-- <text  v-if="ele.classType == 'T1'" class="nodeName" x="5" y="15">{{ele.classType}}</text> -->
                   <text  v-if="ele.classType == 'T1'" class="nodeName" x="5" y="15">{{ele.name}}</text>
                   <image class="nodeImg" v-if="ele.classType == 'T1'" :xlink:href="ele.icon" :x="ele.width - 18" :y="3" height="15px" width="15px"/>
@@ -223,58 +233,7 @@
               <line :class="{isMarkerShow:marker.isMarkerShow}" id="ymarker" class="marker" :x1="marker.ymarkerX" y1="0" :x2="marker.ymarkerX" :y2="marker.ymarkerY"></line>
               <rect :x="selectionBox.x" :y="selectionBox.y" :width="selectionBox.width" :height="selectionBox.height" stroke-dasharray="5,5" stroke-width="1" stroke="#222" fill="rgba(170,210,232,0.5)" v-show="selectionBox.isShow"/>
             </svg>
-            <div id="topoAttrWrap" :class="{active:isTopoAttrShow}">
-                <i v-if="isTopoAttrShow" class="fa fa-chevron-circle-right topoAttrArrow" @click="isTopoAttrShow =!isTopoAttrShow"></i>
-                <i v-if="!isTopoAttrShow" class="fa fa-chevron-circle-left topoAttrArrow" @click="isTopoAttrShow =!isTopoAttrShow"></i>
-                <div id="topoAttrHeader">
-                  属性设置框
-                </div>
-                <div v-if="selectNodeIndex == null">
-                    <div style="padding:50px;text-align:center">没有任何节点属性</div>
-                </div>
-                <div v-if="selectNodeIndex != null && topoData.nodes.length > 0" style="overflow-y: scroll;height:calc(100% - 40px);padding:20px 15px;box-sizing:border-box">
-                  <el-form  :model="topoData.nodes[selectNodeIndex]"  label-width="100px" class="demo-ruleForm" labelPosition="left">
-                    <div>
-                      <el-form-item label="名称">
-                        <el-input v-model="topoData.nodes[selectNodeIndex].name"></el-input>
-                      </el-form-item>
-                    </div>
-                    
-                    <!-- <div v-if="topoData.nodes[selectNodeIndex].attrs.length == 0" id="infoWrap">
-                        <i class="infoIcon fa fa-info-circle"></i>
-                        暂无属性信息
-                    </div> -->
-                    <div>
-                      <el-form-item  v-if="topoData.nodes[selectNodeIndex].attrs.length > 0 && ele.type !='keyVal'" :label="ele.name" :prop="ele.name" v-for="(ele,key) in topoData.nodes[selectNodeIndex].attrs" :rules="ele.rules" :key="key">
-                      
-                          <el-input v-if="ele.type == 'input'" v-model="ele.value" :placeholder="ele.placeholder" :disabled="ele.disabled"></el-input>
-                
-                          <el-select v-if="ele.type == 'select'" v-model="ele.value" :placeholder="ele.placeholder" :disabled="ele.disabled">
-                            <el-option v-for="(option,key) in ele.options" :key="key" :label="option.label" :value="option.value"></el-option>
-                          </el-select>
-                
-                          <el-checkbox-group v-if="ele.type == 'checkbox'" v-model="ele.value" :disabled="ele.disabled">
-                            <el-checkbox :label="option.label" v-for="(option,key) in ele.options" :key="key"></el-checkbox>
-                          </el-checkbox-group>
-                    
-                          <el-input v-if="ele.type == 'textarea'" type="textarea" v-model="ele.value" :disabled="ele.disabled"></el-input>
-             
-                          <el-radio-group  v-if="ele.type == 'radio'" v-model="ele.value" :disabled="ele.disabled">
-                            <el-radio :label="option.label" v-for="(option,key) in ele.options" :key="key"></el-radio>
-                          </el-radio-group>                      
-                      </el-form-item> 
-                      <div class="clearfix" style="margin-bottom:10px">
-                          <i class="fa fa-plus-square" style="font-size:25px;float:right;cursor:pointer" @click="openKeyValueDialog(selectNodeIndex)"></i>
-                      </div>
-                      <div class="clearfix" v-for="(ele,key) in topoData.nodes[selectNodeIndex].attrs" :key="key" v-if="ele.type == 'keyVal'" style="margin:15px 0">
-                          <el-input style="float:left;width:20%"  v-model="ele.name" placeholder="key"></el-input>
-                          <el-input style="float:left;width:calc(80% - 15px - 25px);margin-left:15px;" v-model="ele.value" placeholder="value"></el-input>
-                          <i class="removeAttrArrow fa fa-remove"  @click="removeKeyValue(selectNodeIndex,key)"></i>
-                      </div>                      
-                    </div>
-                  </el-form>
-                </div>
-            </div>
+            <v-topo-attr-panel :v-select-node-data = "selectNodeData"></v-topo-attr-panel>
           </div>
         </div>
       </el-col>    
@@ -285,35 +244,16 @@
       </div>
       <div class="node-name">{{toolbarMoveNode.name}}</div>
     </div>
-    <el-dialog title="新增key和value" :visible.sync="keyFormDialog.visible" @close="closeKeyValueDialog('keyFormDialog')">
-      <el-form :model="keyFormDialog" :inline="true" :rules="keyFormRules" label-width="50px" label-position="left" ref="keyFormDialog">
-        <el-form-item label="key"  prop="key">
-          <el-input v-model="keyFormDialog.key" auto-complete="off" placeholder="key"></el-input>
-        </el-form-item>
-        <el-form-item label="value" prop="value">
-          <el-input v-model="keyFormDialog.value" auto-complete="off" placeholder="value"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="keyFormDialog.visible = false">取 消</el-button>
-        <el-button type="primary" @click="submitKeyValueForm('keyFormDialog')">确 定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 <script>
 import connectorRules from '../../config/connectorRules' //连线包含关系规则
 import topoJson from '../../data/topoJson' //初始topo的数据（从后台获取）
 import toolbarNodeData from '../../data/toolbarNodeData' //初始左侧toolbarNode数据（可从后台获取）
+import vTopoAttrPanel from './components/vTopoAttrPanel'
 export default {
   data () {
     return {
-     keyFormDialog:{
-      visible:false,
-      key:"",
-      value:"",
-      nodeKey:null
-     },
      keyFormRules:{
       key:[
         { required: true, message: '请输入key值', trigger: 'blur' },
@@ -323,10 +263,10 @@ export default {
       ]
      },
      connectorRules:connectorRules,//节点间关系的规则
+     selectNodeData:{},
      selectNodeIndex:0,
      svgAttr:{width:0,height:0,isHand:false,viewX:0,viewY:0,minW:0,minH:0,isCrosshair:false},
      activeNames: ['1'],
-     isTopoAttrShow:false,
      svgToolbar:[
       {name:'默认模式',className:'toolbar-default',isActive:true},
       {name:'框选模式',className:'toolbar-rectangle_selection',isActive:false},
@@ -393,6 +333,9 @@ export default {
   },
   computed:{
   },
+  components:{
+    vTopoAttrPanel
+  },
   methods:{
     //测试节点性能
     testNodeNums(num){
@@ -403,55 +346,6 @@ export default {
           let node = {x:x,y:y,width:50,height:50,id:id,isLeftConnectShow:false,isRightConnectShow:false,name:i,isSelect:false,initW:50,initH:50,icon:database,classType:'T1',containNodes:[],attrs:[],type:'DataBase'}
           this.topoData.nodes.push(node)
         }
-    },
-    //打开key-value对话框窗口
-    openKeyValueDialog(key){
-      this.keyFormDialog.visible =  true
-      this.keyFormDialog.nodeKey = key
-    },
-    //删除属性
-    removeKeyValue(selectNodeIndex,attrIndex){
-      let delTxt = '此操作将删除  key:'+this.topoData.nodes[selectNodeIndex].attrs[attrIndex].name+"  value:"+this.topoData.nodes[selectNodeIndex].attrs[attrIndex].value+'，是否继续？'
-      this.$confirm(delTxt, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.topoData.nodes[selectNodeIndex].attrs.splice(attrIndex,1)
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });          
-        });     
-    },
-    //提交key-value值
-    submitKeyValueForm(formName){
-      this.$refs[formName].validate((valid) => {
-          if (valid) {
-            this.$message({
-              message: '新增key和value成功',
-              type: 'success'
-            })
-
-            let newAttr ={type:'keyVal',name:this.keyFormDialog.key,value:this.keyFormDialog.value}
-            this.topoData.nodes[this.keyFormDialog.nodeKey].attrs.push(newAttr)
-            //重置keyFormDialog值
-            this.keyFormDialog.visible =  false
-            this.$refs[formName].resetFields();
-          } else {
-            return false;
-          }
-        });
-    },
-    //关闭key-value框
-    closeKeyValueDialog(formName){
-      this.keyFormDialog.visible =  false
-      this.$refs[formName].resetFields();
     },
     canConnectorTo(curNodeType,connectorToNodeType,connectorType){
       //当需要包含和连线规则的时候 清除以下注释
@@ -644,7 +538,7 @@ export default {
       }
       document.onmouseup =(event)=>{
         document.onmousemove = null
-　　　　 document.onmouseup = null
+        document.onmouseup = null
         this.svgAttr.isHand = false
         this.svgAttr.isCrosshair = false
         //如果是框选模式
@@ -693,7 +587,9 @@ export default {
        CURNODE.isSelect = true    
        this.storeCurnodeStartPosition(CURNODE,nodeStartPosArr)  //将选择的node的子子节点初始位置保存进去
        this.topoData.nodes.forEach((node,key)=>{            // 关联属性设置框       
-          if(node.id == CURNODE.id) this.selectNodeIndex= key
+          if(node.id == CURNODE.id){
+            this.selectNodeData = node
+          }
        })
 
 　　　　document.onmousemove = (event) => {         
@@ -1040,7 +936,7 @@ export default {
       }
       document.onmouseup = () =>{
         document.onmousemove = null
-　　　　 document.onmouseup = null 
+　　　　document.onmouseup = null 
         let hasConnected = false   //标记是否已经有过连线 
         let CONNECTORS =  this.topoData.connectors
         let sourceNodeW = nodeW
@@ -1114,7 +1010,6 @@ export default {
               }           
           }         
         }else{
-
           CURNODE.isRightConnectShow = false     //连线失败：起点右侧箭头暂且设置为消失
           CONNECTORS.forEach((item,key) => {     //连线判断，如果已经有连线起点为当前的node，将起点箭头设置为显示
               this.topoData.nodes.forEach((node,key) => {
@@ -1160,6 +1055,7 @@ export default {
       this.cancelAllLinksSelect()
       selectLine.isSelect = true
       this.$set(connectors,lastIndex,selectLine)
+      this.selectNodeData = selectLine //将点击的连线信息赋值给属性面板
     },
     //取消所有节点选中
     cancelAllNodesSelect(){
@@ -1167,6 +1063,7 @@ export default {
           ele.isSelect = false
           this.$set(this.topoData.nodes,key,ele)
       })
+      this.selectNodeData = {}
     },
     //取消所有连线选中
     cancelAllLinksSelect(){
@@ -1174,6 +1071,7 @@ export default {
           ele.isSelect = false
           this.$set(this.topoData.connectors,key,ele)
       }) 
+      this.selectNodeData = {}
     },
     //删除node节点及其关系
     deleteNodeAndConnetor(){
@@ -1203,9 +1101,11 @@ export default {
               this.refreshNodeArrows() //刷新节点的左右箭头展示  
               i -- 
               if(this.topoData.nodes.length > 0){
-                this.selectNodeIndex = 0 
+                this.selectNodeIndex = 
+                this.selectNodeData = {} 
               }else{
                 this.selectNodeIndex = null
+                this.selectNodeData = {}
                 this.isTopoAttrShow = false
               } 
            }
@@ -1360,12 +1260,14 @@ export default {
 <style scoped lang="less">
 @import '../../less/index.less';
 
-/*toolbar样式*/
+/*svg样式*/
 @svg-common-color:#768699;
 @stroke-width:2;
 @stroke-select-width:3;
 @stroke-select-color:red;
 @border-color:#adadad;
+@storke-dasharray:5,5;
+.svgSelectClass{filter:url(#f1);}
 
 /*toolbar node样式 左侧工具菜单*/
 #toolbarWrap{height:100%;box-sizing: border-box;display: flex;flex-direction: column;
@@ -1384,28 +1286,32 @@ export default {
 
 /*移动的node*/
 #move-node{position: absolute;border:1px solid @svg-common-color;box-sizing: border-box;}
-.reactClass.isSelect{stroke:@stroke-select-color;stroke-width:@stroke-select-width;}
-.marker{stroke:#3d7ed5;stroke-width:1;display: none;}
-.isMarkerShow{display: block;}
-.connectorArror{display: none;}
-.nodesG{-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none;}
-.nodesG:hover .connectorArror{display: block}
-.nodeImg{-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none;}
-.nodeName{font-size:12px;fill:@svg-common-color;-webkit-user-select:none;user-select:none;}
-.connector{display: block;}
+
+/*svg 节点 连线样式*/
+.marker{stroke:#3d7ed5;stroke-width:1;display: none;
+  &.isMarkerShow{display: block;}
+}
+.nodesG{-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none;
+  &.isSelect .reactClass{stroke-width:@stroke-select-width;.svgSelectClass;}
+  &.isSelect .nodeName{font-weight: 500;}
+  &:hover .connectorArror{display: block}
+  .nodeImg{-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none;}
+  .nodeName{font-size:12px;fill:@svg-common-color;-webkit-user-select:none;user-select:none;}
+  .reactClass{stroke-width:@stroke-width;stroke:@svg-common-color;fill:#fff;cursor: default;}
+  .connectorArror{display: none;
+    &.connector{display: block;}
+    .circleColor{fill:@svg-common-color}
+  }
+}
 .connectorsG{
   .connectorLine{fill:none;
     &.defaultStrokeColor{stroke:@svg-common-color;}
     &.defaultStrokeW{stroke-width:@stroke-width;}
   }
-  &.active .connectorLine{stroke:@stroke-select-color;}
-} 
-
-
-.reactClass{stroke-width:@stroke-width;stroke:@svg-common-color;fill:#fff;cursor: default;}
-.circleColor{fill:@svg-common-color}
+  &.active .connectorLine{.svgSelectClass;}
+}
 /*
-* svg区域
+* topo区域
  */
 #svgWrap{height:100%;box-sizing: border-box;display: flex;flex-direction: column;}
 /*svgHead工具栏*/
@@ -1435,15 +1341,6 @@ export default {
     &.crosshair{cursor: crosshair;}
   }
 }
-/* 属性设置框 */
-#topoAttrWrap{height:100%;width:400px;position:absolute;top:0;right:-400px;background:#fff;border-left:1px solid @theme-color;transition:all 1s;box-sizing:border-box;}
-#topoAttrHeader{padding:10px 0;background-color:@theme-color;color:#fff;text-align:center}
-.topoAttrArrow{color:@theme-color;font-size:20px;position:absolute;top:50%;left:-10px;translate:transform(0 -50%);z-index:10000;background-color:#fff;cursor:pointer;}
-#topoAttrWrap.active{right:0;box-shadow:-1px 0px 8px  @theme-color}
-.infoIcon{font-size:30px;position:relative;top:5px;left:-4px;color:#f7ba2a}
-#infoWrap{padding:15px;text-align:center;margin-top:60px}
-.removeAttrArrow{float:right;cursor:pointer;font-size:20px;position:relative;top:8px;color:@theme-color;transition:all .2s}
-.removeAttrArrow:hover{transform:rotate(360deg);text-shadow:2px 2px 1px #000}
 </style>
 <style>
   .el-collapse-item__header{-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none;}
