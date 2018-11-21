@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-6-30 17:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-21 16:53:25
+ * @LastEditTime: 2018-11-21 17:22:18
  -->
 <template>
   <div id="topoComponent">
@@ -562,7 +562,7 @@ export default {
       }
     },
     //拖拽svg中的node
-    dragSvgNode(key,event){
+    dragSvgNode(key,event){     
        let mouseX0 = event.clientX + $(document).scrollLeft()//鼠标点击下的位置
        let mouseY0 = event.clientY + $(document).scrollTop()
        let CURNODE = this.topoData.nodes[key] //点击的node对象
@@ -584,14 +584,13 @@ export default {
        //取消所有连线选中
        this.cancelAllLinksSelect()
        //节点选中
-       CURNODE.isSelect = true    
+       CURNODE.isSelect = true              
        this.storeCurnodeStartPosition(CURNODE,nodeStartPosArr)  //将选择的node的子子节点初始位置保存进去
        this.topoData.nodes.forEach((node,key)=>{            // 关联属性设置框       
           if(node.id == CURNODE.id){
             this.selectNodeData = node
           }
        })
-
 　　　　document.onmousemove = (event) => {         
 　　　　　　let disX = event.clientX - mouseX0 + $(document).scrollLeft() //移动位置
            let disY = event.clientY - mouseY0 + $(document).scrollTop()

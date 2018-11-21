@@ -8,7 +8,7 @@
         </div>
         <div class="topoAttrMain" v-else>
             <el-form  label-width="100px" class="demo-ruleForm" labelPosition="left">
-                <div>
+                <div v-if="vSelectNodeData.type == 'Line'">
                     {{nodeData}}
                     <el-form-item label="颜色选择">
                         <el-color-picker v-model="vSelectNodeData.color"></el-color-picker>
@@ -23,6 +23,7 @@
                         </el-slider>
                     </el-form-item>
                 </div> 
+                <div v-else>节点属性框</div>
             </el-form>
         </div>
         <div class="topoAttrFooter">
