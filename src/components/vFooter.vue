@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-11-27 15:35:23
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-22 20:12:45
+ * @LastEditTime: 2018-11-22 20:31:35
  -->
 <template>
   <footer id="footer">
@@ -30,7 +30,7 @@ export default {
 }
 </script>
 <style scoped lang="less">
-#footer{height:60px;background-color: @theme-color;color:@theme-font-color;text-align: center;font-size: 13px;display: flex;flex-direction: column;justify-content: center;}
+#footer{height:70px;background-color: @theme-color;color:@theme-font-color;text-align: center;font-size: 14px;display: flex;flex-direction: column;justify-content: center;}
 .foot-txt{-webkit-user-select:none;user-select:none;
   a{color:@theme-font-color;text-decoration: none;}
   &:first-child{margin-bottom:5px;}
