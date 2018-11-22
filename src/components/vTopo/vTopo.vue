@@ -2,33 +2,11 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-22 11:24:11
+ * @LastEditTime: 2018-11-22 16:10:17
  -->
 <template>
-  <div id="topoComponent">
-    <el-row class="topoRow">
-      <el-col :xs="5" :sm="6" :md="6" :lg="4" :xl="6" class="topoCol">
-        <div id="toolbarWrap">
-            <div class="toolbar-head">
-                Node Types
-            </div>
-            <div class="toolbar-main">
-                <el-row :gutter="5">
-                   <el-col :xs="24" :sm="12" :md="8" :lg="8" :xl="4"  v-for="(ele,key) in toolbarNodeData" :key="key">              
-                    <li class="node-item node-css" @mousedown.stop.prevent = "dragToolbarNode(toolbarNodeData,key,$event)" :title="ele.type">                          
-                        <div class="node-icon">
-                          <img class="toolbar-node-icon" :src="ele.icon" />
-                        </div>
-                        <div class="node-name">{{ele.type}}</div>                           
-                     </li>
-                   </el-col>
-                </el-row>
-             </div>
-        </div>
-      </el-col>
-      <el-col :xs="19" :sm="18" :md="18" :lg="20" :xl="18" class="svgCol">
-        <div id="svgWrap">
-          <div id="svgHead">
+  <div id="topoComponent">   
+        <div id="svgHead">
             <ul class="svgHeadItemLst">
               <li class="svgHeadItem" v-for="(ele,key) in svgToolbar" :key="key" :class="{'active':ele.isActive}" @mousedown="selectToolbar(key)"  :title="ele.name">
                 <div class="svgHeadItemImg" :class="ele.className"></div>
@@ -52,6 +30,22 @@
                 <span  class="svgToolBarTxt hidden-xs-only">保存图片</span>
               </li> -->
             </ul>
+          </div>
+        <div id="svgWrap">
+          <div id="toolbarWrap">
+            <div class="toolbar-head">
+                Node Types
+            </div>
+            <div class="nodeLstWrap">   
+              <ul class="nodeLst">
+                  <li v-for="(ele,key) in toolbarNodeData" :key="key" class="node-item node-css" @mousedown.stop.prevent = "dragToolbarNode(toolbarNodeData,key,$event)" :title="ele.type">                          
+                    <div class="node-icon">
+                      <img class="toolbar-node-icon" :src="ele.icon" />
+                    </div>
+                    <div class="node-name">{{ele.type}}</div>                           
+                  </li>
+              </ul>      
+            </div>
           </div>
           <div id="topo-wrap">
             <svg id="topo-svg"
@@ -236,8 +230,6 @@
             <v-topo-attr-panel :v-select-node-data = "selectNodeData"></v-topo-attr-panel>
           </div>
         </div>
-      </el-col>    
-    </el-row>
     <div v-if="toolbarMoveNode.isShow" id="move-node" class="nodeMoveCss" :style="{ left:toolbarMoveNode.left + 'px', top: toolbarMoveNode.top + 'px' }">
       <div class="node-icon">
         <img class="toolbar-node-icon" :src="toolbarMoveNode.icon"/>
@@ -1257,7 +1249,6 @@ export default {
 }
 </script>
 <style scoped lang="less">
-/*svg样式*/
 @svg-common-color:#768699;
 @stroke-width:2;
 @stroke-select-width:3;
@@ -1266,24 +1257,55 @@ export default {
 @storke-dasharray:5,5;
 .svgSelectClass{filter:url(#f1);}
 
-/*toolbar node样式 左侧工具菜单*/
-#toolbarWrap{height:100%;box-sizing: border-box;display: flex;flex-direction: column;
-  .toolbar-head{height:40px;line-height:40px;text-align: center;font-size:14px;-webkit-user-select:none;user-select:none;font-weight: 700;color:@theme-color;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
-  .toolbar-main{overflow-y: auto;box-sizing:border-box;padding:10px 15px;flex:1;}
+#topoComponent{width:100%;box-sizing: border-box;padding:15px;background-color: #fff;height:100%;display:flex;flex-direction: column;}
+/*svgHead工具栏*/
+#svgHead{width: 100%;height:40px;box-sizing: border-box;padding:0 15px;border:solid @border-color;border-width: 1px 1px 0 1px;display:flex;justify-content: space-between;align-items:center;
+  .svgHeadItemLst{display:flex;
+    .svgHeadItem{padding:5px 10px;border:1px solid @border-color;cursor:pointer;list-style:none;border-left-width: 0;
+      &:hover{background-color: #ebebeb}
+      &:first-child{border-left-width: 1px}
+      &.active{background-color: #ebebeb;box-shadow: 2px 2px 1px #ccc inset}
+      .svgHeadItemImg{background: url('../../assets/topo/icons.png');width:16px;height:16px;background-size:479px 16px;
+        &.toolbar-default{background-position:-16px 0px}
+        &.toolbar-rectangle_selection{background-position:-294px 0px}
+        &.toolbar-zoomin{background-position:-425px 0px}
+        &.toolbar-zoomout{background-position:-444px 0px}
+        &.toolbar-zoomreset{background-position:-462px 0px}
+      }
+    }
+    .svgToolBarItem{font-size:13px;background-color:@theme-color;color:@theme-font-color;padding:5px 10px;border-radius: 2px;box-sizing:border-box;margin-left:5px;cursor:pointer;-webkit-user-select:none;user-select:none;
+      .svgToolBarTxt{margin-left:2px;}
+    }
+  }
 }
-.node-item{margin-top:5px;cursor: pointer;border:1px solid #c7d1dd;-webkit-user-select:none;user-select:none;}
-.node-css{background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:8px 0;}
-.nodeMoveCss{width:57px;height: 57px;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:5px;}
-.node-icon{text-align: center;-webkit-user-select:none;user-select:none;}
-.toolbar-node-icon{width: 28px;height: 28px;-webkit-user-select:none;user-select:none;}
-.node-name{font-size:12px;text-align: center;padding:0 5px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;-webkit-user-select:none;user-select:none;color:#000}
-#topoComponent{width:100%;box-sizing: border-box;padding:15px;background-color: #fff;height:100%}
-.topoRow,.topoCol,.svgCol{height:100%}
-.topoRow{border:1px solid  @border-color;border-radius:2px}
+/*svgMain*/
+#svgWrap{height:100%;box-sizing: border-box;display: flex;flex:1;}
+/*svgMain左侧工具栏*/
+#toolbarWrap{height:100%;box-sizing: border-box;display: flex;flex-direction: column;width:250px;border:1px solid @border-color;border-right:0;
+  .toolbar-head{height:40px;line-height:40px;text-align: center;font-size:14px;-webkit-user-select:none;user-select:none;font-weight: 700;color:@theme-color;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
+  .nodeLstWrap{overflow-y: auto;box-sizing:border-box;padding:10px 15px;flex:1;
+    .nodeLst{width:100%;display:flex;flex-wrap:wrap;box-sizing:border-box;}
+  }
+}
+.node-item{margin-top:5px;cursor: pointer;border:1px solid #c7d1dd;-webkit-user-select:none;user-select:none;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;
+width:calc( ( 100% ) / 3 );box-sizing:border-box;padding:5px 0;
+}
 
 /*移动的node*/
-#move-node{position: absolute;border:1px solid @svg-common-color;box-sizing: border-box;}
-
+.node-icon{text-align: center;-webkit-user-select:none;user-select:none;
+  .toolbar-node-icon{width: 28px;height: 28px;-webkit-user-select:none;user-select:none;}
+}
+.node-name{font-size:12px;text-align: center;padding:0 5px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;-webkit-user-select:none;user-select:none;color:#000}
+#move-node{position: absolute;border:1px solid @svg-common-color;box-sizing: border-box;
+  &.nodeMoveCss{width:57px;height: 57px;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:5px;}
+}
+/*svgMain右侧svg主体区域*/
+#topo-wrap{flex:1;width:100%;box-sizing: border-box;border:1px solid @border-color;overflow:hidden;position:relative;
+  #topo-svg{box-sizing: border-box;background-color: #fff;-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none; 
+    &.hand{cursor:pointer}
+    &.crosshair{cursor: crosshair;}
+  }
+}
 /*svg 节点 连线样式*/
 .marker{stroke:#3d7ed5;stroke-width:1;display: none;
   &.isMarkerShow{display: block;}
@@ -1306,37 +1328,6 @@ export default {
     &.defaultStrokeW{stroke-width:@stroke-width;}
   }
   &.active .connectorLine{.svgSelectClass;}
-}
-/*
-* topo区域
- */
-#svgWrap{height:100%;box-sizing: border-box;display: flex;flex-direction: column;}
-/*svgHead工具栏*/
-#svgHead{width: 100%;height:40px;box-sizing: border-box;padding:0 15px;border:solid @border-color;border-width: 0px 1px 0 1px;display:flex;justify-content: space-between;align-items:center;
-  .svgHeadItemLst{display:flex;
-    .svgHeadItem{padding:5px 10px;border:1px solid @border-color;cursor:pointer;list-style:none;border-left-width: 0;
-      &:hover{background-color: #ebebeb}
-      &:first-child{border-left-width: 1px}
-      &.active{background-color: #ebebeb;box-shadow: 2px 2px 1px #ccc inset}
-      .svgHeadItemImg{background: url('../../assets/topo/icons.png');width:16px;height:16px;background-size:479px 16px;
-        &.toolbar-default{background-position:-16px 0px}
-        &.toolbar-rectangle_selection{background-position:-294px 0px}
-        &.toolbar-zoomin{background-position:-425px 0px}
-        &.toolbar-zoomout{background-position:-444px 0px}
-        &.toolbar-zoomreset{background-position:-462px 0px}
-      }
-    }
-    .svgToolBarItem{font-size:13px;background-color:@theme-color;color:@theme-font-color;padding:5px 10px;border-radius: 2px;box-sizing:border-box;margin-left:5px;cursor:pointer;-webkit-user-select:none;user-select:none;
-      .svgToolBarTxt{margin-left:2px;}
-    }
-  }
-}
-/*topo-wrap主体区域*/
-#topo-wrap{flex:1;width:100%;box-sizing: border-box;border:1px solid @border-color;overflow:hidden;border-bottom:0;position:relative;
-  #topo-svg{box-sizing: border-box;background-color: #fff;-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none; 
-    &.hand{cursor:pointer}
-    &.crosshair{cursor: crosshair;}
-  }
 }
 </style>
 <style>
