@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2018-11-21 09:31:49
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-22 09:50:46
+ * @LastEditTime: 2018-11-22 10:36:56
  -->
 <template>
     <div id="topoAttrWrap" :class="{active:isTopoAttrShow}">
@@ -33,8 +33,8 @@
             </el-form>
         </div>
         <div class="topoAttrFooter">
-            <el-button type="info">确定</el-button>
-            <el-button>取消</el-button>
+            <nl-button type="primary" style="margin-right:15px;">确定</nl-button>
+            <nl-button>取消</nl-button>
         </div>
     </div>
 </template>
@@ -77,7 +77,6 @@ export default {
 
 </style>
 <style lang="less" scoped>
-/* 属性设置框 */
 #topoAttrWrap{display:flex;flex-direction:column;height:100%;width:400px;position:absolute;top:0;right:-400px;background:#fff;border-left:1px solid @theme-color;transition:all 1s;box-sizing:border-box;
     &.active{right:0;box-shadow:-1px 0px 8px  @theme-color}
     .topoAttrArrow{color:@theme-color;font-size:20px;position:absolute;top:50%;left:-10px;translate:transform(0 -50%);z-index:10000;cursor:pointer;}

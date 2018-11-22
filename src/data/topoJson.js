@@ -342,7 +342,7 @@ let topoJson = {
   "connectors": [{
     "type": "Line",
     "strokeW":10,
-    "color":"#3399ff",
+    "color":"#DE4516",
     "targetNode": {
       "x": 460,
       "y": 180,
