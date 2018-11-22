@@ -2,44 +2,45 @@
  * @Author: caojing
  * @Date: 2018-11-21 09:31:49
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-22 11:20:41
+ * @LastEditTime: 2018-11-22 14:22:47
  -->
 <template>
     <div id="topoAttrWrap" :class="{active:isTopoAttrShow}">
-        <i v-if="isTopoAttrShow" class="fa topoAttrArrow pullIcon" @click="isTopoAttrShow =!isTopoAttrShow">
-            <img src="../../../assets/topo/pull.svg" alt="">
-        </i>
-        <i v-if="!isTopoAttrShow" class="fa topoAttrArrow pushIcon" @click="isTopoAttrShow =!isTopoAttrShow">
-            <img src="../../../assets/topo/push.svg" alt="">
-        </i>
         <h3 id="topoAttrHeader">属性设置框</h3>
         <div class="noAttrTip" v-if="JSON.stringify(nodeData)=='{}'">
             未选择任何节点属性
         </div>
-        <div class="topoAttrMain" v-else>
-            <el-form  label-width="100px" class="demo-ruleForm" labelPosition="left">
-                <div v-if="vSelectNodeData.type == 'Line'">
-                    {{nodeData}}
-                    <el-form-item label="颜色选择">
-                        <el-color-picker v-model="vSelectNodeData.color"></el-color-picker>
-                    </el-form-item>
-                    <el-form-item label="粗细选择">
-                        <el-slider
-                        v-model="vSelectNodeData.strokeW"
-                        :step="1"
-                        show-stops
-                        :min="2"
-                        :max="20">
-                        </el-slider>
-                    </el-form-item>
-                </div> 
-                <div v-else>节点属性框</div>
-            </el-form>
+        <div class="topoAttrBody" v-else>
+            <div class="topoAttrMain">
+                <el-form  label-width="100px" class="demo-ruleForm" labelPosition="left">
+                    <div v-if="vSelectNodeData.type == 'Line'">
+                        <el-form-item label="颜色选择">
+                            <el-color-picker v-model="vSelectNodeData.color"></el-color-picker>
+                        </el-form-item>
+                        <el-form-item label="粗细选择">
+                            <el-slider
+                            v-model="vSelectNodeData.strokeW"
+                            :step="1"
+                            show-stops
+                            :min="3"
+                            :max="20">
+                            </el-slider>
+                        </el-form-item>                        
+                    </div> 
+                    <div v-else>节点属性框</div>
+                </el-form>
+            </div>
+            <div class="topoAttrFooter">
+                <nl-button type="primary" style="margin-right:15px;">确定</nl-button>
+                <nl-button>取消</nl-button>
+            </div>
         </div>
-        <div class="topoAttrFooter">
-            <nl-button type="primary" style="margin-right:15px;">确定</nl-button>
-            <nl-button>取消</nl-button>
-        </div>
+        <i  class="topoAttrArrow"
+            :class="{'pushIcon':!isTopoAttrShow,'pullIcon':isTopoAttrShow}"
+             @click="isTopoAttrShow =!isTopoAttrShow">
+            <img src="../../../assets/topo/push.svg" v-if="!isTopoAttrShow">
+            <img src="../../../assets/topo/pull.svg" v-else>
+        </i>
     </div>
 </template>
 
@@ -89,7 +90,9 @@ export default {
     }
     #topoAttrHeader{padding:10px 0;background-color:@theme-color;color:#fff;text-align:center;font-weight:400;font-size:14px;}
     .noAttrTip{padding:50px;text-align:center;flex:1;}
-    .topoAttrMain{overflow-y: scroll;flex:1;padding:20px 15px;box-sizing:border-box;}
-    .topoAttrFooter{padding:30px 0;display:flex;justify-content: center;align-items:center;}
+    .topoAttrBody{flex:1;display:flex;flex-direction:column;
+        .topoAttrMain{overflow-y: scroll;flex:1;padding:20px 15px;box-sizing:border-box;}
+        .topoAttrFooter{padding:30px 0;display:flex;justify-content: center;align-items:center;}
+    }
 }
 </style>
