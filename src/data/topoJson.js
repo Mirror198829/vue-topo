@@ -285,6 +285,7 @@
 // 		"isSelect": false
 // 	}]
 // }
+
 let topoJson = {
   "nodes": [{
     "name": "Router_1",
@@ -341,7 +342,7 @@ let topoJson = {
   "connectors": [{
     "type": "Line",
     "strokeW":10,
-    "color":"pink",
+    "color":"#DE4516",
     "targetNode": {
       "x": 460,
       "y": 180,
@@ -360,7 +361,7 @@ let topoJson = {
   }, {
     "type": "Line",
     "strokeW":5,
-    "color":"green",
+    "color":"#3399ff",
     "targetNode": {
       "x": 140,
       "y": 260,
