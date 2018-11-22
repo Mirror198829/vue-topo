@@ -1,8 +1,8 @@
 <!--
  * @Author: caojing
- * @Date: 2017-6-30 17:29:55
+ * @Date: 2017-10-20 09:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-21 17:35:02
+ * @LastEditTime: 2018-11-22 09:59:34
  -->
 <template>
   <div id="topoComponent">
@@ -1257,8 +1257,6 @@ export default {
 }
 </script>
 <style scoped lang="less">
-@import '../../less/index.less';
-
 /*svg样式*/
 @svg-common-color:#768699;
 @stroke-width:2;

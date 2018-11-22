@@ -11,6 +11,7 @@ import 'element-ui/lib/theme-chalk/display.css'
 import 'font-awesome/css/font-awesome.css'
 
 
+
 Vue.config.productionTip = false
 
 Vue.use(ElementUI)

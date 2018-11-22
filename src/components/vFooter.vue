@@ -1,3 +1,9 @@
+<!--
+ * @Author: caojing
+ * @Date: 2017-11-27 15:35:23
+ * @LastEditors: caojing
+ * @LastEditTime: 2018-11-22 10:01:07
+ -->
 <template>
   <footer id="footer">
   	<div class="foot-txt">
@@ -24,7 +30,6 @@ export default {
 }
 </script>
 <style scoped lang="less">
-@import '../less/index.less';
 #footer{height:84px;background-color: @theme-color;color:@theme-font-color;text-align: center;font-size: 13px;display: flex;flex-direction: column;justify-content: center;}
 .foot-txt{-webkit-user-select:none;user-select:none;
   a{color:@theme-font-color;text-decoration: none;}

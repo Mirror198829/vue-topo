@@ -41,6 +41,7 @@
     "postcss-import": "^11.0.0",
     "postcss-loader": "^2.0.8",
     "rimraf": "^2.6.0",
+    "sass-resources-loader": "^2.0.0",
     "save-svg-as-png": "^1.2.0",
     "semver": "^5.3.0",
     "shelljs": "^0.7.6",

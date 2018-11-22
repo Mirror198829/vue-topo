@@ -1,3 +1,9 @@
+<!--
+ * @Author: caojing
+ * @Date: 2018-11-21 09:31:49
+ * @LastEditors: caojing
+ * @LastEditTime: 2018-11-22 09:50:46
+ -->
 <template>
     <div id="topoAttrWrap" :class="{active:isTopoAttrShow}">
         <i v-if="isTopoAttrShow" class="fa fa-chevron-circle-right topoAttrArrow" @click="isTopoAttrShow =!isTopoAttrShow"></i>
@@ -71,7 +77,6 @@ export default {
 
 </style>
 <style lang="less" scoped>
-@import '../../../less/index.less';
 /* 属性设置框 */
 #topoAttrWrap{display:flex;flex-direction:column;height:100%;width:400px;position:absolute;top:0;right:-400px;background:#fff;border-left:1px solid @theme-color;transition:all 1s;box-sizing:border-box;
     &.active{right:0;box-shadow:-1px 0px 8px  @theme-color}
