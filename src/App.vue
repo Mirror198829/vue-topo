@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:09:21
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-22 10:00:49
+ * @LastEditTime: 2018-11-22 10:48:43
  -->
 <template>
   <div id="app">
@@ -38,5 +38,5 @@ body{background-color: @theme-color;}
 html,body,#app{height:100%}
 </style>
 <style>
- .topoArea{height:calc(100% - 84px - 50px);} 
+ .topoArea{height:calc(100% - 84px - 50px);min-height: 600px;} 
 </style>
