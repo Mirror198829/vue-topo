@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2018-11-21 09:31:49
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-22 11:11:13
+ * @LastEditTime: 2018-11-22 11:20:41
  -->
 <template>
     <div id="topoAttrWrap" :class="{active:isTopoAttrShow}">
@@ -83,7 +83,7 @@ export default {
 <style lang="less" scoped>
 #topoAttrWrap{display:flex;flex-direction:column;height:100%;width:400px;position:absolute;top:0;right:-400px;background:#fff;border-left:1px solid @theme-color;transition:all 1s;box-sizing:border-box;
     &.active{right:0;box-shadow:-1px 0px 15px  @theme-color}
-    .topoAttrArrow{color:@theme-color;font-size:20px;position:absolute;top:50%;translate:transform(0 -50%);z-index:10000;cursor:pointer;
+    .topoAttrArrow{color:@theme-color;font-size:20px;position:absolute;top:50%;translate:transform(0 -50%);z-index:200;cursor:pointer;
         &.pushIcon{left:-17px;}
         &.pullIcon{left:-2px;}
     }
