@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2018-11-21 09:31:49
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-22 14:22:47
+ * @LastEditTime: 2018-11-22 20:04:55
  -->
 <template>
     <div id="topoAttrWrap" :class="{active:isTopoAttrShow}">
@@ -82,13 +82,13 @@ export default {
 
 </style>
 <style lang="less" scoped>
-#topoAttrWrap{display:flex;flex-direction:column;height:100%;width:400px;position:absolute;top:0;right:-400px;background:#fff;border-left:1px solid @theme-color;transition:all 1s;box-sizing:border-box;
+#topoAttrWrap{display:flex;flex-direction:column;height:100%;width:400px;position:absolute;top:0;right:-400px;background:#fff;border-left:1px solid darken(@theme-color,10%);transition:all 1s;box-sizing:border-box;
     &.active{right:0;box-shadow:-1px 0px 15px  @theme-color}
     .topoAttrArrow{color:@theme-color;font-size:20px;position:absolute;top:50%;translate:transform(0 -50%);z-index:200;cursor:pointer;
         &.pushIcon{left:-17px;}
         &.pullIcon{left:-2px;}
     }
-    #topoAttrHeader{padding:10px 0;background-color:@theme-color;color:#fff;text-align:center;font-weight:400;font-size:14px;}
+    #topoAttrHeader{padding:10px 0;background-color:darken(@theme-color,5%);color:@theme-font-color;text-align:center;font-weight:400;font-size:14px;}
     .noAttrTip{padding:50px;text-align:center;flex:1;}
     .topoAttrBody{flex:1;display:flex;flex-direction:column;
         .topoAttrMain{overflow-y: scroll;flex:1;padding:20px 15px;box-sizing:border-box;}

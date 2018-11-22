@@ -2,11 +2,11 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:09:21
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-22 15:25:55
+ * @LastEditTime: 2018-11-22 20:00:33
  -->
 <template>
   <div id="app">
-    <v-header></v-header>
+  
     <div class="topoArea">
         <v-topo></v-topo>
     </div>
@@ -38,5 +38,5 @@ body{background-color: @theme-color;}
 html,body,#app{height:100%}
 </style>
 <style>
- .topoArea{height:calc(100% - 60px - 40px);min-height: 600px;} 
+ .topoArea{height:calc(100% - 60px);min-height: 800px;} 
 </style>

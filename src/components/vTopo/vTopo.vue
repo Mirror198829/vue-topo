@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-22 16:10:17
+ * @LastEditTime: 2018-11-22 20:24:47
  -->
 <template>
   <div id="topoComponent">   
@@ -1253,13 +1253,13 @@ export default {
 @stroke-width:2;
 @stroke-select-width:3;
 @stroke-select-color:red;
-@border-color:#adadad;
+@border-color:#aaaaaa;
 @storke-dasharray:5,5;
 .svgSelectClass{filter:url(#f1);}
 
-#topoComponent{width:100%;box-sizing: border-box;padding:15px;background-color: #fff;height:100%;display:flex;flex-direction: column;}
+#topoComponent{width:100%;box-sizing: border-box;background-color: #fff;height:100%;display:flex;flex-direction: column;}
 /*svgHead工具栏*/
-#svgHead{width: 100%;height:40px;box-sizing: border-box;padding:0 15px;border:solid @border-color;border-width: 1px 1px 0 1px;display:flex;justify-content: space-between;align-items:center;
+#svgHead{width: 100%;height:40px;box-sizing: border-box;padding:0 20px;display:flex;justify-content: space-between;align-items:center;background:@theme-color;border-top:1px solid #cbcccc;box-shadow:inset 0 1px 0 0 #fff;
   .svgHeadItemLst{display:flex;
     .svgHeadItem{padding:5px 10px;border:1px solid @border-color;cursor:pointer;list-style:none;border-left-width: 0;
       &:hover{background-color: #ebebeb}
@@ -1273,7 +1273,7 @@ export default {
         &.toolbar-zoomreset{background-position:-462px 0px}
       }
     }
-    .svgToolBarItem{font-size:13px;background-color:@theme-color;color:@theme-font-color;padding:5px 10px;border-radius: 2px;box-sizing:border-box;margin-left:5px;cursor:pointer;-webkit-user-select:none;user-select:none;
+    .svgToolBarItem{font-size:13px;color:@theme-font-color;padding:5px 10px;border-radius: 2px;box-sizing:border-box;margin-left:5px;cursor:pointer;-webkit-user-select:none;user-select:none;
       .svgToolBarTxt{margin-left:2px;}
     }
   }
@@ -1281,8 +1281,8 @@ export default {
 /*svgMain*/
 #svgWrap{height:100%;box-sizing: border-box;display: flex;flex:1;}
 /*svgMain左侧工具栏*/
-#toolbarWrap{height:100%;box-sizing: border-box;display: flex;flex-direction: column;width:250px;border:1px solid @border-color;border-right:0;
-  .toolbar-head{height:40px;line-height:40px;text-align: center;font-size:14px;-webkit-user-select:none;user-select:none;font-weight: 700;color:@theme-color;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
+#toolbarWrap{height:100%;box-sizing: border-box;display: flex;flex-direction: column;width:250px;border:1px solid @border-color;border-right:0;background:@theme-color;
+  .toolbar-head{height:40px;line-height:40px;text-align: center;font-size:14px;-webkit-user-select:none;user-select:none;font-weight: 700;color:@theme-font-color;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
   .nodeLstWrap{overflow-y: auto;box-sizing:border-box;padding:10px 15px;flex:1;
     .nodeLst{width:100%;display:flex;flex-wrap:wrap;box-sizing:border-box;}
   }
@@ -1300,7 +1300,7 @@ width:calc( ( 100% ) / 3 );box-sizing:border-box;padding:5px 0;
   &.nodeMoveCss{width:57px;height: 57px;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:5px;}
 }
 /*svgMain右侧svg主体区域*/
-#topo-wrap{flex:1;width:100%;box-sizing: border-box;border:1px solid @border-color;overflow:hidden;position:relative;
+#topo-wrap{flex:1;width:100%;box-sizing: border-box;border:1px solid @border-color;overflow:hidden;position:relative;background:#fff;
   #topo-svg{box-sizing: border-box;background-color: #fff;-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none; 
     &.hand{cursor:pointer}
     &.crosshair{cursor: crosshair;}
