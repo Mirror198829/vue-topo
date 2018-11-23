@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2018-11-21 09:31:49
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-22 20:04:55
+ * @LastEditTime: 2018-11-23 14:43:14
  -->
 <template>
     <div id="topoAttrWrap" :class="{active:isTopoAttrShow}">
@@ -57,7 +57,7 @@ export default {
   },
   data(){
    return {
-       isTopoAttrShow:true
+       isTopoAttrShow:false
    }
   },
   computed:{

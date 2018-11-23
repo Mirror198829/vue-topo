@@ -2,11 +2,11 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-23 11:36:30
+ * @LastEditTime: 2018-11-23 14:39:02
  -->
 <template>
   <div id="topoComponent">
-    <div id="svgHead">
+    <div id="svgHead" v-show="editable">
         <ul class="svgHeadItemLst">
           <li class="svgHeadItem" v-for="(ele,key) in svgToolbar" :key="key" :class="{'active':ele.isActive}" @mousedown="selectToolbar(key)"  :title="ele.name">
             <div class="svgHeadItemImg" :class="ele.className"></div>
@@ -32,7 +32,7 @@
         </ul>
     </div>
     <div id="svgMain">
-      <v-shapebar @click="dragShapeNode"></v-shapebar>
+      <v-shapebar @click="dragShapeNode" v-show="editable"></v-shapebar>
       <div id="topoWrap">
         <svg id="topoSvg"
           :width="svgAttr.width" 
@@ -59,7 +59,7 @@
             <g
               class="nodesG" 
               v-for="(ele,key) in topoData.nodes" 
-              :class="{isSelect:ele.isSelect}" 
+              :class="{isSelect:ele.isSelect,hoverShowConnectorArror:editable}" 
               :transform="'translate('+ele.x+','+ele.y+')'" 
               :key="key" 
               @mouseover.stop="mouseoverNode(key,$event)" 
@@ -213,7 +213,7 @@
           <line :class="{isMarkerShow:marker.isMarkerShow}" id="ymarker" class="marker" :x1="marker.ymarkerX" y1="0" :x2="marker.ymarkerX" :y2="marker.ymarkerY"></line>
           <rect :x="selectionBox.x" :y="selectionBox.y" :width="selectionBox.width" :height="selectionBox.height" stroke-dasharray="5,5" stroke-width="1" stroke="#222" fill="rgba(170,210,232,0.5)" v-show="selectionBox.isShow"/>
         </svg>
-        <v-topo-attr-panel :v-select-node-data = "selectNodeData"></v-topo-attr-panel>
+        <v-topo-attr-panel :v-select-node-data = "selectNodeData" v-show="editable"></v-topo-attr-panel>
       </div>
     </div>
     <div v-if="shapebarMoveNode.isShow" id="moveNode" class="nodeMoveCss" :style="{ left:shapebarMoveNode.left + 'px', top: shapebarMoveNode.top + 'px' }">
@@ -230,6 +230,12 @@ import topoJson from '../../data/topoJson' //初始topo的数据（从后台获�
 import vTopoAttrPanel from './components/vTopoAttrPanel'
 import vShapebar from './components/vShapebar'
 export default {
+  props:{
+    editable:{
+      type:Boolean,
+      default:true
+    }
+  },
   data () {
     return {
      keyFormRules:{
@@ -522,7 +528,8 @@ export default {
       }
     },
     //拖拽svg中的node
-    dragSvgNode(key,event){     
+    dragSvgNode(key,event){ 
+       if(!this.editable) return false  //editable[false]（非编辑状态）：svgNode不可移动  
        let mouseX0 = event.clientX + $(document).scrollLeft()//鼠标点击下的位置
        let mouseY0 = event.clientY + $(document).scrollTop()
        let CURNODE = this.topoData.nodes[key] //点击的node对象
@@ -868,6 +875,7 @@ export default {
     
     //动态绘制连线
     drawConnectLine(key,event){
+      if(!this.editable) return false //如果非编辑状态，不可连线
       let CONNECTLINE = this.connectingLine //绘制连线对象
       let CURNODE =  this.topoData.nodes[key] //当前点击node
       let nodeW = CURNODE.width //当前node宽高
@@ -895,7 +903,7 @@ export default {
       }
       document.onmouseup = () =>{
         document.onmousemove = null
-　　　　document.onmouseup = null 
+　　　 document.onmouseup = null 
         let hasConnected = false   //标记是否已经有过连线 
         let CONNECTORS =  this.topoData.connectors
         let sourceNodeW = nodeW
@@ -906,9 +914,7 @@ export default {
         let targetNodeY = 0
         let targetNodeType = ""
         let connectType = ""
-
         if(CONNECTLINE.endNode){      //正确连线：添加连线信息在connectors中
-
           //判断是否有已经有连线的情况
           CONNECTORS.forEach((item,index) => {
             if(item.sourceNode.id == CURNODE.id && item.targetNode.id == CONNECTLINE.endNode && item.type == 'Line') 
@@ -1003,6 +1009,7 @@ export default {
     },
     //点击选中连线
     selectConnectorLine(key){
+      if(!this.editable) return false //如果非编辑状态 不可点击
       let connectors =  this.topoData.connectors
       let nodes = this.topoData.nodes
       let selectLine = this.topoData.connectors[key]
@@ -1262,7 +1269,7 @@ export default {
 .nodesG{-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none;
   &.isSelect .reactClass{stroke-width:@stroke-select-width;.svgSelectClass;}
   &.isSelect .nodeName{font-weight: 500;}
-  &:hover .connectorArror{display: block}
+  &.hoverShowConnectorArror:hover .connectorArror{display: block}
   .nodeImg{-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none;}
   .nodeName{font-size:12px;fill:@svg-common-color;-webkit-user-select:none;user-select:none;}
   .reactClass{stroke-width:@stroke-width;stroke:@svg-common-color;fill:#fff;cursor: default;}

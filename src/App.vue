@@ -2,12 +2,13 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:09:21
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-23 13:50:50
+ * @LastEditTime: 2018-11-23 14:42:11
  -->
 <template>
   <div id="app">
     <div class="topoArea">
-        <v-topo></v-topo>
+        <v-topo 
+        :editable="true"></v-topo>
     </div>
     <v-footer></v-footer>
   </div>
