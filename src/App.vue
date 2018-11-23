@@ -2,14 +2,21 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:09:21
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-23 14:42:11
+ * @LastEditTime: 2018-11-23 16:31:25
  -->
 <template>
   <div id="app">
     <div class="topoArea">
         <v-topo 
-        :editable="true"></v-topo>
+        :editable="true"
+        :topo-data="topoData1"></v-topo>
     </div>
+    <!-- <div style="height:500px;width:800px;">
+        <v-topo 
+          :editable="true"
+          :topo-data="topoData2"
+        ></v-topo>
+    </div> -->
     <v-footer></v-footer>
   </div>
 </template>
@@ -18,12 +25,49 @@
 import vHeader from './components/vHeader'
 import vFooter from './components/vFooter'
 import vTopo from './components/vTopo/vTopo'
+import topoData1 from './data/topoData1'
+import topoData2 from './data/topoData2'
 export default {
   name: 'app',
   components:{
     vHeader,
     vFooter,
     vTopo
+  },
+  data(){
+    return{
+      topoData1:topoData1,
+      topoData2:topoData2
+    }
+  },
+  methods:{
+    //初始化topo数据
+    initTopoData(){
+      let initTopoData = topoData2//开发：topoJson从后台获取数据
+      let nullTopoData = {
+        nodes:[],
+        connectors:[]
+      }
+      //类型检测
+      if(initTopoData instanceof Object && !Array.prototype.isPrototypeOf(initTopoData)){
+        if('nodes' in initTopoData && 'connectors' in initTopoData){
+          if(!initTopoData.nodes instanceof Array  || !initTopoData.connectors instanceof Array){
+            console.error('topoJson.nodes or topoJson.connectors must be Array')
+            initTopoData = nullTopoData
+          }
+        }else{
+          console.error('topoJson must has nodes key and connectors key')
+          initTopoData = nullTopoData
+        }
+      }else{
+        console.error('topoJson must be {nodes:[],connectors:[]}')
+        initTopoData = nullTopoData
+      }
+      this.topoData =  initTopoData
+    }
+  },
+  mounted() {
+    //this.initTopoData() //初始化topo数据
   },
 }
 </script>
@@ -34,7 +78,7 @@ export default {
 .clearfix:after{ content:''; display:block; clear:both;}
 *{margin:0;padding:0;}
 ul,li{list-style: none;}
-body{background-color: @theme-color;}
+body{background:url('./assets/topo/canvas_bg.jpg');}
 html,body,#app{height:100%}
 </style>
 <style>

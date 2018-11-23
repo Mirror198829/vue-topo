@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-23 14:39:02
+ * @LastEditTime: 2018-11-23 15:31:06
  -->
 <template>
   <div id="topoComponent">
@@ -33,7 +33,7 @@
     </div>
     <div id="svgMain">
       <v-shapebar @click="dragShapeNode" v-show="editable"></v-shapebar>
-      <div id="topoWrap">
+      <div id="topoWrap" ref="topoWrap">
         <svg id="topoSvg"
           :width="svgAttr.width" 
           :height="svgAttr.height"  
@@ -226,7 +226,6 @@
 </template>
 <script>
 import connectorRules from '../../config/connectorRules' //连线包含关系规则
-import topoJson from '../../data/topoJson' //初始topo的数据（从后台获取）
 import vTopoAttrPanel from './components/vTopoAttrPanel'
 import vShapebar from './components/vShapebar'
 export default {
@@ -234,6 +233,13 @@ export default {
     editable:{
       type:Boolean,
       default:true
+    },
+    topoData:{
+      type:Object,
+      default: function () {
+          return {}
+      },
+      required:true
     }
   },
   data () {
@@ -308,10 +314,6 @@ export default {
       {x1:100,x2:100,y1:0,y2:100,color:'#c0c0c0',strokeWidth:2,opacity:0.6},
       {x1:0,x2:100,y1:100,y2:100,color:'#c0c0c0',strokeWidth:2,opacity:0.6}
      ],
-     topoData:{
-      nodes:[],
-      connectors:[]
-     }
     }
   },
   computed:{
@@ -353,6 +355,7 @@ export default {
       let svgOffsetTop = $("#topoSvg").offset().top
       let svgWidth = $("#topoSvg").width()
       let svgHeight = $("#topoSvg").height()
+      debugger
       let isContainSvgArea = false
       document.onmousemove = (event) =>{        
         let mouseX = event.clientX    //当前鼠标位置
@@ -1174,42 +1177,27 @@ export default {
     },
     //初始化获取topo组件宽高
     initTopoWH(){
-      this.marker.xmarkerX = $("#topoWrap").width()
-      this.marker.ymarkerY = $("#topoWrap").height()
-      this.svgAttr.width = $("#topoWrap").width()
-      this.svgAttr.height = $("#topoWrap").height()
-      this.svgAttr.minW = $("#topoWrap").width()
-      this.svgAttr.minH = $("#topoWrap").height()
+      this.$nextTick(()=>{
+        let width = this.$refs.topoWrap.offsetWidth - 2
+        let height = this.$refs.topoWrap.offsetHeight - 2
+        // this.marker.xmarkerX = $("#topoWrap").width()
+        // this.marker.ymarkerY = $("#topoWrap").height()
+        // this.svgAttr.width = $("#topoWrap").width()
+        // this.svgAttr.height = $("#topoWrap").height()
+        // this.svgAttr.minW = $("#topoWrap").width()
+        // this.svgAttr.minH = $("#topoWrap").height()
+        this.marker.xmarkerX = width
+        this.marker.ymarkerY = height
+        this.svgAttr.width = width
+        this.svgAttr.height = height
+        this.svgAttr.minW = width
+        this.svgAttr.minH = height
+      })
     },
-    //初始化topo数据
-    initTopoData(){
-      let initTopoData = topoJson//开发：topoJson从后台获取数据
-      let nullTopoData = {
-        nodes:[],
-        connectors:[]
-      }
-      //类型检测
-      if(initTopoData instanceof Object && !Array.prototype.isPrototypeOf(initTopoData)){
-        if('nodes' in initTopoData && 'connectors' in initTopoData){
-          if(!initTopoData.nodes instanceof Array  || !initTopoData.connectors instanceof Array){
-            console.error('topoJson.nodes or topoJson.connectors must be Array')
-            initTopoData = nullTopoData
-          }
-        }else{
-          console.error('topoJson must has nodes key and connectors key')
-          initTopoData = nullTopoData
-        }
-      }else{
-        console.error('topoJson must be {nodes:[],connectors:[]}')
-        initTopoData = nullTopoData
-      }
-      this.topoData =  initTopoData
-    }
   },
   mounted(){
     this.initTopoWH() //初始化topo组件宽高
     this.deleteNodeAndConnetor() //绑定删除Node事件 
-    this.initTopoData() //初始化topo数据
  }
 }
 </script>
