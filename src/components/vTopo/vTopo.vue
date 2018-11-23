@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-22 20:24:47
+ * @LastEditTime: 2018-11-23 10:24:49
  -->
 <template>
   <div id="topoComponent">   
@@ -30,25 +30,25 @@
                 <span  class="svgToolBarTxt hidden-xs-only">保存图片</span>
               </li> -->
             </ul>
-          </div>
-        <div id="svgWrap">
-          <div id="toolbarWrap">
-            <div class="toolbar-head">
+        </div>
+        <div id="svgMain">
+          <div id="shapebarWrap">
+            <div class="shapebarHead">
                 Node Types
             </div>
-            <div class="nodeLstWrap">   
-              <ul class="nodeLst">
-                  <li v-for="(ele,key) in toolbarNodeData" :key="key" class="node-item node-css" @mousedown.stop.prevent = "dragToolbarNode(toolbarNodeData,key,$event)" :title="ele.type">                          
-                    <div class="node-icon">
-                      <img class="toolbar-node-icon" :src="ele.icon" />
+            <div class="shapeNodeLstWrap">   
+              <ul class="shapeNodeLst">
+                  <li v-for="(ele,key) in shapeNodeLstData" :key="key" class="shapeNode" @mousedown.stop.prevent = "dragShapeNode(shapeNodeLstData,key,$event)" :title="ele.type">                          
+                    <div class="shapeIcon">
+                      <img class="shapeIconImg" :src="ele.icon" />
                     </div>
-                    <div class="node-name">{{ele.type}}</div>                           
+                    <div class="shapeName">{{ele.type}}</div>                           
                   </li>
               </ul>      
             </div>
           </div>
-          <div id="topo-wrap">
-            <svg id="topo-svg"
+          <div id="topoWrap">
+            <svg id="topoSvg"
               :width="svgAttr.width" 
               :height="svgAttr.height"  
               @mousedown.stop = "mousedownTopoSvg($event)" 
@@ -230,18 +230,18 @@
             <v-topo-attr-panel :v-select-node-data = "selectNodeData"></v-topo-attr-panel>
           </div>
         </div>
-    <div v-if="toolbarMoveNode.isShow" id="move-node" class="nodeMoveCss" :style="{ left:toolbarMoveNode.left + 'px', top: toolbarMoveNode.top + 'px' }">
-      <div class="node-icon">
-        <img class="toolbar-node-icon" :src="toolbarMoveNode.icon"/>
+    <div v-if="shapebarMoveNode.isShow" id="move-node" class="nodeMoveCss" :style="{ left:shapebarMoveNode.left + 'px', top: shapebarMoveNode.top + 'px' }">
+      <div class="shapeIcon">
+        <img class="shapeIconImg" :src="shapebarMoveNode.icon"/>
       </div>
-      <div class="node-name">{{toolbarMoveNode.name}}</div>
+      <div class="shapeName">{{shapebarMoveNode.name}}</div>
     </div>
   </div>
 </template>
 <script>
 import connectorRules from '../../config/connectorRules' //连线包含关系规则
 import topoJson from '../../data/topoJson' //初始topo的数据（从后台获取）
-import toolbarNodeData from '../../data/toolbarNodeData' //初始左侧toolbarNode数据（可从后台获取）
+import shapeNodeLstData from '../../data/toolbarNodeData' //初始左侧toolbarNode数据（可从后台获取）
 import vTopoAttrPanel from './components/vTopoAttrPanel'
 export default {
   data () {
@@ -266,8 +266,8 @@ export default {
       // {name:'缩小',className:'toolbar-zoomout',isActive:false},
       // {name:'恢复出厂设置',className:'toolbar-zoomreset',isActive:false}
      ],
-     toolbarNodeData:[],//toolbarNodeData的初始数据
-     toolbarMoveNode:{
+     shapeNodeLstData:[],//shapebar的数据
+     shapebarMoveNode:{
       left:0,
       top:0,
       name:'',
@@ -362,15 +362,15 @@ export default {
       let canConnector = true   
       return canConnector
     },
-    //拖拽toolbar中的node
-    dragToolbarNode(nodeData,key,event){
+    //拖拽shapeBar中的图形
+    dragShapeNode(nodeData,key,event){
       let NODE = nodeData[key]
       let toolbarName =NODE.type
       let toolbarIcon = NODE.icon
-      let svgOffsetLeft = $("#topo-svg").offset().left
-      let svgOffsetTop = $("#topo-svg").offset().top
-      let svgWidth = $("#topo-svg").width()
-      let svgHeight = $("#topo-svg").height()
+      let svgOffsetLeft = $("#topoSvg").offset().left
+      let svgOffsetTop = $("#topoSvg").offset().top
+      let svgWidth = $("#topoSvg").width()
+      let svgHeight = $("#topoSvg").height()
       let isContainSvgArea = false
       document.onmousemove = (event) =>{        
         let mouseX = event.clientX    //当前鼠标位置
@@ -378,11 +378,11 @@ export default {
         let nodeX = event.clientX - svgOffsetLeft + $(document).scrollLeft()+ this.svgAttr.viewX   //svg最终位置
         let nodeY = event.clientY - svgOffsetTop  + $(document).scrollTop() + this.svgAttr.viewY
         isContainSvgArea = false
-        this.toolbarMoveNode.left = mouseX + 4 + $(document).scrollLeft()  // 鼠标位置 + 文档滚动的距离
-        this.toolbarMoveNode.top =  mouseY + 4 + $(document).scrollTop()
-        this.toolbarMoveNode.name = toolbarName
-        this.toolbarMoveNode.icon = toolbarIcon
-        this.toolbarMoveNode.isShow = true
+        this.shapebarMoveNode.left = mouseX + 4 + $(document).scrollLeft()  // 鼠标位置 + 文档滚动的距离
+        this.shapebarMoveNode.top =  mouseY + 4 + $(document).scrollTop()
+        this.shapebarMoveNode.name = toolbarName
+        this.shapebarMoveNode.icon = toolbarIcon
+        this.shapebarMoveNode.isShow = true
         this.marker.isMarkerShow = false
         // 鼠标滑入svg区域内显示标尺并显示标尺正确位置
         if( mouseX >= svgOffsetLeft && 
@@ -399,8 +399,8 @@ export default {
         }
       }
       document.onmouseup = (event)=>{
-         document.onmousemove = null
-　　　　　document.onmouseup = null
+        document.onmousemove = null
+        document.onmouseup = null
          // 判断鼠标在svg区域
         if(isContainSvgArea){
             let TOPODATA = this.topoData
@@ -455,11 +455,11 @@ export default {
             }
         }    
         //重新初始toolbarMoveNode的值
-        this.toolbarMoveNode.left = 0
-        this.toolbarMoveNode.top =  0
-        this.toolbarMoveNode.name = ''
-        this.toolbarMoveNode.icon = ''
-        this.toolbarMoveNode.isShow = false
+        this.shapebarMoveNode.left = 0
+        this.shapebarMoveNode.top =  0
+        this.shapebarMoveNode.name = ''
+        this.shapebarMoveNode.icon = ''
+        this.shapebarMoveNode.isShow = false
       }
       //生成唯一id值
       function GenNonDuplicateID(randomLength){
@@ -489,8 +489,8 @@ export default {
       this.cancelAllNodesSelect() //取消所有节点选中     
       this.cancelAllLinksSelect() //取消连线选中  
       if(this.svgToolbar[1].isActive) {        
-        selectionBoxX = event.clientX - $("#topo-svg").offset().left + $(document).scrollLeft() + this.svgAttr.viewX  
-        selectionBoxY = event.clientY - $("#topo-svg").offset().top + 4 + $(document).scrollTop() + this.svgAttr.viewY
+        selectionBoxX = event.clientX - $("#topoSvg").offset().left + $(document).scrollLeft() + this.svgAttr.viewX  
+        selectionBoxY = event.clientY - $("#topoSvg").offset().top + 4 + $(document).scrollTop() + this.svgAttr.viewY
         this.selectionBox.isShow = true
         this.selectionBox.x = selectionBoxX
         this.selectionBox.y = selectionBoxY
@@ -908,8 +908,8 @@ export default {
       let sourceNodeY = CURNODE.y    
       let mouseX0 = event.clientX    
       let mouseY0 = event.clientY
-      let x1 = event.clientX - $("#topo-svg").offset().left-2 + $(document).scrollLeft() + this.svgAttr.viewX   //连线开始位置的位置：鼠标点击的实际位置   为鼠标位置 - 当前元素的偏移值
-      let y1 = event.clientY - $("#topo-svg").offset().top+4+ $(document).scrollTop() + this.svgAttr.viewY
+      let x1 = event.clientX - $("#topoSvg").offset().left-2 + $(document).scrollLeft() + this.svgAttr.viewX   //连线开始位置的位置：鼠标点击的实际位置   为鼠标位置 - 当前元素的偏移值
+      let y1 = event.clientY - $("#topoSvg").offset().top+4+ $(document).scrollTop() + this.svgAttr.viewY
       CONNECTLINE.isConnecting = true   //显示绘制连线
       CONNECTLINE.x1 = x1 
       CONNECTLINE.y1 = y1 
@@ -1189,7 +1189,7 @@ export default {
       maxH = (maxH < this.svgAttr.minH) ? this.svgAttr.minH : maxH
       this.svgAttr.width = maxW + 50
       this.svgAttr.height = maxH + 20
-      saveSvgAsPng(document.getElementById("topo-svg"), "topo.png")
+      saveSvgAsPng(document.getElementById("topoSvg"), "topo.png")
       // 建议使用promise进行优化
       setTimeout(()=>{
         this.svgAttr.width = initW
@@ -1199,21 +1199,21 @@ export default {
     },
     //初始化获取topo组件宽高
     initTopoWH(){
-      this.marker.xmarkerX = $("#topo-wrap").width()
-      this.marker.ymarkerY = $("#topo-wrap").height()
-      this.svgAttr.width = $("#topo-wrap").width()
-      this.svgAttr.height = $("#topo-wrap").height()
-      this.svgAttr.minW = $("#topo-wrap").width()
-      this.svgAttr.minH = $("#topo-wrap").height()
+      this.marker.xmarkerX = $("#topoWrap").width()
+      this.marker.ymarkerY = $("#topoWrap").height()
+      this.svgAttr.width = $("#topoWrap").width()
+      this.svgAttr.height = $("#topoWrap").height()
+      this.svgAttr.minW = $("#topoWrap").width()
+      this.svgAttr.minH = $("#topoWrap").height()
     },
-    //初始toolbarNodes
+    //初始shapeLstData
     initToolbarNodes(){
-      let initToolbarNodeLst = toolbarNodeData //toolbarNodeData从后台获取
-      if(!initToolbarNodeLst instanceof Array){ //类型检测，必须为Array
-          console.error('toolbarNodeData must be Array')
-          initToolbarNodeLst = []
+      let initShapeLstData = shapeNodeLstData //toolbarNodeData从后台获取
+      if(!initShapeLstData instanceof Array){ //类型检测，必须为Array
+          console.error('shapeNodeLstData must be Array')
+          initShapeLstData = []
       }
-      this.toolbarNodeData = initToolbarNodeLst
+      this.shapeNodeLstData = initShapeLstData
     },
     //初始化topo数据
     initTopoData(){
@@ -1279,29 +1279,29 @@ export default {
   }
 }
 /*svgMain*/
-#svgWrap{height:100%;box-sizing: border-box;display: flex;flex:1;}
+#svgMain{height:100%;box-sizing: border-box;display: flex;flex:1;}
 /*svgMain左侧工具栏*/
-#toolbarWrap{height:100%;box-sizing: border-box;display: flex;flex-direction: column;width:250px;border:1px solid @border-color;border-right:0;background:@theme-color;
-  .toolbar-head{height:40px;line-height:40px;text-align: center;font-size:14px;-webkit-user-select:none;user-select:none;font-weight: 700;color:@theme-font-color;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
-  .nodeLstWrap{overflow-y: auto;box-sizing:border-box;padding:10px 15px;flex:1;
-    .nodeLst{width:100%;display:flex;flex-wrap:wrap;box-sizing:border-box;}
+#shapebarWrap{height:100%;box-sizing: border-box;display: flex;flex-direction: column;width:250px;border:1px solid @border-color;border-right:0;background:@theme-color;
+  .shapebarHead{height:40px;line-height:40px;text-align: center;font-size:14px;-webkit-user-select:none;user-select:none;font-weight: 700;color:@theme-font-color;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
+  .shapeNodeLstWrap{overflow-y: auto;box-sizing:border-box;padding:10px 15px;flex:1;
+    .shapeNodeLst{width:100%;display:flex;flex-wrap:wrap;box-sizing:border-box;}
   }
 }
-.node-item{margin-top:5px;cursor: pointer;border:1px solid #c7d1dd;-webkit-user-select:none;user-select:none;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;
+.shapeNode{margin-top:5px;cursor: pointer;border:1px solid #c7d1dd;-webkit-user-select:none;user-select:none;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;
 width:calc( ( 100% ) / 3 );box-sizing:border-box;padding:5px 0;
 }
 
 /*移动的node*/
-.node-icon{text-align: center;-webkit-user-select:none;user-select:none;
-  .toolbar-node-icon{width: 28px;height: 28px;-webkit-user-select:none;user-select:none;}
+.shapeIcon{text-align: center;-webkit-user-select:none;user-select:none;
+  .shapeIconImg{width: 28px;height: 28px;-webkit-user-select:none;user-select:none;}
 }
-.node-name{font-size:12px;text-align: center;padding:0 5px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;-webkit-user-select:none;user-select:none;color:#000}
+.shapeName{font-size:12px;text-align: center;padding:0 5px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;-webkit-user-select:none;user-select:none;color:#000}
 #move-node{position: absolute;border:1px solid @svg-common-color;box-sizing: border-box;
   &.nodeMoveCss{width:57px;height: 57px;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:5px;}
 }
 /*svgMain右侧svg主体区域*/
-#topo-wrap{flex:1;width:100%;box-sizing: border-box;border:1px solid @border-color;overflow:hidden;position:relative;background:#fff;
-  #topo-svg{box-sizing: border-box;background-color: #fff;-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none; 
+#topoWrap{flex:1;width:100%;box-sizing: border-box;border:1px solid @border-color;overflow:hidden;position:relative;background:#fff;
+  #topoSvg{box-sizing: border-box;background-color: #fff;-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none; 
     &.hand{cursor:pointer}
     &.crosshair{cursor: crosshair;}
   }
