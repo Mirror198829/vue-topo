@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2018-11-23 10:28:53
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-23 11:25:37
+ * @LastEditTime: 2018-11-23 11:38:45
  -->
 <template>
     <div id="shapebarWrap">
