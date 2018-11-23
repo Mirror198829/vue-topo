@@ -31,5 +31,15 @@ npm install
 ```
 npm run dev
 ```
+``` html
+ <v-topo 
+  :editable="true"
+  :topo-data="topoData1">
+ </v-topo>
+```
+``` javascript
+editable:是否可编辑，默认值：true
+topoData:初始的topoData值
+```
 ## 说明
 代码开源，欢迎码农们提出宝贵意见，bug请提issues，本人将及时修改。最后著作权归一步工程师，请大家注明代码来源：https://github.com/Mirror198829/vue-topo
