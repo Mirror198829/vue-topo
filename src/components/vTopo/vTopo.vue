@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-23 15:31:06
+ * @LastEditTime: 2018-11-26 11:28:02
  -->
 <template>
   <div id="topoComponent">
@@ -33,8 +33,8 @@
     </div>
     <div id="svgMain">
       <v-shapebar @click="dragShapeNode" v-show="editable"></v-shapebar>
-      <div id="topoWrap" ref="topoWrap">
-        <svg id="topoSvg"
+      <div :id="'topoId'+topoId" class="topoWrap" ref="topoWrap">
+        <svg class="topoSvg"
           :width="svgAttr.width" 
           :height="svgAttr.height"  
           @mousedown.stop = "mousedownTopoSvg($event)" 
@@ -255,6 +255,7 @@ export default {
      connectorRules:connectorRules,//节点间关系的规则
      selectNodeData:{},
      selectNodeIndex:0,
+     topoId:'',
      svgAttr:{width:0,height:0,isHand:false,viewX:0,viewY:0,minW:0,minH:0,isCrosshair:false},
      activeNames: ['1'],
      svgToolbar:[
@@ -323,6 +324,9 @@ export default {
     vShapebar
   },
   methods:{
+    GenNonDuplicateID(randomLength){
+        return Number(Math.random().toString().substr(3,randomLength) + Date.now()).toString(36)
+    },
     canConnectorTo(curNodeType,connectorToNodeType,connectorType){
       //当需要包含和连线规则的时候 清除以下注释
       // let canConnector = false
@@ -351,11 +355,11 @@ export default {
       let NODE = nodeData[key]
       let toolbarName =NODE.type
       let toolbarIcon = NODE.icon
-      let svgOffsetLeft = $("#topoSvg").offset().left
-      let svgOffsetTop = $("#topoSvg").offset().top
-      let svgWidth = $("#topoSvg").width()
-      let svgHeight = $("#topoSvg").height()
-      debugger
+      let topoEle = $(`#topoId${this.topoId}`)
+      let svgOffsetLeft = topoEle.find(".topoSvg").offset().left
+      let svgOffsetTop =  topoEle.find(".topoSvg").offset().top
+      let svgWidth =  topoEle.find(".topoSvg").width()
+      let svgHeight =  topoEle.find(".topoSvg").height()
       let isContainSvgArea = false
       document.onmousemove = (event) =>{        
         let mouseX = event.clientX    //当前鼠标位置
@@ -465,9 +469,10 @@ export default {
       let selectionBoxY = 0   
       this.cancelAllNodesSelect() //取消所有节点选中     
       this.cancelAllLinksSelect() //取消连线选中  
-      if(this.svgToolbar[1].isActive) {        
-        selectionBoxX = event.clientX - $("#topoSvg").offset().left + $(document).scrollLeft() + this.svgAttr.viewX  
-        selectionBoxY = event.clientY - $("#topoSvg").offset().top + 4 + $(document).scrollTop() + this.svgAttr.viewY
+      if(this.svgToolbar[1].isActive) { 
+        let topoEle = $(`#topoId${this.topoId}`)       
+        selectionBoxX = event.clientX - topoEle.find(".topoSvg").offset().left + $(document).scrollLeft() + this.svgAttr.viewX  
+        selectionBoxY = event.clientY - topoEle.find(".topoSvg").offset().top + 4 + $(document).scrollTop() + this.svgAttr.viewY
         this.selectionBox.isShow = true
         this.selectionBox.x = selectionBoxX
         this.selectionBox.y = selectionBoxY
@@ -887,8 +892,9 @@ export default {
       let sourceNodeY = CURNODE.y    
       let mouseX0 = event.clientX    
       let mouseY0 = event.clientY
-      let x1 = event.clientX - $("#topoSvg").offset().left-2 + $(document).scrollLeft() + this.svgAttr.viewX   //连线开始位置的位置：鼠标点击的实际位置   为鼠标位置 - 当前元素的偏移值
-      let y1 = event.clientY - $("#topoSvg").offset().top+4+ $(document).scrollTop() + this.svgAttr.viewY
+      let topoEle = $(`#topoId${this.topoId}`)
+      let x1 = event.clientX - topoEle.find(".topoSvg").offset().left-2 + $(document).scrollLeft() + this.svgAttr.viewX   //连线开始位置的位置：鼠标点击的实际位置   为鼠标位置 - 当前元素的偏移值
+      let y1 = event.clientY - topoEle.find(".topoSvg").offset().top+4+ $(document).scrollTop() + this.svgAttr.viewY
       CONNECTLINE.isConnecting = true   //显示绘制连线
       CONNECTLINE.x1 = x1 
       CONNECTLINE.y1 = y1 
@@ -1178,26 +1184,31 @@ export default {
     //初始化获取topo组件宽高
     initTopoWH(){
       this.$nextTick(()=>{
-        let width = this.$refs.topoWrap.offsetWidth - 2
-        let height = this.$refs.topoWrap.offsetHeight - 2
-        // this.marker.xmarkerX = $("#topoWrap").width()
-        // this.marker.ymarkerY = $("#topoWrap").height()
-        // this.svgAttr.width = $("#topoWrap").width()
-        // this.svgAttr.height = $("#topoWrap").height()
-        // this.svgAttr.minW = $("#topoWrap").width()
-        // this.svgAttr.minH = $("#topoWrap").height()
-        this.marker.xmarkerX = width
-        this.marker.ymarkerY = height
-        this.svgAttr.width = width
-        this.svgAttr.height = height
-        this.svgAttr.minW = width
-        this.svgAttr.minH = height
-      })
+        // let width = this.$refs.topoWrap.offsetWidth - 2
+        // let height = this.$refs.topoWrap.offsetHeight - 2
+        let ele = `#topoId${this.topoId}`
+        let topoW = $(ele).width()
+        let topoH = $(ele).height()
+        this.marker.xmarkerX = topoW
+        this.marker.ymarkerY = topoH
+        this.svgAttr.width = topoW
+        this.svgAttr.height = topoH
+        this.svgAttr.minW = topoW
+        this.svgAttr.minH = topoH
+        // this.marker.xmarkerX = width
+        // this.marker.ymarkerY = height
+        // this.svgAttr.width = width
+        // this.svgAttr.height = height
+        // this.svgAttr.minW = width
+        // this.svgAttr.minH = height
+        })
     },
   },
   mounted(){
-    this.initTopoWH() //初始化topo组件宽高
+    
     this.deleteNodeAndConnetor() //绑定删除Node事件 
+    this.topoId = this.GenNonDuplicateID(5)
+    this.initTopoWH() //初始化topo组件宽高
  }
 }
 </script>
@@ -1244,8 +1255,8 @@ export default {
   &.nodeMoveCss{width:57px;height: 57px;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:5px;}
 }
 /*svgMain右侧svg主体区域*/
-#topoWrap{flex:1;width:100%;box-sizing: border-box;border:1px solid @border-color;overflow:hidden;position:relative;background:#fff;
-  #topoSvg{box-sizing: border-box;background-color: #fff;-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none; 
+.topoWrap{flex:1;width:100%;box-sizing: border-box;border:1px solid @border-color;overflow:hidden;position:relative;background:#fff;
+  .topoSvg{box-sizing: border-box;background-color: #fff;-webkit-user-select:none;user-select:none;-moz-select:none;-ms-select:none;-o-select:none; 
     &.hand{cursor:pointer}
     &.crosshair{cursor: crosshair;}
   }

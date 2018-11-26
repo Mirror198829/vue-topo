@@ -2,18 +2,20 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:09:21
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-23 16:31:25
+ * @LastEditTime: 2018-11-26 11:33:16
  -->
 <template>
   <div id="app">
+    <!-- 编辑如下 -->
     <div class="topoArea">
         <v-topo 
         :editable="true"
         :topo-data="topoData1"></v-topo>
     </div>
-    <!-- <div style="height:500px;width:800px;">
+    <!-- 展示如下： -->
+    <!-- <div style="height:500px;">
         <v-topo 
-          :editable="true"
+          :editable="false"
           :topo-data="topoData2"
         ></v-topo>
     </div> -->
