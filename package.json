@@ -3,12 +3,22 @@
   "version": "1.0.0",
   "description": "A Vue.js project",
   "author": "'Mirror198829' <'412366756@qq.com'>",
-  "private": true,
+  "private": false,
+  "main": "dist/vue-topo.min.js",
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "start": "npm run dev",
     "build": "node build/build.js"
   },
+  "homepage": "https://mirror198829.github.io/vue-topo/dist/index.html#/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mirror198829/vue-topo"
+  }, 
+  "keywords": [
+    "vue",
+    "topo"
+  ], 
   "dependencies": {
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
