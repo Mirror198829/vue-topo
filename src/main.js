@@ -10,7 +10,7 @@ import nlComponentLib from './nlComponentLib'
 import 'element-ui/lib/theme-chalk/index.css'
 import 'element-ui/lib/theme-chalk/display.css'
 import 'font-awesome/css/font-awesome.css'
-
+import '../static/css/reset.css' //rest样式引入
 
 
 Vue.config.productionTip = false

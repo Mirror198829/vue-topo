@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:09:21
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-26 11:33:16
+ * @LastEditTime: 2018-11-27 09:39:16
  -->
 <template>
   <div id="app">
@@ -74,15 +74,8 @@ export default {
 }
 </script>
 
-<style lang="less">
-@import '../src/less/index.less';
-.clearfix{ zoom:1;}
-.clearfix:after{ content:''; display:block; clear:both;}
-*{margin:0;padding:0;}
-ul,li{list-style: none;}
+<style lang="less" scoped>
 body{background:url('./assets/topo/canvas_bg.jpg');}
-html,body,#app{height:100%}
-</style>
-<style>
- .topoArea{height:calc(100% - 70px);min-height: 800px;} 
+#app{height:100%}
+ .topoArea{height:calc(~"100% - 70px");min-height: 800px;} 
 </style>
