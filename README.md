@@ -52,10 +52,7 @@ npm run dev  //启动服务
 #### Attributes  
 | 参数 | 说明 | 类型 | 可选值 | 默认值 | 必填 |
 | --- | --- | --- | --- | --- | --- |
-| editable | 编辑 | boolean |||
-``` javascript
-editable:是否可编辑，默认值：true
-topoData:初始的topoData值
-```
+| editable | 是否可编辑 | boolean | true/false | true | — |
+| topo-data | topo初始值 | object | — | {nodes:[],connectors:[]} | 是 |
 ## 说明
 代码开源，欢迎码农们提出宝贵意见，bug请提issues，本人将及时修改。最后著作权归一步工程师，请大家注明代码来源：https://github.com/Mirror198829/vue-topo
