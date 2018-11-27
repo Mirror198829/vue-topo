@@ -8,7 +8,7 @@ https://mirror198829.github.io/vue-topo/dist/index.html
 ## 技术选型
 * VUE2.0
 * SVG
-* Element
+* Element-UI
 ## 功能分析及技术点
 | 功能 | 技术点  |
 |-------------|-----|
@@ -25,13 +25,6 @@ https://mirror198829.github.io/vue-topo/dist/index.html
 |svg的viewbox的移动功能 |记录鼠标移动的位移，修改viewbox的视图位置|
 
 ## Usage
-#### 源码使用
-```
-npm install
-```
-```
-npm run dev
-```
 #### NPM
 ``` 
 npm i vue-topo -save 
@@ -41,15 +34,25 @@ import vTopo from 'vue-topo'
 import 'vue-topo/dist/vue-topo.min.css'
 Vue.use(vTopo)
 ```
-``` html
+#### github源码使用
+```
+npm install
+```
+```
+npm run dev  //启动服务
+```
+#### 引入组件
+``` 
+// xxx.vue
  <v-topo 
   :editable="true"
   :topo-data="topoData1">
  </v-topo>
 ```
-``` javascript
-editable:是否可编辑，默认值：true
-topoData:初始的topoData值
-```
+#### Attributes  
+| 参数 | 说明 | 类型 | 可选值 | 默认值 | 必填 |
+| --- | --- | --- | --- | --- | --- |
+| editable | 是否可编辑 | boolean | true/false | true | — |
+| topo-data | topo初始值 | object | — | {nodes:[],connectors:[]} | 是 |
 ## 说明
 代码开源，欢迎码农们提出宝贵意见，bug请提issues，本人将及时修改。最后著作权归一步工程师，请大家注明代码来源：https://github.com/Mirror198829/vue-topo
