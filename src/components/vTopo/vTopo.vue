@@ -2,11 +2,11 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-26 11:28:02
+ * @LastEditTime: 2018-11-27 09:59:51
  -->
 <template>
-  <div id="topoComponent">
-    <div id="svgHead" v-show="editable">
+  <div class="topoComponent">
+    <div class="svgHead" v-show="editable">
         <ul class="svgHeadItemLst">
           <li class="svgHeadItem" v-for="(ele,key) in svgToolbar" :key="key" :class="{'active':ele.isActive}" @mousedown="selectToolbar(key)"  :title="ele.name">
             <div class="svgHeadItemImg" :class="ele.className"></div>
@@ -31,7 +31,7 @@
           </li> -->
         </ul>
     </div>
-    <div id="svgMain">
+    <div class="svgMain">
       <v-shapebar @click="dragShapeNode" v-show="editable"></v-shapebar>
       <div :id="'topoId'+topoId" class="topoWrap" ref="topoWrap">
         <svg class="topoSvg"
@@ -216,7 +216,7 @@
         <v-topo-attr-panel :v-select-node-data = "selectNodeData" v-show="editable"></v-topo-attr-panel>
       </div>
     </div>
-    <div v-if="shapebarMoveNode.isShow" id="moveNode" class="nodeMoveCss" :style="{ left:shapebarMoveNode.left + 'px', top: shapebarMoveNode.top + 'px' }">
+    <div v-if="shapebarMoveNode.isShow" class="moveNode nodeMoveCss" :style="{ left:shapebarMoveNode.left + 'px', top: shapebarMoveNode.top + 'px' }">
       <div class="shapeIcon">
         <img class="shapeIconImg" :src="shapebarMoveNode.icon"/>
       </div>
@@ -1221,9 +1221,9 @@ export default {
 @storke-dasharray:5,5;
 .svgSelectClass{filter:url(#f1);}
 
-#topoComponent{width:100%;box-sizing: border-box;background-color: #fff;height:100%;display:flex;flex-direction: column;}
+.topoComponent{width:100%;box-sizing: border-box;background-color: #fff;height:100%;display:flex;flex-direction: column;}
 /*svgHead工具栏*/
-#svgHead{width: 100%;height:40px;box-sizing: border-box;padding:0 20px;display:flex;justify-content: space-between;align-items:center;background:@theme-color;border-top:1px solid #cbcccc;box-shadow:inset 0 1px 0 0 #fff;
+.svgHead{width: 100%;height:40px;box-sizing: border-box;padding:0 20px;display:flex;justify-content: space-between;align-items:center;background:@theme-color;border:solid @border-color;border-width:1px 1px 0;box-shadow:inset 0 1px 0 0 #fff;
   .svgHeadItemLst{display:flex;
     .svgHeadItem{padding:5px 10px;border:1px solid @border-color;cursor:pointer;list-style:none;border-left-width: 0;
       &:hover{background-color: #ebebeb}
@@ -1243,15 +1243,13 @@ export default {
   }
 }
 /*svgMain*/
-#svgMain{height:100%;box-sizing: border-box;display: flex;flex:1;}
-
-
+.svgMain{height:100%;box-sizing: border-box;display: flex;flex:1;}
 /*移动的node*/
 .shapeIcon{text-align: center;-webkit-user-select:none;user-select:none;
   .shapeIconImg{width: 28px;height: 28px;-webkit-user-select:none;user-select:none;}
 }
 .shapeName{font-size:12px;text-align: center;padding:0 5px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;-webkit-user-select:none;user-select:none;color:#000}
-#moveNode{position: absolute;border:1px solid @svg-common-color;box-sizing: border-box;
+.moveNode{position: absolute;border:1px solid @svg-common-color;box-sizing: border-box;
   &.nodeMoveCss{width:57px;height: 57px;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:5px;}
 }
 /*svgMain右侧svg主体区域*/
