@@ -25,11 +25,21 @@ https://mirror198829.github.io/vue2-topo-exhibition
 |svg的viewbox的移动功能 |记录鼠标移动的位移，修改viewbox的视图位置|
 
 ## Usage
+#### 源码使用
 ```
 npm install
 ```
 ```
 npm run dev
+```
+#### NPM
+``` 
+npm i vue-topo -save 
+```
+``` 
+import vTopo from 'vue-topo'
+import 'vue-topo/dist/vue-topo.min.css'
+Vue.use(vTopo)
 ```
 ``` html
  <v-topo 
