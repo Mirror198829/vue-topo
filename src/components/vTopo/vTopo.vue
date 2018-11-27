@@ -2,13 +2,13 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-26 11:28:02
+ * @LastEditTime: 2018-11-27 10:57:15
  -->
 <template>
-  <div id="topoComponent">
-    <div id="svgHead" v-show="editable">
+  <div class="topoComponent">
+    <div class="svgHead" v-show="editable">
         <ul class="svgHeadItemLst">
-          <li class="svgHeadItem" v-for="(ele,key) in svgToolbar" :key="key" :class="{'active':ele.isActive}" @mousedown="selectToolbar(key)"  :title="ele.name">
+          <li class="svgHeadItem" v-for="(ele,key) in svgToolbar" :key="ele.className" :class="{'active':ele.isActive}" @mousedown="selectToolbar(key)"  :title="ele.name">
             <div class="svgHeadItemImg" :class="ele.className"></div>
           </li>
         </ul>
@@ -31,7 +31,7 @@
           </li> -->
         </ul>
     </div>
-    <div id="svgMain">
+    <div class="svgMain">
       <v-shapebar @click="dragShapeNode" v-show="editable"></v-shapebar>
       <div :id="'topoId'+topoId" class="topoWrap" ref="topoWrap">
         <svg class="topoSvg"
@@ -42,7 +42,7 @@
           :class="{'hand':svgAttr.isHand,'crosshair':svgAttr.isCrosshair}">
           <defs>
             <pattern id="Pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-              <line :x1="ele.x1" :x2="ele.x2" :y1="ele.y1" :y2="ele.y2" :stroke="ele.color" :stroke-width="ele.strokeWidth" :opacity="ele.opacity" v-for="(ele,key) in gridData" :key="key"></line>
+              <line :x1="ele.x1" :x2="ele.x2" :y1="ele.y1" :y2="ele.y2" :stroke="ele.color" :stroke-width="ele.strokeWidth" :opacity="ele.opacity" v-for="ele in gridData" :key="ele.id"></line>
             </pattern>
           </defs>
           <defs>
@@ -61,7 +61,7 @@
               v-for="(ele,key) in topoData.nodes" 
               :class="{isSelect:ele.isSelect,hoverShowConnectorArror:editable}" 
               :transform="'translate('+ele.x+','+ele.y+')'" 
-              :key="key" 
+              :key="ele.id" 
               @mouseover.stop="mouseoverNode(key,$event)" 
               @mousedown.stop="dragSvgNode(key,$event)"
               @mouseout.stop = "mouseoutLeftConnector(key)"
@@ -90,7 +90,7 @@
               :class="{active:ele.isSelect}" 
               v-for="(ele,key) in topoData.connectors" v-if="ele.type == 'Line'"
               @mousedown.stop="selectConnectorLine(key)"
-              :key="key">
+              :key="ele.id">
               /**
               * 连线方式一共7种情况
               */
@@ -216,7 +216,7 @@
         <v-topo-attr-panel :v-select-node-data = "selectNodeData" v-show="editable"></v-topo-attr-panel>
       </div>
     </div>
-    <div v-if="shapebarMoveNode.isShow" id="moveNode" class="nodeMoveCss" :style="{ left:shapebarMoveNode.left + 'px', top: shapebarMoveNode.top + 'px' }">
+    <div v-if="shapebarMoveNode.isShow" class="moveNode nodeMoveCss" :style="{ left:shapebarMoveNode.left + 'px', top: shapebarMoveNode.top + 'px' }">
       <div class="shapeIcon">
         <img class="shapeIconImg" :src="shapebarMoveNode.icon"/>
       </div>
@@ -236,7 +236,7 @@ export default {
     },
     topoData:{
       type:Object,
-      default: function () {
+      default() {
           return {}
       },
       required:true
@@ -304,16 +304,16 @@ export default {
       isMarkerShow:false,
      },     
      gridData:[
-      {x1:0,x2:100,y1:20,y2:20,color:'#c0c0c0',strokeWidth:1,opacity:0.3},
-      {x1:0,x2:100,y1:40,y2:40,color:'#c0c0c0',strokeWidth:1,opacity:0.3},
-      {x1:0,x2:100,y1:60,y2:60,color:'#c0c0c0',strokeWidth:1,opacity:0.3},
-      {x1:0,x2:100,y1:80,y2:80,color:'#c0c0c0',strokeWidth:1,opacity:0.3},
-      {x1:20,x2:20,y1:0,y2:100,color:'#c0c0c0',strokeWidth:1,opacity:0.3},
-      {x1:40,x2:40,y1:0,y2:100,color:'#c0c0c0',strokeWidth:1,opacity:0.3},
-      {x1:60,x2:60,y1:0,y2:100,color:'#c0c0c0',strokeWidth:1,opacity:0.3},
-      {x1:80,x2:80,y1:0,y2:100,color:'#c0c0c0',strokeWidth:1,opacity:0.3},
-      {x1:100,x2:100,y1:0,y2:100,color:'#c0c0c0',strokeWidth:2,opacity:0.6},
-      {x1:0,x2:100,y1:100,y2:100,color:'#c0c0c0',strokeWidth:2,opacity:0.6}
+      {x1:0,x2:100,y1:20,y2:20,color:'#c0c0c0',strokeWidth:1,opacity:0.3,id:1},
+      {x1:0,x2:100,y1:40,y2:40,color:'#c0c0c0',strokeWidth:1,opacity:0.3,id:2},
+      {x1:0,x2:100,y1:60,y2:60,color:'#c0c0c0',strokeWidth:1,opacity:0.3,id:3},
+      {x1:0,x2:100,y1:80,y2:80,color:'#c0c0c0',strokeWidth:1,opacity:0.3,id:4},
+      {x1:20,x2:20,y1:0,y2:100,color:'#c0c0c0',strokeWidth:1,opacity:0.3,id:5},
+      {x1:40,x2:40,y1:0,y2:100,color:'#c0c0c0',strokeWidth:1,opacity:0.3,id:6},
+      {x1:60,x2:60,y1:0,y2:100,color:'#c0c0c0',strokeWidth:1,opacity:0.3,id:7},
+      {x1:80,x2:80,y1:0,y2:100,color:'#c0c0c0',strokeWidth:1,opacity:0.3,id:8},
+      {x1:100,x2:100,y1:0,y2:100,color:'#c0c0c0',strokeWidth:2,opacity:0.6,id:9},
+      {x1:0,x2:100,y1:100,y2:100,color:'#c0c0c0',strokeWidth:2,opacity:0.6,id:10}
      ],
     }
   },
@@ -424,7 +424,9 @@ export default {
               if(node.x <= nodeEndX && nodeEndX <= (node.x + node.width) && nodeEndY >= node.y && node.y + node.height >= nodeEndY && node.id != id){
                 let canBeContain =  this.canConnectorTo(NODE.type,node.type,'Contain')  //判断是否能被包含在目标元素中
                 if(canBeContain){
+                  let connectorId = this.GenNonDuplicateID(3)
                   let connector={
+                    id:connectorId,
                     type:'Contain',
                     sourceNode:{
                       id:id,
@@ -434,7 +436,7 @@ export default {
                     },
                     isSelect:false
                   }                                                 
-                  TOPODATA.connectors.push(connector)             
+                  TOPODATA.connectors.push(connector)            
                   node.containNodes.push(id)   //如果有嵌套关系，就在父节点放入子节点id        
                   this.refreshRowAndOuterNode(svgNode)  //刷新并列节点位置和父节点宽高 
                   this.refreshConnectorsData()  
@@ -667,8 +669,10 @@ export default {
          }
          //选中的node 有 与其他node 重合
          if(isContainNode){                
-          //关系数组中增加包含关系              
+          //关系数组中增加包含关系  
+          let connectorId = this.GenNonDuplicateID(3)            
           let connector={
+            id:connectorId,
             type:'Contain',
             sourceNode:{
               id:CURNODE.id,
@@ -957,7 +961,9 @@ export default {
                })
             }else{
                //类型：包含
+              let connectorId = this.GenNonDuplicateID(3)
               let connector = {
+                id:connectorId,
                 type:connectType,
                 strokeW:3,//仅用于Line类型,默认3
                 color:'#768699', //仅用于Line类型，默认颜色
@@ -1221,9 +1227,9 @@ export default {
 @storke-dasharray:5,5;
 .svgSelectClass{filter:url(#f1);}
 
-#topoComponent{width:100%;box-sizing: border-box;background-color: #fff;height:100%;display:flex;flex-direction: column;}
+.topoComponent{width:100%;box-sizing: border-box;background-color: #fff;height:100%;display:flex;flex-direction: column;}
 /*svgHead工具栏*/
-#svgHead{width: 100%;height:40px;box-sizing: border-box;padding:0 20px;display:flex;justify-content: space-between;align-items:center;background:@theme-color;border-top:1px solid #cbcccc;box-shadow:inset 0 1px 0 0 #fff;
+.svgHead{width: 100%;height:40px;box-sizing: border-box;padding:0 20px;display:flex;justify-content: space-between;align-items:center;background:@theme-color;border:solid @border-color;border-width:1px 1px 0;box-shadow:inset 0 1px 0 0 #fff;
   .svgHeadItemLst{display:flex;
     .svgHeadItem{padding:5px 10px;border:1px solid @border-color;cursor:pointer;list-style:none;border-left-width: 0;
       &:hover{background-color: #ebebeb}
@@ -1243,15 +1249,13 @@ export default {
   }
 }
 /*svgMain*/
-#svgMain{height:100%;box-sizing: border-box;display: flex;flex:1;}
-
-
+.svgMain{height:100%;box-sizing: border-box;display: flex;flex:1;}
 /*移动的node*/
 .shapeIcon{text-align: center;-webkit-user-select:none;user-select:none;
   .shapeIconImg{width: 28px;height: 28px;-webkit-user-select:none;user-select:none;}
 }
 .shapeName{font-size:12px;text-align: center;padding:0 5px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;-webkit-user-select:none;user-select:none;color:#000}
-#moveNode{position: absolute;border:1px solid @svg-common-color;box-sizing: border-box;
+.moveNode{position: absolute;border:1px solid @svg-common-color;box-sizing: border-box;
   &.nodeMoveCss{width:57px;height: 57px;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;padding:5px;}
 }
 /*svgMain右侧svg主体区域*/

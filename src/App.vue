@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:09:21
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-27 09:39:16
+ * @LastEditTime: 2018-11-27 10:00:48
  -->
 <template>
   <div id="app">
@@ -77,5 +77,5 @@ export default {
 <style lang="less" scoped>
 body{background:url('./assets/topo/canvas_bg.jpg');}
 #app{height:100%}
- .topoArea{height:calc(~"100% - 70px");min-height: 800px;} 
+ .topoArea{height:calc(~"100% - 70px");min-height: 800px;box-sizing: border-box;} 
 </style>
