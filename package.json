@@ -1,6 +1,6 @@
 {
   "name": "vue-topo",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A Vue.js project",
   "author": "'Mirror198829' <'412366756@qq.com'>",
   "private": false,
@@ -14,11 +14,11 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Mirror198829/vue-topo"
-  }, 
+  },
   "keywords": [
     "vue",
     "topo"
-  ], 
+  ],
   "dependencies": {
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
