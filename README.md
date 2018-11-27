@@ -8,7 +8,7 @@ https://mirror198829.github.io/vue-topo/dist/index.html
 ## 技术选型
 * VUE2.0
 * SVG
-* Element
+* Element-UI
 ## 功能分析及技术点
 | 功能 | 技术点  |
 |-------------|-----|
@@ -25,13 +25,6 @@ https://mirror198829.github.io/vue-topo/dist/index.html
 |svg的viewbox的移动功能 |记录鼠标移动的位移，修改viewbox的视图位置|
 
 ## Usage
-#### 源码使用
-```
-npm install
-```
-```
-npm run dev
-```
 #### NPM
 ``` 
 npm i vue-topo -save 
@@ -41,12 +34,25 @@ import vTopo from 'vue-topo'
 import 'vue-topo/dist/vue-topo.min.css'
 Vue.use(vTopo)
 ```
-``` html
+#### github源码使用
+```
+npm install
+```
+```
+npm run dev  //启动服务
+```
+#### 引入组件
+``` 
+// xxx.vue
  <v-topo 
   :editable="true"
   :topo-data="topoData1">
  </v-topo>
 ```
+#### Attributes  
+| 参数 | 说明 | 类型 | 可选值 | 默认值 | 必填 |
+| --- | --- | --- | --- | --- | --- |
+| editable | 编辑 | boolean |||
 ``` javascript
 editable:是否可编辑，默认值：true
 topoData:初始的topoData值
