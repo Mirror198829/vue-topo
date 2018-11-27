@@ -1,7 +1,7 @@
 
 # vue2.0拓扑组件
 ## demo演示地址
-https://mirror198829.github.io/vue2-topo-exhibition
+https://mirror198829.github.io/vue-topo/dist/index.html
 ## 序
 2016年9月接到html5替换flash的拓扑图任务，历时3月整，使用jquery+SVG技术完成第一款拓扑图组件，涵盖拖拽、缩放、删除、选中区域、连线、导入、保存图片、多种布局显示等功能，但当node数高达百位时，因dom的操作，出现了非常可怕的性能问题。<br/>
 2017年10月20日，因新公司项目需要，果断决定结合当下流行的VUE2.0框架 + SVG技术 重写拓扑组件，并将此开源，希望大家多提意见
