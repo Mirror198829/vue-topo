@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-27 09:59:51
+ * @LastEditTime: 2018-11-27 10:04:04
  -->
 <template>
   <div class="topoComponent">
@@ -236,7 +236,7 @@ export default {
     },
     topoData:{
       type:Object,
-      default: function () {
+      default() {
           return {}
       },
       required:true

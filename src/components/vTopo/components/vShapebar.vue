@@ -2,10 +2,10 @@
  * @Author: caojing
  * @Date: 2018-11-23 10:28:53
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-23 11:38:45
+ * @LastEditTime: 2018-11-27 10:12:26
  -->
 <template>
-    <div id="shapebarWrap">
+    <div class="shapebarWrap">
         <div class="shapebarHead">
             Node Types
         </div>
@@ -57,14 +57,15 @@ export default {
 <style lang="less" scoped>
 @border-color:#aaaaaa;
 /*svgMain左侧工具栏*/
-#shapebarWrap{height:100%;box-sizing: border-box;display: flex;flex-direction: column;width:250px;border:1px solid @border-color;border-right:0;background:@theme-color;
+.shapebarWrap{height:100%;box-sizing: border-box;display: flex;flex-direction: column;width:250px;border:1px solid @border-color;border-right:0;background:@theme-color;
   .shapebarHead{height:40px;line-height:40px;text-align: center;font-size:14px;-webkit-user-select:none;user-select:none;font-weight: 700;color:@theme-font-color;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
   .shapeNodeLstWrap{overflow-y: auto;box-sizing:border-box;padding:10px 15px;flex:1;
     .shapeNodeLst{width:100%;display:flex;flex-wrap:wrap;box-sizing:border-box;}
   }
 }
-.shapeNode{margin-top:5px;cursor: pointer;border:1px solid #c7d1dd;-webkit-user-select:none;user-select:none;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;
-width:calc( ( 100% ) / 3 );box-sizing:border-box;padding:5px 0;
+.shapeNode{margin-top:5px;cursor: pointer;border:1px solid #c7d1dd;border-radius:2px;-webkit-user-select:none;user-select:none;background-color: #fff;-webkit-user-select:none;user-select:none;box-sizing: border-box;
+width:calc( ~"( 100% - 10px ) / 3" );box-sizing:border-box;padding:6px 0;margin-right: 5px;
+    &:nth-child(3n){margin-right: 0}
 }
 /*移动的node*/
 .shapeIcon{text-align: center;-webkit-user-select:none;user-select:none;
