@@ -2,7 +2,7 @@
  * @Author: caojing
  * @Date: 2017-10-20 09:29:55
  * @LastEditors: caojing
- * @LastEditTime: 2018-11-27 10:57:15
+ * @LastEditTime: 2020-10-23 11:05:41
  -->
 <template>
   <div class="topoComponent">
@@ -46,7 +46,7 @@
             </pattern>
           </defs>
           <defs>
-            <filter id="f1" x="0" y="0" width="200%" height="200%">
+            <filter id="f1" x="0" y="0" width="200%" height="200%" filterUnits="userSpaceOnUse" >
               <feOffset result="offOut" in="SourceGraphic" dx="4" dy="4" />
               <feColorMatrix result="matrixOut" in="offOut" type="matrix"
               values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0" />
